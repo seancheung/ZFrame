@@ -26,25 +26,26 @@ namespace ZFrame.Timer
 			bool canUpdate;
 			switch (Type)
 			{
-				case ReminderType.Year:
+				case ReminderType.OneTime:
+				case ReminderType.EveryYear:
 					canUpdate = time.Second == _time.Second && time.Minute == _time.Minute && time.Hour == _time.Hour &&
 					            time.Day == _time.Day && time.Month == _time.Month;
 					break;
-				case ReminderType.Month:
+				case ReminderType.EveryMonth:
 					canUpdate = time.Second == _time.Second && time.Minute == _time.Minute && time.Hour == _time.Hour &&
 					            time.Day == _time.Day;
 					break;
-				case ReminderType.Week:
+				case ReminderType.EveryWeek:
 					canUpdate = time.Second == _time.Second && time.Minute == _time.Minute && time.Hour == _time.Hour &&
 					            time.DayOfWeek == _time.DayOfWeek;
 					break;
-				case ReminderType.Day:
+				case ReminderType.EveryDay:
 					canUpdate = time.Second == _time.Second && time.Minute == _time.Minute && time.Hour == _time.Hour;
 					break;
-				case ReminderType.Hour:
+				case ReminderType.EveryHour:
 					canUpdate = time.Second == _time.Second && time.Minute == _time.Minute;
 					break;
-				case ReminderType.Minute:
+				case ReminderType.EveryMinute:
 					canUpdate = time.Second == _time.Second;
 					break;
 				default:

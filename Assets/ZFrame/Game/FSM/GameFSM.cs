@@ -8,7 +8,7 @@ public class GameFSM
 	{
 		if (newState == null)
 		{
-			Debug.Log("State error!");
+			Debug.LogError("State error!");
 			return;
 		}
 		if (CurrentState != null)
@@ -19,5 +19,13 @@ public class GameFSM
 		CurrentState = newState;
 
 		CurrentState.OnEnter();
+	}
+
+	public void Update()
+	{
+		if (CurrentState != null)
+		{
+			CurrentState.OnStay();
+		}
 	}
 }

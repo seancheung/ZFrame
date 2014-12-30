@@ -6,6 +6,18 @@ using UnityEngine;
 
 namespace ZFrame.IO.CSV
 {
+	public enum CSVValueType
+	{
+		String,
+		Int32,
+		Int64,
+		Single,
+		Double,
+		Boolean,
+		Array,
+		Object
+	}
+
 	public class CSVEngine
 	{
 		private List<List<string>> _records;
@@ -191,6 +203,10 @@ namespace ZFrame.IO.CSV
 				{
 					return Convert.ToInt32(field);
 				}
+				if (type == typeof(long))
+				{
+					return Convert.ToInt64(field);
+				}
 				if (type == typeof(float))
 				{
 					return Convert.ToSingle(field);
@@ -207,6 +223,10 @@ namespace ZFrame.IO.CSV
 					}
 					field = field.Trim();
 					return field.Equals("true", StringComparison.CurrentCultureIgnoreCase) || field.Equals("1");
+				}
+				if (type == typeof(object))
+				{
+					return Convert.ToDouble(field);
 				}
 			}
 			catch (FormatException ex)

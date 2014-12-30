@@ -1,4 +1,4 @@
 ﻿public interface IStateController
 {
-	GameFSM MainFsm { get; }
+	GameFSM FSM { get; }
 }

@@ -2,11 +2,12 @@
 {
 	public enum ReminderType
 	{
-		Year,
-		Month,
-		Week,
-		Day,
-		Hour,
-		Minute,
+		EveryYear,
+		EveryMonth,
+		EveryWeek,
+		EveryDay,
+		EveryHour,
+		EveryMinute,
+		OneTime
 	}
 }

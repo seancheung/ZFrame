@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace ZFrame
 {
-	public class GameEngine : MonoSingleton<GameEngine>, IGameDisposable
+	public class GameEngine : MonoSingleton<GameEngine>, IZDisposable
 	{
-		private readonly List<IGameDisposable> _disposables = new List<IGameDisposable>();
+		private readonly List<IZDisposable> _disposables = new List<IZDisposable>();
 
 		/// <summary>
 		/// Register disposable class
 		/// </summary>
 		/// <param name="disposable"></param>
-		public void RegisterDispose(IGameDisposable disposable)
+		public void RegisterDispose(IZDisposable disposable)
 		{
 			_disposables.SafeAdd(disposable);
 		}
@@ -23,7 +23,7 @@ namespace ZFrame
 
 		private void OnApplicationQuit()
 		{
-			foreach (IGameDisposable disposable in _disposables)
+			foreach (IZDisposable disposable in _disposables)
 			{
 				if (disposable.DisposeOnApplicationQuit())
 				{
@@ -34,7 +34,7 @@ namespace ZFrame
 
 		public void DisposeAll()
 		{
-			foreach (IGameDisposable disposable in _disposables)
+			foreach (IZDisposable disposable in _disposables)
 			{
 				if (disposable.Dispose())
 				{

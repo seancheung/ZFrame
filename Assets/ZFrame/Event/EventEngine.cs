@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Event
 {
-	public class EventEngine : MonoSingleton<EventEngine>, IGameDisposable
+	public class EventEngine : MonoSingleton<EventEngine>, IZDisposable
 	{
 		private readonly Queue _events = Queue.Synchronized(new Queue());
 		private readonly Dictionary<string, List<IEventListener>> _listeners = new Dictionary<string, List<IEventListener>>();

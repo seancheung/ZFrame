@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ZFrame.Timer
 {
-	public class ThreadTimer : MonoSingleton<ThreadTimer>, ITimer, IGameDisposable
+	public class ThreadTimer : MonoSingleton<ThreadTimer>, ITimer, IZDisposable
 	{
 		protected System.Threading.Timer timer;
 		public event TickCallback Ontick;

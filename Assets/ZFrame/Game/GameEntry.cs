@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Text;
+using UnityEngine;
+using ZFrame.Net;
 using ZFrame.Timer;
 
 namespace ZFrame
@@ -8,6 +11,8 @@ namespace ZFrame
 	/// </summary>
 	public class GameEntry : MonoBehaviour
 	{
+		private string _msg = "";
+
 		private void Start()
 		{
 			Time.timeScale = 0.5f;
@@ -18,29 +23,49 @@ namespace ZFrame
 			//ZSocketServer.Instance.StartListen();
 			//InvokeTimer.Instance.StartTimer();
 			//SimpleTimer.Instance.Init();
-			CoroutineTimer.Instance.Init();
+			//CoroutineTimer.Instance.Init();
 			
 		}
 
-		//void OnGUI()
-		//{
-		//	if (GUILayout.Button("Connect"))
-		//	{
+		void OnGUI()
+		{
+			if (!ZSocketServer.Instance.IsListening)
+			{
+				if (GUILayout.Button("Start Server"))
+				{
+					ZSocketServer.Instance.StartListen();
+					ZSocketServer.Instance.receiveHandler += ReceiveHandler;
+				}
+			}
 
-		//		if (!ZSocketClient.Instance.IsConnected)
-		//		{
-		//			Debug.Log("setting");
-		//			ZSocketClient.Instance.Setup("127.0.0.1", 6666);
-		//			ZSocketClient.Instance.ConnectAsync();
+			if (!ZSocketClient.Instance.IsConnected)
+			{
+				if (GUILayout.Button("Connect"))
+				{
+					ZSocketClient.Instance.msgHandle += MsgHandle;
+					ZSocketClient.Instance.Setup("127.0.0.1", 6666);
+					ZSocketClient.Instance.ConnectAsync();
+				}
+			}
+			else
+			{
+				if (GUILayout.Button("Send"))
+				{
+					ZSocketClient.Instance.Send(Encoding.Default.GetBytes("Hello"));
+				}
+			}
 
-		//		}
-		//		else
-		//		{
-		//			Debug.Log("sending");
-		//			ZSocketClient.Instance.Send(BitConverter.GetBytes(1));
-		//		}
+			GUILayout.Label(_msg);
+		}
 
-		//	}
-		//}
+		private void ReceiveHandler()
+		{
+			_msg += "Client Connected!\r\n";
+		}
+
+		private void MsgHandle(byte[] data)
+		{
+			_msg += Encoding.Default.GetString(data) + "\r\n";
+		}
 	}
 }

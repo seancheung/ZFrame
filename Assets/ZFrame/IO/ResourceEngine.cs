@@ -1,8 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ZFrame.IO
 {
-	public class ResourceEngine : MonoSingleton<ResourceEngine>, IGameDisposable
+	public class ResourceEngine : MonoSingleton<ResourceEngine>, IZDisposable
 	{
 		private const string Path = "ResourceReferences";
 		private ResourceRef _resourceRef;
@@ -61,6 +64,81 @@ namespace ZFrame.IO
 			Debug.LogError("Resource converting failed: " + key + " --> " + typeof (T));
 
 			return null;
+		}
+
+		/// <summary>
+		/// Load and Instantiate a gameobject
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		public GameObject LoadAndInstantiate(string key)
+		{
+			Object resource = Load(key);
+			if (resource == null) return null;
+
+			GameObject result = resource as GameObject;
+			if (result != null)
+				return Instantiate(result) as GameObject;
+			return null;
+		}
+
+		/// <summary>
+		/// Load and Instantiate a gameobject then get a component
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		public T InstantiateAndGet<T>(string key) where T : MonoBehaviour
+		{
+			GameObject gameObject = LoadAndInstantiate(key);
+			if (gameObject != null)
+			{
+				return gameObject.GetComponent<T>();
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// Load async using coroutine
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="key"></param>
+		/// <param name="onLoaded"></param>
+		public void LoadAsync<T>(string key, Action<T> onLoaded) where T : Object
+		{
+			StartCoroutine(Load(key, onLoaded));
+		}
+
+		/// <summary>
+		/// Instantiate async using coroutine
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="key"></param>
+		/// <param name="onInstatiated"></param>
+		public void InstantiateAsync<T>(string key, Action<T> onInstatiated) where T : Object
+		{
+			StartCoroutine(LoadAndInstantiate(key, onInstatiated));
+		}
+
+		private IEnumerator Load<T>(string key, Action<T> onLoaded) where T : Object
+		{
+			T obj = Load<T>(key);
+			yield return obj;
+			if (onLoaded != null)
+			{
+				onLoaded.Invoke(obj);
+			}
+		}
+
+		private IEnumerator LoadAndInstantiate<T>(string key, Action<T> onInstatiated) where T : Object
+		{
+			GameObject obj = LoadAndInstantiate(key);
+			yield return obj;
+			if (onInstatiated != null)
+			{
+				onInstatiated.Invoke(obj as T);
+			}
 		}
 
 		#endregion

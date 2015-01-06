@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ZFrame.Net
 {
-	public class ZSocketClient : MonoSingleton<ZSocketClient>, IDisposable, IGameDisposable
+	public class ZSocketClient : MonoSingleton<ZSocketClient>, IDisposable, IZDisposable
 	{
 		public delegate void MsgHandle(byte[] data);
 
@@ -173,7 +173,7 @@ namespace ZFrame.Net
 			return true;
 		}
 
-		bool IGameDisposable.Dispose()
+		bool IZDisposable.Dispose()
 		{
 			(this as IDisposable).Dispose();
 			ReleaseInstance();

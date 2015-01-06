@@ -1,23 +1,18 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using UnityEngine;
 
 namespace ZFrame.Net
 {
-	public class ZSocketServer : MonoSingleton<ZSocketServer>, IDisposable, IGameDisposable
+	public class ZSocketServer : MonoSingleton<ZSocketServer>, IDisposable, IZDisposable
 	{
-		public delegate void MsgHandle(byte[] data);
+		public delegate void ReceiveHandler();
 
 		protected TcpListener listener;
-		protected Thread serverThread;
 		protected int port = 6666;
 
-		public MsgHandle msgHandle;
-		protected bool isListening;
+		public ReceiveHandler receiveHandler;
+		public bool IsListening { get; protected set; }
 
 		private void Start()
 		{
@@ -30,49 +25,52 @@ namespace ZFrame.Net
 			listener = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
 			listener.Start();
 			listener.BeginAcceptTcpClient(ReceiveCallback, null);
-			isListening = true;
+			IsListening = true;
 		}
 
-		IEnumerator Listen()
-		{
-			TcpClient client = listener.AcceptTcpClient();
-			NetworkStream stream = client.GetStream();
-			if (stream.DataAvailable)
-			{
-				byte[] data = new byte[256];
-				stream.Write(data, 0, data.Length);
-				OnReceived(data);
-			}
-			yield return new WaitForEndOfFrame();
-		}
+		//private IEnumerator Listen()
+		//{
+		//	TcpClient client = listener.AcceptTcpClient();
+		//	NetworkStream stream = client.GetStream();
+		//	if (stream.DataAvailable)
+		//	{
+		//		byte[] data = new byte[256];
+		//		stream.Write(data, 0, data.Length);
+		//		OnReceived(data);
+		//	}
+		//	yield return new WaitForEndOfFrame();
+		//}
 
 		private void ReceiveCallback(IAsyncResult ar)
 		{
-			Debug.Log("ReceiveCallback");
 			TcpClient client = listener.EndAcceptTcpClient(ar);
 
-			NetworkStream stream = client.GetStream();
-			if (stream.DataAvailable)
+			if (receiveHandler != null)
 			{
-				byte[] data = new byte[256];
-				stream.Write(data, 0, data.Length);
-				OnReceived(data);
+				receiveHandler();
 			}
-
+			//NetworkStream stream = client.GetStream();
+			//if (stream.DataAvailable)
+			//{
+			//	byte[] data = new byte[256];
+			//	stream.Write(data, 0, data.Length);
+			//	OnReceived(data);
+			//}
 			listener.BeginAcceptTcpClient(ReceiveCallback, null);
 		}
 
-		protected virtual void OnReceived(byte[] data)
-		{
-			//...
-			Debug.Log("OnReceived");
-		}
+		//protected virtual void OnReceived(byte[] data)
+		//{
+		//	//...
+		//	Debug.Log("OnReceived");
+		//}
 
 		public void Close()
 		{
-			if (listener != null)
+			if (IsListening)
 			{
 				listener.Stop();
+				IsListening = false;
 			}
 		}
 
@@ -83,7 +81,7 @@ namespace ZFrame.Net
 			return true;
 		}
 
-		bool IGameDisposable.Dispose()
+		bool IZDisposable.Dispose()
 		{
 			(this as IDisposable).Dispose();
 			return true;
@@ -91,10 +89,7 @@ namespace ZFrame.Net
 
 		void IDisposable.Dispose()
 		{
-			if (serverThread != null)
-			{
-				serverThread.Abort();
-			}
+			Close();
 		}
 	}
 }

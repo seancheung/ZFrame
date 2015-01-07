@@ -10,29 +10,29 @@ namespace ZFrame.Frame.MVVM
 	}
 
 	[AttributeUsage(AttributeTargets.Class)]
-	public class BindingSourceAttribute : Attribute
+	public class ViewModelAttribute : Attribute
 	{
 	}
 
 	[AttributeUsage(AttributeTargets.Class)]
-	public class BindingTargetAttribute : Attribute
+	public class ViewAttribute : Attribute
 	{
 		public Type SourceType { get; set; }
 
-		public BindingTargetAttribute(Type sourceType)
+		public ViewAttribute(Type sourceType)
 		{
 			SourceType = sourceType;
 		}
 	}
 
-	[AttributeUsage(AttributeTargets.Property)]
-	public class BindingPropertyAttribute : Attribute
+	[AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Event)]
+	public class BindingMemberAttribute : Attribute
 	{
-		public string SourceKey { get; set; }
+		public string BindingKey { get; set; }
 
-		public BindingPropertyAttribute(string sourceKey)
+		public BindingMemberAttribute(string sourceKey)
 		{
-			SourceKey = sourceKey;
+			BindingKey = sourceKey;
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame.Frame.MVC
 {
@@ -26,13 +26,13 @@ namespace ZFrame.Frame.MVC
 		{
 			if (wire == null)
 			{
-				Debug.LogError(string.Format("Error in {0} Wire can't be null.", this));
+				ZDebug.LogError(string.Format("Error in {0} Wire can't be null.", this));
 				return;
 			}
 
 			if (HasWire(wire.Name))
 			{
-				Debug.LogError(string.Format("Error in {0} Wire '{1}' already registered.", this, wire.Name));
+				ZDebug.LogError(string.Format("Error in {0} Wire '{1}' already registered.", this, wire.Name));
 				return;
 			}
 
@@ -58,7 +58,7 @@ namespace ZFrame.Frame.MVC
 		{
 			if (!HasWire(name))
 			{
-				Debug.LogError(string.Format("Error in {0} Wire '{1}' not registered.", this, name));
+				ZDebug.LogError(string.Format("Error in {0} Wire '{1}' not registered.", this, name));
 				return;
 			}
 

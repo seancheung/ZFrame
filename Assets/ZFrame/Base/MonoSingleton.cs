@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame
 {
@@ -17,7 +18,7 @@ namespace ZFrame
 			{
 				if (_instance == null)
 				{
-					_instance = new GameObject(typeof(T).ToString(), typeof(T));
+					_instance = new GameObject(typeof (T).ToString(), typeof (T));
 					DontDestroyOnLoad(_instance);
 				}
 				return _instance.GetComponent<T>();
@@ -37,8 +38,7 @@ namespace ZFrame
 		/// </summary>
 		public void Init()
 		{
-			Debug.Log(typeof(T) + " is ready");
+			ZDebug.Log(typeof (T) + " is ready");
 		}
 	}
-
 }

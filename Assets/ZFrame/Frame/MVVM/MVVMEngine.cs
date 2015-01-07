@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame.Frame.MVVM
 {
@@ -32,14 +32,14 @@ namespace ZFrame.Frame.MVVM
 			{
 				if (!_sources.TryAdd(bindable.GetType(), bindable))
 				{
-					Debug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}", bindable.GetType(), bindable));
+					ZDebug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}", bindable.GetType(), bindable));
 				}
 			}
 			if (Attribute.IsDefined(bindable.GetType(), typeof (BindingTargetAttribute)))
 			{
 				if (!_targets.SafeAdd(bindable))
 				{
-					Debug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}", bindable.GetType(), bindable));
+					ZDebug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}", bindable.GetType(), bindable));
 				}
 			}
 
@@ -52,7 +52,7 @@ namespace ZFrame.Frame.MVVM
 						.SourceType;
 				if (sourceType == null)
 				{
-					Debug.LogError(string.Format("Binding source class has no target class! source type: {0}", target.GetType()));
+					ZDebug.LogError(string.Format("Binding source class has no target class! source type: {0}", target.GetType()));
 					continue;
 				}
 				object source = _sources.TryGet(sourceType);
@@ -94,7 +94,7 @@ namespace ZFrame.Frame.MVVM
 		{
 			if (target == null)
 			{
-				Debug.LogError(string.Format("Notify property changed target class is null! type: {0}, property: {1}", typeof (T),
+				ZDebug.LogError(string.Format("Notify property changed target class is null! type: {0}, property: {1}", typeof (T),
 					propName));
 				return;
 			}

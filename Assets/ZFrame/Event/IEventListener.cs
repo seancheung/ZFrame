@@ -4,5 +4,4 @@
 	{
 		void HandleEvent(IEvent evt);
 	}
-
 }

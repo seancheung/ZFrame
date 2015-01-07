@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame
 {
@@ -20,7 +20,7 @@ namespace ZFrame
 		{
 			if (source == null || target == null)
 			{
-				Debug.LogError("argument NULL");
+				ZDebug.LogError("argument NULL");
 				return false;
 			}
 
@@ -53,5 +53,4 @@ namespace ZFrame
 			return CopyValueTo(source, target, copyField);
 		}
 	}
-
 }

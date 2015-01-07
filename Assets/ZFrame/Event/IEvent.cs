@@ -5,5 +5,4 @@
 		string Name { get; }
 		object Data { get; }
 	}
-
 }

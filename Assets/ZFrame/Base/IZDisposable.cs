@@ -16,7 +16,5 @@
 		/// </summary>
 		/// <returns></returns>
 		bool Dispose();
-
 	}
-
 }

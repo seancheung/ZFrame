@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame.Frame.MVC
 {
@@ -26,12 +26,12 @@ namespace ZFrame.Frame.MVC
 		{
 			if (model == null)
 			{
-				Debug.LogError(string.Format("Error in {0} Model can't be null.", this));
+				ZDebug.LogError(string.Format("Error in {0} Model can't be null.", this));
 				return;
 			}
 			if (HasModel(model.Name))
 			{
-				Debug.LogError(string.Format("Error in {0} Model '{1}' already registered.", this, model.Name));
+				ZDebug.LogError(string.Format("Error in {0} Model '{1}' already registered.", this, model.Name));
 				return;
 			}
 
@@ -57,7 +57,7 @@ namespace ZFrame.Frame.MVC
 		{
 			if (!HasModel(name))
 			{
-				Debug.LogError(string.Format("Error in {0} Model '{1}' not registered.", this, name));
+				ZDebug.LogError(string.Format("Error in {0} Model '{1}' not registered.", this, name));
 				return;
 			}
 

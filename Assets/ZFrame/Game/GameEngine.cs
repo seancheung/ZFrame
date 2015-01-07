@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame
 {
@@ -27,7 +27,7 @@ namespace ZFrame
 			{
 				if (disposable.DisposeOnApplicationQuit())
 				{
-					Debug.Log(disposable.GetType() + " has been disposed");
+					ZDebug.Log(disposable.GetType() + " has been disposed");
 				}
 			}
 		}
@@ -38,7 +38,7 @@ namespace ZFrame
 			{
 				if (disposable.Dispose())
 				{
-					Debug.Log(disposable.GetType() + " has been disposed");
+					ZDebug.Log(disposable.GetType() + " has been disposed");
 				}
 			}
 		}

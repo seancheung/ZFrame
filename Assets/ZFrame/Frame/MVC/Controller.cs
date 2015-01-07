@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame.Frame.MVC
 {
@@ -42,7 +42,7 @@ namespace ZFrame.Frame.MVC
 		{
 			if (!HasCommand<T>(name))
 			{
-				Debug.LogError(string.Format("Error in {0} Command '{1}' not registered.", this, name));
+				ZDebug.LogError(string.Format("Error in {0} Command '{1}' not registered.", this, name));
 				return;
 			}
 

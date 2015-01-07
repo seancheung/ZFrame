@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using ZFrame.Debugger;
 
 public class GameFSM
 {
@@ -8,7 +8,7 @@ public class GameFSM
 	{
 		if (newState == null)
 		{
-			Debug.LogError("State error!");
+			ZDebug.LogError("State error!");
 			return;
 		}
 		if (CurrentState != null)

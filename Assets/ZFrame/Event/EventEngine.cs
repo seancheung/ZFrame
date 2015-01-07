@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame.Event
 {
@@ -65,7 +65,7 @@ namespace ZFrame.Event
 				IEvent evt = _events.Dequeue() as IEvent;
 				if (!_listeners.ContainsKey(evt.Name))
 				{
-					Debug.LogError("Event " + evt.Name + " has no listeners");
+					ZDebug.LogError("Event " + evt.Name + " has no listeners");
 					return;
 				}
 

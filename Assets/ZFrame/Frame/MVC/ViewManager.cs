@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame.Frame.MVC
 {
@@ -28,13 +28,13 @@ namespace ZFrame.Frame.MVC
 		{
 			if (view == null)
 			{
-				Debug.LogError(string.Format("Error in {0} View can't be null.", this));
+				ZDebug.LogError(string.Format("Error in {0} View can't be null.", this));
 				return;
 			}
 
 			if (HasView(view.Name))
 			{
-				Debug.LogError(string.Format("Error in {0} View '{1}' already registered.", this, view.Name));
+				ZDebug.LogError(string.Format("Error in {0} View '{1}' already registered.", this, view.Name));
 				return;
 			}
 
@@ -76,7 +76,7 @@ namespace ZFrame.Frame.MVC
 		{
 			if (!HasView(name))
 			{
-				Debug.Log(string.Format("Error in {0} View '{1}' don't registered.", this, name));
+				ZDebug.Log(string.Format("Error in {0} View '{1}' don't registered.", this, name));
 				return;
 			}
 

@@ -1,5 +1,4 @@
-﻿
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace ZFrame.Net.Message
 {
@@ -8,8 +7,7 @@ namespace ZFrame.Net.Message
 	{
 		public int ID;
 
-		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-		public string Encoded;
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)] public string Encoded;
 
 		public Heartbeat(int id)
 		{
@@ -17,5 +15,4 @@ namespace ZFrame.Net.Message
 			Encoded = "HEARTBEAT";
 		}
 	}
-
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame.IO.CSV
 {
@@ -51,7 +52,7 @@ namespace ZFrame.IO.CSV
 		{
 			if (_records == null || _keyRow < 0 || _descRow < 0 || _startRow < 0)
 			{
-				Debug.LogError(string.Format("Decoding Failed: {0}", typeof(T)));
+				ZDebug.LogError(string.Format("Decoding Failed: {0}", typeof (T)));
 				yield break;
 			}
 
@@ -75,29 +76,29 @@ namespace ZFrame.IO.CSV
 		{
 			T result = new T();
 			IEnumerable<MemberInfo> members =
-				typeof(T).GetMembers()
+				typeof (T).GetMembers()
 					.Where(m => m.MemberType == MemberTypes.Property || m.MemberType == MemberTypes.Field)
-					.Where(m => Attribute.IsDefined(m, typeof(CSVColumnAttribute), false));
+					.Where(m => Attribute.IsDefined(m, typeof (CSVColumnAttribute), false));
 
-			if (typeof(T).IsValueType)
+			if (typeof (T).IsValueType)
 			{
 				object boxed = result;
 				foreach (MemberInfo member in members)
 				{
 					CSVColumnAttribute attribute =
-						member.GetCustomAttributes(typeof(CSVColumnAttribute), false).First() as CSVColumnAttribute;
+						member.GetCustomAttributes(typeof (CSVColumnAttribute), false).First() as CSVColumnAttribute;
 					string field = GetRawValue(attribute, fields, keys, member.Name);
 					if (ReferenceEquals(field, member.Name))
 						return result;
 					SetValue(member, boxed, field, attribute.DefaultValue, attribute.ArraySeparator);
 				}
-				return (T)boxed;
+				return (T) boxed;
 			}
 
 			foreach (MemberInfo member in members)
 			{
 				CSVColumnAttribute attribute =
-					member.GetCustomAttributes(typeof(CSVColumnAttribute), false).First() as CSVColumnAttribute;
+					member.GetCustomAttributes(typeof (CSVColumnAttribute), false).First() as CSVColumnAttribute;
 				string field = GetRawValue(attribute, fields, keys, member.Name);
 				if (ReferenceEquals(field, member.Name))
 					return result;
@@ -128,7 +129,7 @@ namespace ZFrame.IO.CSV
 			{
 				return fields[keys.IndexOf(name)];
 			}
-			Debug.LogError(string.Format("Mapping Error! Column: {0}, Key: {1}, Name:{2}", attribute.Column,
+			ZDebug.LogError(string.Format("Mapping Error! Column: {0}, Key: {1}, Name:{2}", attribute.Column,
 				attribute.Key ?? "NULL", name));
 			return name;
 		}
@@ -173,49 +174,49 @@ namespace ZFrame.IO.CSV
 					IEnumerable<object> result =
 						field.Split(arraySeparator)
 							.Select(f => ParseRawValue(f, type.GetElementType(), defaultValue, arraySeparator));
-					if (type.GetElementType() == typeof(string))
+					if (type.GetElementType() == typeof (string))
 					{
 						return result.Cast<string>().ToArray();
 					}
-					if (type.GetElementType() == typeof(int))
+					if (type.GetElementType() == typeof (int))
 					{
 						return result.Cast<int>().ToArray();
 					}
-					if (type.GetElementType() == typeof(float))
+					if (type.GetElementType() == typeof (float))
 					{
 						return result.Cast<float>().ToArray();
 					}
-					if (type.GetElementType() == typeof(double))
+					if (type.GetElementType() == typeof (double))
 					{
 						return result.Cast<double>().ToArray();
 					}
-					if (type.GetElementType() == typeof(bool))
+					if (type.GetElementType() == typeof (bool))
 					{
 						return result.Cast<bool>().ToArray();
 					}
 					return null;
 				}
-				if (type == typeof(string))
+				if (type == typeof (string))
 				{
 					return field;
 				}
-				if (type == typeof(int))
+				if (type == typeof (int))
 				{
 					return Convert.ToInt32(field);
 				}
-				if (type == typeof(long))
+				if (type == typeof (long))
 				{
 					return Convert.ToInt64(field);
 				}
-				if (type == typeof(float))
+				if (type == typeof (float))
 				{
 					return Convert.ToSingle(field);
 				}
-				if (type == typeof(double))
+				if (type == typeof (double))
 				{
 					return Convert.ToDouble(field);
 				}
-				if (type == typeof(bool))
+				if (type == typeof (bool))
 				{
 					if (field == null)
 					{
@@ -224,23 +225,23 @@ namespace ZFrame.IO.CSV
 					field = field.Trim();
 					return field.Equals("true", StringComparison.CurrentCultureIgnoreCase) || field.Equals("1");
 				}
-				if (type == typeof(object))
+				if (type == typeof (object))
 				{
 					return Convert.ToDouble(field);
 				}
 			}
 			catch (FormatException ex)
 			{
-				Debug.LogWarning(string.Format("{0}: {1} -> {2}", ex.Message, field, type));
+				ZDebug.LogWarning(string.Format("{0}: {1} -> {2}", ex.Message, field, type));
 
 				//In case default value is null but the property/field is not a reference type
 				if (defaultValue == null)
 				{
-					if (type == typeof(int) || type == typeof(float) || type == typeof(double))
+					if (type == typeof (int) || type == typeof (float) || type == typeof (double))
 					{
 						defaultValue = -1;
 					}
-					else if (type == typeof(bool))
+					else if (type == typeof (bool))
 					{
 						defaultValue = false;
 					}
@@ -262,7 +263,7 @@ namespace ZFrame.IO.CSV
 
 			if (string.IsNullOrEmpty(path))
 			{
-				Debug.LogError(string.Format("CSV path not found: {0}", path));
+				ZDebug.LogError(string.Format("CSV path not found: {0}", path));
 				return false;
 			}
 
@@ -271,14 +272,14 @@ namespace ZFrame.IO.CSV
 
 			if (asset == null)
 			{
-				Debug.LogError(string.Format("CSV file not found: {0}", path));
+				ZDebug.LogError(string.Format("CSV file not found: {0}", path));
 				return false;
 			}
 
 			string content = asset.text;
 			if (string.IsNullOrEmpty(content))
 			{
-				Debug.LogError(string.Format("CSV file content empty: {0}", path));
+				ZDebug.LogError(string.Format("CSV file content empty: {0}", path));
 				return false;
 			}
 
@@ -290,7 +291,7 @@ namespace ZFrame.IO.CSV
 				//Check each row's column count. They must match
 				if (ColumnCount != 0 && columns.Count != ColumnCount)
 				{
-					Debug.LogError(
+					ZDebug.LogError(
 						string.Format("CSV parsing error in {0} at line {1} : columns counts do not match! Separator: '{2}'", path,
 							content.IndexOf(row), separator));
 					return false;
@@ -302,7 +303,7 @@ namespace ZFrame.IO.CSV
 
 			if (_records == null || !_records.Any())
 			{
-				Debug.LogWarning(string.Format("CSV file parsing failed(empty records): {0}", path));
+				ZDebug.LogWarning(string.Format("CSV file parsing failed(empty records): {0}", path));
 				return false;
 			}
 
@@ -314,14 +315,14 @@ namespace ZFrame.IO.CSV
 			ClearRecord();
 
 			//Check mapping
-			if (!Attribute.IsDefined(typeof(T), typeof(CSVMapperAttribute), false))
+			if (!Attribute.IsDefined(typeof (T), typeof (CSVMapperAttribute), false))
 			{
-				Debug.LogError(string.Format("CSV mapping not found in type: {0}", typeof(T)));
+				ZDebug.LogError(string.Format("CSV mapping not found in type: {0}", typeof (T)));
 				return false;
 			}
 
 			CSVMapperAttribute mapper =
-				Attribute.GetCustomAttribute(typeof(T), typeof(CSVMapperAttribute), false) as CSVMapperAttribute;
+				Attribute.GetCustomAttribute(typeof (T), typeof (CSVMapperAttribute), false) as CSVMapperAttribute;
 			_keyRow = mapper.KeyRow;
 			_descRow = mapper.DescRow;
 			_startRow = mapper.StartRow;
@@ -331,7 +332,7 @@ namespace ZFrame.IO.CSV
 			{
 				if (_records[_keyRow].Any(string.IsNullOrEmpty))
 				{
-					Debug.LogError(
+					ZDebug.LogError(
 						string.Format("Encoding Error! No key column found. Make sure target file is in UTF-8 format. Path: {0}",
 							mapper.Path));
 					return false;
@@ -373,10 +374,10 @@ namespace ZFrame.IO.CSV
 			if (field == null)
 			{
 				Debug.LogWarning("Field is null. Make sure csv is loaded and field has content.");
-				return typeof(T).IsArray ? default(T) : (T)defaultValue;
+				return typeof (T).IsArray ? default(T) : (T) defaultValue;
 			}
 
-			return (T)ParseRawValue(field, typeof(T), defaultValue, arraySeparator);
+			return (T) ParseRawValue(field, typeof (T), defaultValue, arraySeparator);
 		}
 
 
@@ -388,5 +389,4 @@ namespace ZFrame.IO.CSV
 			_records = null;
 		}
 	}
-
 }

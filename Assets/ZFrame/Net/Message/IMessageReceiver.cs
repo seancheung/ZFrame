@@ -4,5 +4,4 @@
 	{
 		void ReceiveMessage<T>(T message) where T : struct;
 	}
-
 }

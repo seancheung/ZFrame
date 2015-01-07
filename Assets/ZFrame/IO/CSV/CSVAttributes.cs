@@ -95,5 +95,4 @@ namespace ZFrame.IO.CSV
 			Separator = ',';
 		}
 	}
-
 }

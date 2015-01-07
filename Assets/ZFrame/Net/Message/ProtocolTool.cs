@@ -7,12 +7,12 @@ namespace ZFrame.Net.Message
 	{
 		public static T ToStruct<T>(byte[] arr) where T : struct
 		{
-			int size = Marshal.SizeOf(typeof(T));
+			int size = Marshal.SizeOf(typeof (T));
 			IntPtr ptr = Marshal.AllocHGlobal(size);
 			Marshal.Copy(arr, 0, ptr, size);
-			object obj = Marshal.PtrToStructure(ptr, typeof(T));
+			object obj = Marshal.PtrToStructure(ptr, typeof (T));
 			Marshal.FreeHGlobal(ptr);
-			return (T)obj;
+			return (T) obj;
 		}
 
 		public static byte[] ToBytes<T>(T structure) where T : struct
@@ -23,5 +23,4 @@ namespace ZFrame.Net.Message
 			return null;
 		}
 	}
-
 }

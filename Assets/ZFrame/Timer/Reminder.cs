@@ -7,13 +7,13 @@ namespace ZFrame.Timer
 		public string Key { get; set; }
 		public ReminderType Type { get; protected set; }
 
-		private readonly TickCallback _onUpdate;
+		private readonly Action _onUpdate;
 		private DateTime _time;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:System.Object"/> class.
 		/// </summary>
-		public Reminder(string key, ReminderType type, DateTime time, TickCallback onUpdate)
+		public Reminder(string key, ReminderType type, DateTime time, Action onUpdate)
 		{
 			Key = key;
 			Type = type;
@@ -60,5 +60,15 @@ namespace ZFrame.Timer
 
 			return false;
 		}
+	}
+	public enum ReminderType
+	{
+		EveryYear,
+		EveryMonth,
+		EveryWeek,
+		EveryDay,
+		EveryHour,
+		EveryMinute,
+		OneTime
 	}
 }

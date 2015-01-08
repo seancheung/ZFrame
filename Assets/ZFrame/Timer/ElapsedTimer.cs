@@ -6,7 +6,7 @@ namespace ZFrame.Timer
 {
 	public class ElapsedTimer : MonoSingleton<ElapsedTimer>, ITimer, IZDisposable
 	{
-		public event TickCallback Ontick;
+		public event Action Ontick;
 		protected System.Timers.Timer timer;
 		public ulong Time { get; protected set; }
 		public DateTime Now { get; protected set; }

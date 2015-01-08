@@ -1,17 +1,19 @@
-﻿namespace ZFrame.Timer
+﻿using System;
+
+namespace ZFrame.Timer
 {
 	internal class Clock
 	{
 		public string Key { get; set; }
 		public int Interval { get; set; }
 
-		private readonly TickCallback _onUpdate;
+		private readonly Action _onUpdate;
 		private int _time;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:System.Object"/> class.
 		/// </summary>
-		public Clock(string key, int interval, TickCallback callback)
+		public Clock(string key, int interval, Action callback)
 		{
 			Key = key;
 			Interval = interval;

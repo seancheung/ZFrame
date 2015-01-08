@@ -6,7 +6,7 @@ namespace ZFrame.Timer
 {
 	public class CoroutineTimer : MonoSingleton<CoroutineTimer>, ITimer, IZDisposable
 	{
-		public event TickCallback Ontick;
+		public event Action Ontick;
 		public ulong Time { get; protected set; }
 		public DateTime Now { get; protected set; }
 		public bool IsRunning { get; private set; }

@@ -1,20 +1,20 @@
 ﻿namespace ZFrame.Event
 {
-	public class Event : IEvent
+	public class ZEvent : IEvent
 	{
 		public string Name { get; protected set; }
 		public object Data { get; protected set; }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="T:System.Object"/> class.
+		/// Initializes a new instance of the <see cref="T:ZFrame.Event.ZEvent"/> class.
 		/// </summary>
-		public Event(string name, object data)
+		public ZEvent(string name, object data)
 		{
 			Name = name;
 			Data = data;
 		}
 
-		public static implicit operator string(Event evt)
+		public static implicit operator string(ZEvent evt)
 		{
 			return evt.Name;
 		}

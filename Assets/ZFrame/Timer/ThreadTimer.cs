@@ -8,7 +8,7 @@ namespace ZFrame.Timer
 	public class ThreadTimer : MonoSingleton<ThreadTimer>, ITimer, IZDisposable
 	{
 		protected System.Threading.Timer timer;
-		public event TickCallback Ontick;
+		public event Action Ontick;
 		public ulong Time { get; protected set; }
 		public DateTime Now { get; protected set; }
 		public bool IsRunning { get; protected set; }
@@ -77,7 +77,7 @@ namespace ZFrame.Timer
 			}
 		}
 
-		public bool AddClock(string key, int interval, TickCallback callback)
+		public bool AddClock(string key, int interval, Action callback)
 		{
 			if (string.IsNullOrEmpty(key) || clocks.Any(c => c.Key == key))
 			{
@@ -92,7 +92,7 @@ namespace ZFrame.Timer
 			clocks.RemoveAll(clock => clock.Key == key);
 		}
 
-		public bool AddReminder(string key, ReminderType type, DateTime time, TickCallback callback)
+		public bool AddReminder(string key, ReminderType type, DateTime time, Action callback)
 		{
 			if (string.IsNullOrEmpty(key) || reminders.Any(c => c.Key == key))
 			{

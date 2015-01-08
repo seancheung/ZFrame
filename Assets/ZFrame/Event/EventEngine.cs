@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ZFrame.Debugger;
 
 namespace ZFrame.Event
 {
 	public class EventEngine : MonoSingleton<EventEngine>, IZDisposable
 	{
-		private readonly Queue _events = Queue.Synchronized(new Queue());
+		private readonly Queue<IEvent> _events = new Queue<IEvent>();
 		private readonly Dictionary<string, List<IEventListener>> _listeners = new Dictionary<string, List<IEventListener>>();
 
 		private void Start()
@@ -20,7 +19,7 @@ namespace ZFrame.Event
 		/// <param name="listener"></param>
 		/// <param name="eventName"></param>
 		/// <returns></returns>
-		public bool Listen(IEventListener listener, string eventName)
+		public bool AddListener(IEventListener listener, string eventName)
 		{
 			if (string.IsNullOrEmpty(eventName))
 			{
@@ -38,7 +37,7 @@ namespace ZFrame.Event
 		/// </summary>
 		/// <param name="listener"></param>
 		/// <param name="eventName"></param>
-		public void StopListen(IEventListener listener, string eventName)
+		public void RemoveListener(IEventListener listener, string eventName)
 		{
 			if (!string.IsNullOrEmpty(eventName) && _listeners.ContainsKey(eventName))
 			{
@@ -62,7 +61,7 @@ namespace ZFrame.Event
 		{
 			if (_events.Count > 0)
 			{
-				IEvent evt = _events.Dequeue() as IEvent;
+				IEvent evt = _events.Dequeue();
 				if (!_listeners.ContainsKey(evt.Name))
 				{
 					ZDebug.LogError("Event " + evt.Name + " has no listeners");

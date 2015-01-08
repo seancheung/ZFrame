@@ -4,7 +4,7 @@ namespace ZFrame.Timer
 {
 	public interface ITimer
 	{
-		event TickCallback Ontick;
+		event Action Ontick;
 		ulong Time { get; }
 		DateTime Now { get; }
 		bool IsRunning { get; }

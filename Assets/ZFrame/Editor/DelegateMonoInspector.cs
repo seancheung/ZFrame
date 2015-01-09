@@ -8,38 +8,57 @@ using UnityEngine;
 [CustomEditor(typeof (DelegateMono))]
 public class DelegateMonoInspector : Editor
 {
-	private EventInfo[] _events;
-	private Dictionary<string, MonoBehaviour> _monos = new Dictionary<string, MonoBehaviour>();
+	private static EventInfo[] _events;
+	//private static Dictionary<string, MonoBehaviour> _monos = new Dictionary<string, MonoBehaviour>();
+	//private static Dictionary<string, MonoMethod> _methods = new Dictionary<string, MonoMethod>();
 
 	private void OnEnable()
 	{
-		_events = typeof (DelegateMono).GetEvents();
-		foreach (EventInfo eventInfo in _events)
+		if (_events == null)
 		{
-			_monos.Add(eventInfo.Name, null);
+			_events = typeof(DelegateMono).GetEvents();
+			//foreach (EventInfo eventInfo in _events)
+			//{
+			//	_monos.Add(eventInfo.Name, null);
+			//	_methods.Add(eventInfo.Name, null);
+			//}
 		}
 	}
+
+	//void Reset()
+	//{
+	//	_events = null;
+	//	_methods.Clear();
+	//	_monos.Clear();
+	//}
 
 	public override void OnInspectorGUI()
 	{
 		serializedObject.Update();
 
-		foreach (EventInfo eventInfo in _events)
-		{
-			//_monos[eventInfo.Name] =
-			//	EditorGUILayout.ObjectField(eventInfo.Name, _monos[eventInfo.Name], typeof (MonoBehaviour), true) as MonoBehaviour;
-			//if (_monos[eventInfo.Name] != null)
-			//{
-			//	var methods = GetMethods(_monos[eventInfo.Name].gameObject).Select(m=>m.methodName).ToArray();
-			//	int index = 0;
-			//	index = EditorGUILayout.Popup("Method", index, methods);
-			//}
-			var prop = serializedObject.FindProperty(eventInfo.Name);
-			if (prop != null)
-			{
-				EditorGUILayout.PropertyField(prop);
-			}
-		}
+		//foreach (EventInfo eventInfo in _events)
+		//{
+		//	_monos[eventInfo.Name] =
+		//		EditorGUILayout.ObjectField(eventInfo.Name, _monos[eventInfo.Name], typeof(MonoBehaviour), true) as MonoBehaviour;
+		//	if (_monos[eventInfo.Name] != null)
+		//	{
+		//		MonoMethod[] methods =
+		//			GetMethods(_monos[eventInfo.Name].gameObject)
+		//				.Where(m => MonoMethod.CreateDelegate(eventInfo.EventHandlerType, m) != null).ToArray();
+		//		string[] selections = methods.Select(m => m.ToString()).ToArray();
+		//		int index = 0;
+		//		if (_methods[eventInfo.Name] != null)
+		//		{
+		//			index = selections.ToList().IndexOf(_methods[eventInfo.Name].ToString());
+		//		}
+
+		//		index = EditorGUILayout.Popup("Method", index, selections);
+		//		if (index >= 0)
+		//		{
+		//			_methods[eventInfo.Name] = methods[index];
+		//		}
+		//	}
+		//}
 
 		serializedObject.ApplyModifiedProperties();
 	}
@@ -82,17 +101,30 @@ public class DelegateMonoInspector : Editor
 		public Component target;
 		public string methodName;
 
-		public static Delegate CreateDelegate<T>(MonoMethod monoMethod)
+		public static Delegate CreateDelegate(Type type, MonoMethod monoMethod)
 		{
 			if (monoMethod.target == null || string.IsNullOrEmpty(monoMethod.methodName))
 			{
 				return null;
 			}
 
-			//Check compatibility before CreateDelegate
-			//...if false, return null
-			
-			return Delegate.CreateDelegate(typeof (T), monoMethod.target, monoMethod.methodName);
+			return Delegate.CreateDelegate(type, monoMethod.target, monoMethod.methodName, false, false);
+		}
+
+		public static Delegate CreateDelegate<T>(MonoMethod monoMethod)
+		{
+			return CreateDelegate(typeof (T), monoMethod);
+		}
+
+		/// <summary>
+		/// Returns a string that represents the current object.
+		/// </summary>
+		/// <returns>
+		/// A string that represents the current object.
+		/// </returns>
+		public override string ToString()
+		{
+			return string.Format("{0}:{1}.{2}", target.name, target.GetType(), methodName ?? "NULL");
 		}
 	}
 }

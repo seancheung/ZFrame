@@ -82,15 +82,12 @@ namespace ZFrame.Frame.MVVM
 					{
 						case MemberTypes.Event:
 						{
-							try
-							{
-								Delegate del = Delegate.CreateDelegate(((EventInfo) member).EventHandlerType, viewModel, bindingKey);
+							Delegate del = Delegate.CreateDelegate(((EventInfo) member).EventHandlerType, viewModel, bindingKey, false,
+								false);
+							if (del == null)
+								ZDebug.LogError(string.Format("Binding method to event failed! event: {0}, methodName: {1}", member, bindingKey));
+							else
 								((EventInfo) member).AddEventHandler(view, del);
-							}
-							catch (Exception ex)
-							{
-								ZDebug.LogError(string.Format("{0} event: {1}, methodName: {2}", ex.Message, member, bindingKey));
-							}
 						}
 							break;
 						case MemberTypes.Field:

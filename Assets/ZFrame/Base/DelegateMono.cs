@@ -6,42 +6,42 @@ public sealed class DelegateMono : MonoBehaviour
 	/// <summary>
 	/// <see cref="Awake"/> is called when the script instance is being loaded
 	/// </summary>
-	public event Action awake;
+	public event Action AwakeEvent;
 
 	/// <summary>
 	/// <see cref="Start"/> is called on the frame when a script is enabled just before any of the Update methods is called the first time
 	/// </summary>
-	public event Action start;
+	public event Action StartEvent;
 
 	/// <summary>
 	/// <see cref="FixedUpdate"/> is called every fixed framerate frame, if the MonoBehaviour is enabled
 	/// </summary>
-	public event Action fixedUpdate;
+	public event Action FixedUpdateEvent;
 
 	/// <summary>
 	/// <see cref="LateUpdate"/> is called every frame, if the Behaviour is enabled
 	/// </summary>
-	public event Action lateUpdate;
+	public event Action LateUpdateEvent;
 
 	/// <summary>
 	/// <see cref="Update"/> is called every frame, if the MonoBehaviour is enabled
 	/// </summary>
-	public event Action update;
+	public event Action UpdateEvent;
 
 	/// <summary>
 	/// <see cref="OnApplicationFocus"/> sent to all game objects when the player gets or loses focus
 	/// </summary>
-	public event Action<bool> onApplicationFocus;
+	public event Action<bool> OnApplicationFocusEvent;
 
 	/// <summary>
 	/// <see cref="OnApplicationPause"/> sent to all game objects when the player pauses
 	/// </summary>
-	public event Action<bool> onApplicationPause;
+	public event Action<bool> OnApplicationPauseEvent;
 
 	/// <summary>
 	/// <see cref="OnApplicationQuit"/> sent to all game objects before the application is quit
 	/// </summary>
-	public event Action onApplicationQuit;
+	public event Action OnApplicationQuitEvent;
 
 	/// <summary>
 	/// <see cref="OnBecameVisible"/> is called when the renderer became visible by any camera
@@ -126,67 +126,67 @@ public sealed class DelegateMono : MonoBehaviour
 	/// <summary>
 	/// <see cref="OnMouseDrag"/> is called when the user has clicked on a GUIElement or Collider and is still holding down the mouse
 	/// </summary>
-	public event Action onMouseDrag;
+	public event Action OnMouseDragEvent;
 
 	/// <summary>
 	/// <see cref="OnTriggerEnter"/> is called when the Collider other enters the trigger
 	/// </summary>
-	public event Action<Collider> onTriggerEnter;
+	public event Action<Collider> OnTriggerEnterEvent;
 
 	/// <summary>
 	/// <see cref="OnTriggerExit"/> is called when the Collider other has stopped touching the trigger
 	/// </summary>
-	public event Action<Collider> onTriggerExit;
+	public event Action<Collider> OnTriggerExitEvent;
 
 	/// <summary>
 	/// <see cref="OnTriggerStay"/> is called once per frame for every Collider other that is touching the trigger
 	/// </summary>
-	public event Action<Collider> onTriggerStay;
+	public event Action<Collider> OnTriggerStayEvent;
 
 	/// <summary>
 	/// <see cref="OnWillRenderObject"/> is called once for each camera if the object is visible
 	/// </summary>
-	public event Action onWillRenderObject;
+	public event Action OnWillRenderObjectEvent;
 
 
 	private void Awake()
 	{
-		if (awake != null) awake.Invoke();
+		if (AwakeEvent != null) AwakeEvent.Invoke();
 	}
 
 	private void Start()
 	{
-		if (start != null) start.Invoke();
+		if (StartEvent != null) StartEvent.Invoke();
 	}
 
 	private void Update()
 	{
-		if (update != null) update.Invoke();
+		if (UpdateEvent != null) UpdateEvent.Invoke();
 	}
 
 	private void FixedUpdate()
 	{
-		if (fixedUpdate != null) fixedUpdate.Invoke();
+		if (FixedUpdateEvent != null) FixedUpdateEvent.Invoke();
 	}
 
 	private void LateUpdate()
 	{
-		if (lateUpdate != null) lateUpdate.Invoke();
+		if (LateUpdateEvent != null) LateUpdateEvent.Invoke();
 	}
 
 	private void OnApplicationFocus(bool focusStatus)
 	{
-		if (onApplicationFocus != null) onApplicationFocus.Invoke(focusStatus);
+		if (OnApplicationFocusEvent != null) OnApplicationFocusEvent.Invoke(focusStatus);
 	}
 
 	private void OnApplicationPause(bool pauseStatus)
 	{
-		if (onApplicationPause != null) onApplicationPause.Invoke(pauseStatus);
+		if (OnApplicationPauseEvent != null) OnApplicationPauseEvent.Invoke(pauseStatus);
 	}
 
 	private void OnApplicationQuit()
 	{
-		if (onApplicationQuit != null) onApplicationQuit.Invoke();
+		if (OnApplicationQuitEvent != null) OnApplicationQuitEvent.Invoke();
 	}
 
 	private void OnBecameVisible()
@@ -271,26 +271,26 @@ public sealed class DelegateMono : MonoBehaviour
 
 	private void OnMouseDrag()
 	{
-		if (onMouseDrag != null) onMouseDrag.Invoke();
+		if (OnMouseDragEvent != null) OnMouseDragEvent.Invoke();
 	}
 
 	private void OnTriggerEnter(Collider other)
 	{
-		if (onTriggerEnter != null) onTriggerEnter.Invoke(other);
+		if (OnTriggerEnterEvent != null) OnTriggerEnterEvent.Invoke(other);
 	}
 
 	private void OnTriggerExit(Collider other)
 	{
-		if (onTriggerExit != null) onTriggerExit.Invoke(other);
+		if (OnTriggerExitEvent != null) OnTriggerExitEvent.Invoke(other);
 	}
 
 	private void OnTriggerStay(Collider other)
 	{
-		if (onTriggerStay != null) onTriggerStay.Invoke(other);
+		if (OnTriggerStayEvent != null) OnTriggerStayEvent.Invoke(other);
 	}
 
 	private void OnWillRenderObject()
 	{
-		if (onWillRenderObject != null) onWillRenderObject.Invoke();
+		if (OnWillRenderObjectEvent != null) OnWillRenderObjectEvent.Invoke();
 	}
 }

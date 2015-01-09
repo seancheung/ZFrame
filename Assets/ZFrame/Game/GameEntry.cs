@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using ZFrame.Debugger;
 
 namespace ZFrame
 {
@@ -8,33 +7,6 @@ namespace ZFrame
 	/// </summary>
 	public class GameEntry : MonoBehaviour
 	{
-		private string _msg = "";
-
-		private void Start()
-		{
-			Time.timeScale = 0.5f;
-			GameEngine.Instance.Init();
-			//AdvancedTimer.Instance.Init();
-			//AdvancedTimer.Instance.AddReminder("Test", ReminderType.EveryMinute, DateTime.Now.AddSeconds(5),
-			//	() => Debug.Log("Triggered at " + DateTime.Now));
-			//ZSocketServer.Instance.StartListen();
-			//InvokeTimer.Instance.StartTimer();
-			//SimpleTimer.Instance.Init();
-			//CoroutineTimer.Instance.Init();
-			//NGUIDebug.Log("i love rock'n'roll");
-			//ZDebug.Log("i love rock'n'roll");
-			//NGUIDebug.Log("this","really","sucks");
-			//ZDebug.Log("Hey");
-
-			//ZDebug.LogGUI("This is a test");
-			ZDebug.PrintWarnings = true;
-			ZDebug.PrintLogs = true;
-			ZDebug.LogError("Shit");
-			ZDebug.LogWarning("Oh");
-			ZDebug.Log("Bullshit");
-		}
-
-
 		//void OnGUI()
 		//{
 		//	if (!ZSocketServer.Instance.IsListening)

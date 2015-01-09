@@ -28,15 +28,15 @@ namespace ZFrame
 		/// <summary>
 		/// Destroy instance gameobject immediately
 		/// </summary>
-		protected void ReleaseInstance()
+		protected virtual void ReleaseInstance()
 		{
-			DestroyImmediate(_instance);
+			Destroy(_instance);
 		}
 
 		/// <summary>
 		/// Force instance to be initialized
 		/// </summary>
-		public void Init()
+		public virtual void Init()
 		{
 			ZDebug.Log(typeof (T) + " is ready");
 		}

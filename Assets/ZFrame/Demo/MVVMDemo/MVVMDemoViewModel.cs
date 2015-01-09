@@ -32,8 +32,8 @@ public class MVVMDemoViewModel : MonoBehaviour, INotifyPropertyChanged
 			if (_id != value)
 			{
 				_id = value;
-				//MVVMEngine.Instance.Notify(this, "ID");
-				OnPropertyChanged("ID");
+				MVVMEngine.Instance.Notify(this, "ID");
+				//OnPropertyChanged("ID");
 			}
 		}
 	}

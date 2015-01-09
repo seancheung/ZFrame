@@ -34,6 +34,11 @@ public class MVVMDemoView : MonoBehaviour
 		{
 			EventA.Invoke();
 		}
+
+		if (GUILayout.Button("Release"))
+		{
+			MVVMEngine.Instance.Dispose();
+		}
 	}
 
 	private void Awake()

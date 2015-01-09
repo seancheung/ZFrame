@@ -18,7 +18,7 @@ namespace ZFrame.IO.Encrypting
 		{
 			DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider();
 
-			int i = cryptoProvider.KeySize;
+			//int i = cryptoProvider.KeySize;
 
 			MemoryStream ms = new MemoryStream();
 

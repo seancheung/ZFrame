@@ -7,7 +7,7 @@ using ZFrame.Debugger;
 
 namespace ZFrame.IO.CSV
 {
-	public enum CSVValueType
+	internal enum CSVValueType
 	{
 		String,
 		Int32,
@@ -76,7 +76,7 @@ namespace ZFrame.IO.CSV
 		{
 			T result = new T();
 			IEnumerable<MemberInfo> members =
-				typeof (T).GetMembers()
+				typeof (T).GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
 					.Where(m => m.MemberType == MemberTypes.Property || m.MemberType == MemberTypes.Field)
 					.Where(m => Attribute.IsDefined(m, typeof (CSVColumnAttribute), false));
 
@@ -90,7 +90,7 @@ namespace ZFrame.IO.CSV
 					string field = GetRawValue(attribute, fields, keys, member.Name);
 					if (ReferenceEquals(field, member.Name))
 						return result;
-					SetValue(member, boxed, field, attribute.DefaultValue, attribute.ArraySeparator);
+					SetValue(member, boxed, field, attribute.DefaultValue, attribute.ArraySeparator, attribute.TrueValues);
 				}
 				return (T) boxed;
 			}
@@ -102,7 +102,7 @@ namespace ZFrame.IO.CSV
 				string field = GetRawValue(attribute, fields, keys, member.Name);
 				if (ReferenceEquals(field, member.Name))
 					return result;
-				SetValue(member, result, field, attribute.DefaultValue, attribute.ArraySeparator);
+				SetValue(member, result, field, attribute.DefaultValue, attribute.ArraySeparator, attribute.TrueValues);
 			}
 			return result;
 		}
@@ -142,18 +142,25 @@ namespace ZFrame.IO.CSV
 		/// <param name="value"></param>
 		/// <param name="defaultValue"></param>
 		/// <param name="arraySeparator"></param>
-		private void SetValue(MemberInfo member, object obj, string value, object defaultValue, char arraySeparator)
+		private void SetValue(MemberInfo member, object obj, string value, object defaultValue, char arraySeparator,
+			string[] trueValues)
 		{
 			if (member.MemberType == MemberTypes.Property)
 			{
+				if ((member as PropertyInfo).CanWrite)
+				{
+					ZDebug.LogError(string.Format("CSV property must be writable! CSVData type: {0}, Property: {1}",
+						member.DeclaringType, member.Name));
+					return;
+				}
 				(member as PropertyInfo).SetValue(obj,
-					ParseRawValue(value, (member as PropertyInfo).PropertyType, defaultValue, arraySeparator),
+					ParseRawValue(value, (member as PropertyInfo).PropertyType, defaultValue, arraySeparator, trueValues),
 					null);
 			}
 			else
 			{
 				(member as FieldInfo).SetValue(obj,
-					ParseRawValue(value, (member as FieldInfo).FieldType, defaultValue, arraySeparator));
+					ParseRawValue(value, (member as FieldInfo).FieldType, defaultValue, arraySeparator, trueValues));
 			}
 		}
 
@@ -165,7 +172,7 @@ namespace ZFrame.IO.CSV
 		/// <param name="defaultValue">If type is collection, use element default(e.g. 0 for int[])</param>
 		/// <param name="arraySeparator"></param>
 		/// <returns></returns>
-		private object ParseRawValue(string field, Type type, object defaultValue, char arraySeparator)
+		private object ParseRawValue(string field, Type type, object defaultValue, char arraySeparator, string[] trueValues)
 		{
 			try
 			{
@@ -173,7 +180,7 @@ namespace ZFrame.IO.CSV
 				{
 					IEnumerable<object> result =
 						field.Split(arraySeparator)
-							.Select(f => ParseRawValue(f, type.GetElementType(), defaultValue, arraySeparator));
+							.Select(f => ParseRawValue(f, type.GetElementType(), defaultValue, arraySeparator, trueValues));
 					if (type.GetElementType() == typeof (string))
 					{
 						return result.Cast<string>().ToArray();
@@ -181,6 +188,26 @@ namespace ZFrame.IO.CSV
 					if (type.GetElementType() == typeof (int))
 					{
 						return result.Cast<int>().ToArray();
+					}
+					if (type.GetElementType() == typeof (long))
+					{
+						return result.Cast<long>().ToArray();
+					}
+					if (type.GetElementType() == typeof (short))
+					{
+						return result.Cast<short>().ToArray();
+					}
+					if (type.GetElementType() == typeof (uint))
+					{
+						return result.Cast<uint>().ToArray();
+					}
+					if (type.GetElementType() == typeof (ulong))
+					{
+						return result.Cast<ulong>().ToArray();
+					}
+					if (type.GetElementType() == typeof (ushort))
+					{
+						return result.Cast<ushort>().ToArray();
 					}
 					if (type.GetElementType() == typeof (float))
 					{
@@ -208,6 +235,22 @@ namespace ZFrame.IO.CSV
 				{
 					return Convert.ToInt64(field);
 				}
+				if (type == typeof (short))
+				{
+					return Convert.ToInt16(field);
+				}
+				if (type == typeof (uint))
+				{
+					return Convert.ToUInt32(field);
+				}
+				if (type == typeof (ulong))
+				{
+					return Convert.ToUInt64(field);
+				}
+				if (type == typeof (ushort))
+				{
+					return Convert.ToUInt16(field);
+				}
 				if (type == typeof (float))
 				{
 					return Convert.ToSingle(field);
@@ -223,11 +266,7 @@ namespace ZFrame.IO.CSV
 						return false;
 					}
 					field = field.Trim();
-					return field.Equals("true", StringComparison.CurrentCultureIgnoreCase) || field.Equals("1");
-				}
-				if (type == typeof (object))
-				{
-					return Convert.ToDouble(field);
+					return trueValues != null && trueValues.Contains(field, StringComparer.CurrentCultureIgnoreCase);
 				}
 			}
 			catch (FormatException ex)
@@ -317,7 +356,7 @@ namespace ZFrame.IO.CSV
 			//Check mapping
 			if (!Attribute.IsDefined(typeof (T), typeof (CSVMapperAttribute), false))
 			{
-				ZDebug.LogError(string.Format("CSV mapping not found in type: {0}", typeof (T)));
+				ZDebug.LogError(string.Format("CSV mapping attribute not found in type: {0}", typeof (T)));
 				return false;
 			}
 
@@ -367,9 +406,14 @@ namespace ZFrame.IO.CSV
 		/// <param name="column"></param>
 		/// <param name="defaultValue">If T is collection, use element default(e.g. 0 for int[])</param>
 		/// <param name="arraySeparator"></param>
+		/// <param name="trueValues"></param>
 		/// <returns></returns>
-		public T Read<T>(int row, int column, object defaultValue, char arraySeparator = '#')
+		public T Read<T>(int row, int column, object defaultValue, char arraySeparator = '#', string[] trueValues = null)
 		{
+			if (trueValues == null)
+			{
+				trueValues = new[] {"1", "true"};
+			}
 			string field = this[row, column];
 			if (field == null)
 			{
@@ -377,7 +421,7 @@ namespace ZFrame.IO.CSV
 				return typeof (T).IsArray ? default(T) : (T) defaultValue;
 			}
 
-			return (T) ParseRawValue(field, typeof (T), defaultValue, arraySeparator);
+			return (T) ParseRawValue(field, typeof (T), defaultValue, arraySeparator, trueValues);
 		}
 
 

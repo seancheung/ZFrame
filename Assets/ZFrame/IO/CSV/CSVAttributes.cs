@@ -28,24 +28,25 @@ namespace ZFrame.IO.CSV
 		/// </summary>
 		public char ArraySeparator { get; set; }
 
+		/// <summary>
+		/// True values for bool type parsing. Default is '1' and 'true'
+		/// </summary>
+		public string[] TrueValues { get; set; }
 
-		public CSVColumnAttribute()
-		{
-			Column = -1;
-			ArraySeparator = '#';
-		}
 
 		public CSVColumnAttribute(string key)
 		{
 			Key = key;
 			Column = -1;
 			ArraySeparator = '#';
+			TrueValues = new[] { "1", "true" };
 		}
 
 		public CSVColumnAttribute(int column)
 		{
 			Column = column;
 			ArraySeparator = '#';
+			TrueValues = new[] { "1", "true" };
 		}
 	}
 
@@ -79,13 +80,6 @@ namespace ZFrame.IO.CSV
 		/// Starting index of data rows(2 by default)
 		/// </summary>
 		public int StartRow { get; set; }
-
-		public CSVMapperAttribute()
-		{
-			KeyRow = 0;
-			DescRow = 1;
-			Separator = ',';
-		}
 
 		public CSVMapperAttribute(string name)
 		{

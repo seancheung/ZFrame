@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using ZFrame.Debugger;
 
@@ -37,6 +38,11 @@ namespace ZFrame.IO.CSV
 		/// Get separator
 		/// </summary>
 		public char Separator { get; private set; }
+
+		public bool CanRead
+		{
+			get { return _records != null && ColumnCount > 0 && RowCount > 0; }
+		}
 
 		private int _keyRow = -1;
 		private int _descRow = -1;
@@ -291,36 +297,23 @@ namespace ZFrame.IO.CSV
 		}
 
 		/// <summary>
-		/// Load CSV into record list. If you need to decode records, use Decode(path) instead.
+		/// Load string content
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="content"></param>
 		/// <param name="separator"></param>
-		public bool Load(string path, char separator = ',')
+		/// <returns></returns>
+		public bool Load(string content, char separator = ',')
 		{
 			//Dispose records
 			ClearRecord();
-
-			if (string.IsNullOrEmpty(path))
-			{
-				ZDebug.LogError(string.Format("CSV path not found: {0}", path));
-				return false;
-			}
-
-			//Read text
-			TextAsset asset = Resources.Load<TextAsset>(path);
-
-			if (asset == null)
-			{
-				ZDebug.LogError(string.Format("CSV file not found: {0}", path));
-				return false;
-			}
-
-			string content = asset.text;
 			if (string.IsNullOrEmpty(content))
 			{
-				ZDebug.LogError(string.Format("CSV file content empty: {0}", path));
+				ZDebug.LogError(string.Format("CSV file content empty!"));
 				return false;
 			}
+
+			var check = CheckLegal(content, separator);
+			if (!check) return false;
 
 			Separator = separator;
 			_records = new List<List<string>>();
@@ -331,7 +324,7 @@ namespace ZFrame.IO.CSV
 				if (ColumnCount != 0 && columns.Count != ColumnCount)
 				{
 					ZDebug.LogError(
-						string.Format("CSV parsing error in {0} at line {1} : columns counts do not match! Separator: '{2}'", path,
+						string.Format("CSV parsing error at line {0} : columns counts do not match! Separator: '{1}'",
 							content.IndexOf(row), separator));
 					return false;
 				}
@@ -342,13 +335,18 @@ namespace ZFrame.IO.CSV
 
 			if (_records == null || !_records.Any())
 			{
-				ZDebug.LogWarning(string.Format("CSV file parsing failed(empty records): {0}", path));
+				ZDebug.LogWarning(string.Format("CSV file parsing failed(empty records)!"));
 				return false;
 			}
 
 			return true;
 		}
 
+		/// <summary>
+		/// Load mapped class
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
 		public bool Load<T>()
 		{
 			ClearRecord();
@@ -366,7 +364,24 @@ namespace ZFrame.IO.CSV
 			_descRow = mapper.DescRow;
 			_startRow = mapper.StartRow;
 
-			bool result = Load(mapper.Path, mapper.Separator);
+			if (string.IsNullOrEmpty(mapper.Path))
+			{
+				ZDebug.LogError(string.Format("CSV path not found: {0}", mapper.Path));
+				return false;
+			}
+
+			//Read text
+			TextAsset asset = Resources.Load<TextAsset>(mapper.Path);
+
+			if (asset == null)
+			{
+				ZDebug.LogError(string.Format("CSV file not found: {0}", mapper.Path));
+				return false;
+			}
+
+			string content = asset.text;
+			bool result = Load(content, mapper.Separator);
+
 			if (result)
 			{
 				if (_records[_keyRow].Any(string.IsNullOrEmpty))
@@ -431,6 +446,55 @@ namespace ZFrame.IO.CSV
 		public void ClearRecord()
 		{
 			_records = null;
+			RowCount = 0;
+			ColumnCount = 0;
+			Separator = ',';
+			_keyRow = -1;
+			_descRow = -1;
+			_startRow = -1;
 		}
+
+		/// <summary>
+		/// Chec if given content can be parsed as csv
+		/// </summary>
+		/// <param name="content"></param>
+		/// <param name="separator"></param>
+		/// <returns></returns>
+		public static bool CheckLegal(string content, char separator = ',')
+		{
+			if (string.IsNullOrEmpty(content)) return false;
+			int rowChar = Regex.Matches(content, "\r").Count;
+			int colChar = Regex.Matches(content, separator.ToString()).Count;
+
+			return rowChar > 0 && colChar > 0 && colChar % rowChar == 0;
+		}
+
+		#region Overrides of Object
+
+		/// <summary>
+		/// Returns a string that represents the current object.
+		/// </summary>
+		/// <returns>
+		/// A string that represents the current object.
+		/// </returns>
+		public override string ToString()
+		{
+			if (CanRead)
+			{
+				string content = "";
+				foreach (List<string> record in _records)
+				{
+					content = record.Aggregate(content, (current, col) => current + (col + ","));
+					content = content.TrimEnd(',');
+					content += "\r\n";
+				}
+
+				return content;
+			}
+
+			return string.Empty;
+		}
+
+		#endregion
 	}
 }

@@ -314,12 +314,12 @@ public sealed class DelegateMono : MonoBehaviour
 
 	private void OnApplicationFocus(bool focusStatus)
 	{
-		InvokeDelegates("OnApplicationFocus");
+		InvokeDelegates("OnApplicationFocus", focusStatus);
 	}
 
 	private void OnApplicationPause(bool pauseStatus)
 	{
-		InvokeDelegates("OnApplicationPause");
+		InvokeDelegates("OnApplicationPause", pauseStatus);
 	}
 
 	private void OnApplicationQuit()
@@ -339,17 +339,17 @@ public sealed class DelegateMono : MonoBehaviour
 
 	private void OnCollisionEnter(Collision collision)
 	{
-		InvokeDelegates("OnCollisionEnter");
+		InvokeDelegates("OnCollisionEnter", collision);
 	}
 
 	private void OnCollisionExit(Collision collisionInfo)
 	{
-		InvokeDelegates("OnCollisionExit");
+		InvokeDelegates("OnCollisionExit", collisionInfo);
 	}
 
 	private void OnCollisionStay(Collision collisionInfo)
 	{
-		InvokeDelegates("OnCollisionStay");
+		InvokeDelegates("OnCollisionStay", collisionInfo);
 	}
 
 	private void OnDestroy()
@@ -374,7 +374,7 @@ public sealed class DelegateMono : MonoBehaviour
 
 	private void OnLevelWasLoaded(int level)
 	{
-		InvokeDelegates("OnLevelWasLoaded");
+		InvokeDelegates("OnLevelWasLoaded", level);
 	}
 
 	private void OnMouseDown()
@@ -414,17 +414,17 @@ public sealed class DelegateMono : MonoBehaviour
 
 	private void OnTriggerEnter(Collider other)
 	{
-		InvokeDelegates("OnTriggerEnter");
+		InvokeDelegates("OnTriggerEnter", other);
 	}
 
 	private void OnTriggerExit(Collider other)
 	{
-		InvokeDelegates("OnTriggerExit");
+		InvokeDelegates("OnTriggerExit", other);
 	}
 
 	private void OnTriggerStay(Collider other)
 	{
-		InvokeDelegates("OnTriggerStay");
+		InvokeDelegates("OnTriggerStay", other);
 	}
 
 	private void OnWillRenderObject()

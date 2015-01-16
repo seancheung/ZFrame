@@ -4,7 +4,7 @@
  *
  * /
 
-/* */
+/* 
 
 #define LOGGUI
 
@@ -32,7 +32,7 @@ namespace ZFrame.Debugger
 			}
 		}
 
-		internal static readonly Queue<LogContent> Prints = new Queue<LogContent>();
+		private static readonly Queue<LogContent> Prints = new Queue<LogContent>();
 
 		private static string Time
 		{
@@ -210,173 +210,173 @@ namespace ZFrame.Debugger
 		//{
 		//	LogGUI(message, LogLevel.Log);
 		//}
-	}
 
-	internal class ZDebugger : IDebugger
-	{
-		#region Implementation of IDebugger
-
-		public bool EnableLog { get; set; }
-		public bool EnablePrint { get; set; }
-		public bool EnableTime { get; set; }
-		public int MaxPrintLines { get; set; }
-		public bool PrintErrors { get; set; }
-		public bool PrintWarnings { get; set; }
-		public bool PrintLogs { get; set; }
-		public Color ErrorColor { get; set; }
-		public Color WarningColor { get; set; }
-		public Color LogColor { get; set; }
-
-		#endregion
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="T:ZDebugger"/> class.
-		/// </summary>
-		public ZDebugger()
+		private class ZDebugger : IDebugger
 		{
-			EnableLog = true;
-		}
-	}
+			#region Implementation of IDebugger
 
-	internal interface IDebugger
-	{
-		bool EnableLog { get; set; }
-		bool EnablePrint { get; set; }
-		bool EnableTime { get; set; }
-		int MaxPrintLines { get; set; }
-		bool PrintErrors { get; set; }
-		bool PrintWarnings { get; set; }
-		bool PrintLogs { get; set; }
-		Color ErrorColor { get; set; }
-		Color WarningColor { get; set; }
-		Color LogColor { get; set; }
-	}
+			public bool EnableLog { get; set; }
+			public bool EnablePrint { get; set; }
+			public bool EnableTime { get; set; }
+			public int MaxPrintLines { get; set; }
+			public bool PrintErrors { get; set; }
+			public bool PrintWarnings { get; set; }
+			public bool PrintLogs { get; set; }
+			public Color ErrorColor { get; set; }
+			public Color WarningColor { get; set; }
+			public Color LogColor { get; set; }
 
-	internal class MonoDebugger : MonoBehaviour, IDebugger
-	{
-		private readonly Dictionary<LogLevel, GUIStyle> _styles = new Dictionary<LogLevel, GUIStyle>();
+			#endregion
 
-		private void Awake()
-		{
-			DontDestroyOnLoad(this);
-
-			GUIStyle errorStyle = new GUIStyle();
-			GUIStyle warningStyle = new GUIStyle();
-			GUIStyle logStyle = new GUIStyle();
-			errorStyle.normal.textColor = errorColor;
-			warningStyle.normal.textColor = warningColor;
-			logStyle.normal.textColor = logColor;
-			_styles.Add(LogLevel.Log, logStyle);
-			_styles.Add(LogLevel.Warning, warningStyle);
-			_styles.Add(LogLevel.Error, errorStyle);
-		}
-
-		#region Fields
-
-		public bool enableLog = true;
-		public bool enablePrint = true;
-		public bool enableTime = true;
-		public int maxPrintLines = 20;
-		public bool printErrors = true;
-		public bool printWarnings;
-		public bool printLogs;
-		public Color errorColor = Color.red;
-		public Color warningColor = Color.yellow;
-		public Color logColor = Color.white;
-
-		#endregion
-
-		public bool EnableLog
-		{
-			get { return enableLog; }
-			set { enableLog = value; }
-		}
-
-		public bool EnablePrint
-		{
-			get { return enablePrint; }
-			set { enablePrint = value; }
-		}
-
-		public bool EnableTime
-		{
-			get { return enableTime; }
-			set { enableTime = value; }
-		}
-
-		public int MaxPrintLines
-		{
-			get { return maxPrintLines; }
-			set { maxPrintLines = value; }
-		}
-
-		public bool PrintErrors
-		{
-			get { return printErrors; }
-			set { printErrors = value; }
-		}
-
-		public bool PrintWarnings
-		{
-			get { return printWarnings; }
-			set { printWarnings = value; }
-		}
-
-		public bool PrintLogs
-		{
-			get { return printLogs; }
-			set { printLogs = value; }
-		}
-
-		public Color ErrorColor
-		{
-			get { return errorColor; }
-			set { errorColor = value; }
-		}
-
-		public Color WarningColor
-		{
-			get { return warningColor; }
-			set { warningColor = value; }
-		}
-
-		public Color LogColor
-		{
-			get { return logColor; }
-			set { logColor = value; }
-		}
-
-#if LOGGUI
-		private void OnGUI()
-		{
-			if (enablePrint)
+			/// <summary>
+			/// Initializes a new instance of the <see cref="T:ZDebugger"/> class.
+			/// </summary>
+			public ZDebugger()
 			{
-				foreach (LogContent print in ZDebug.Prints)
-				{
-					GUILayout.Label(print.Message, _styles[print.Level]);
-				}
+				EnableLog = true;
 			}
 		}
-#endif
-	}
 
-	[Flags]
-	internal enum LogLevel
-	{
-		Log = 1,
-		Warning = 2,
-		Error = 4
-	}
-
-	internal class LogContent
-	{
-		public LogLevel Level { get; private set; }
-		public string Message { get; private set; }
-
-		public LogContent(string message, LogLevel level)
+		private interface IDebugger
 		{
-			Message = message;
-			Level = level;
+			bool EnableLog { get; set; }
+			bool EnablePrint { get; set; }
+			bool EnableTime { get; set; }
+			int MaxPrintLines { get; set; }
+			bool PrintErrors { get; set; }
+			bool PrintWarnings { get; set; }
+			bool PrintLogs { get; set; }
+			Color ErrorColor { get; set; }
+			Color WarningColor { get; set; }
+			Color LogColor { get; set; }
+		}
+
+		private class MonoDebugger : MonoBehaviour, IDebugger
+		{
+			private readonly Dictionary<LogLevel, GUIStyle> _styles = new Dictionary<LogLevel, GUIStyle>();
+
+			private void Awake()
+			{
+				DontDestroyOnLoad(this);
+
+				GUIStyle errorStyle = new GUIStyle();
+				GUIStyle warningStyle = new GUIStyle();
+				GUIStyle logStyle = new GUIStyle();
+				errorStyle.normal.textColor = errorColor;
+				warningStyle.normal.textColor = warningColor;
+				logStyle.normal.textColor = logColor;
+				_styles.Add(LogLevel.Log, logStyle);
+				_styles.Add(LogLevel.Warning, warningStyle);
+				_styles.Add(LogLevel.Error, errorStyle);
+			}
+
+			#region Fields
+
+			public bool enableLog = true;
+			public bool enablePrint = true;
+			public bool enableTime = true;
+			public int maxPrintLines = 20;
+			public bool printErrors = true;
+			public bool printWarnings;
+			public bool printLogs;
+			public Color errorColor = Color.red;
+			public Color warningColor = Color.yellow;
+			public Color logColor = Color.white;
+
+			#endregion
+
+			public bool EnableLog
+			{
+				get { return enableLog; }
+				set { enableLog = value; }
+			}
+
+			public bool EnablePrint
+			{
+				get { return enablePrint; }
+				set { enablePrint = value; }
+			}
+
+			public bool EnableTime
+			{
+				get { return enableTime; }
+				set { enableTime = value; }
+			}
+
+			public int MaxPrintLines
+			{
+				get { return maxPrintLines; }
+				set { maxPrintLines = value; }
+			}
+
+			public bool PrintErrors
+			{
+				get { return printErrors; }
+				set { printErrors = value; }
+			}
+
+			public bool PrintWarnings
+			{
+				get { return printWarnings; }
+				set { printWarnings = value; }
+			}
+
+			public bool PrintLogs
+			{
+				get { return printLogs; }
+				set { printLogs = value; }
+			}
+
+			public Color ErrorColor
+			{
+				get { return errorColor; }
+				set { errorColor = value; }
+			}
+
+			public Color WarningColor
+			{
+				get { return warningColor; }
+				set { warningColor = value; }
+			}
+
+			public Color LogColor
+			{
+				get { return logColor; }
+				set { logColor = value; }
+			}
+
+#if LOGGUI
+			private void OnGUI()
+			{
+				if (enablePrint)
+				{
+					foreach (LogContent print in Prints)
+					{
+						GUILayout.Label(print.Message, _styles[print.Level]);
+					}
+				}
+			}
+#endif
+		}
+
+		[Flags]
+		private enum LogLevel
+		{
+			Log = 1,
+			Warning = 2,
+			Error = 4
+		}
+
+		private class LogContent
+		{
+			public LogLevel Level { get; private set; }
+			public string Message { get; private set; }
+
+			public LogContent(string message, LogLevel level)
+			{
+				Message = message;
+				Level = level;
+			}
 		}
 	}
 }

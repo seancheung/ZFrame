@@ -8,18 +8,6 @@ using ZFrame.Debugger;
 
 namespace ZFrame.IO.CSV
 {
-	internal enum CSVValueType
-	{
-		String,
-		Int32,
-		Int64,
-		Single,
-		Double,
-		Boolean,
-		Array,
-		Object
-	}
-
 	public class CSVEngine
 	{
 		private List<List<string>> _records;
@@ -148,25 +136,27 @@ namespace ZFrame.IO.CSV
 		/// <param name="value"></param>
 		/// <param name="defaultValue"></param>
 		/// <param name="arraySeparator"></param>
+		/// <param name="trueValues"></param>
 		private void SetValue(MemberInfo member, object obj, string value, object defaultValue, char arraySeparator,
 			string[] trueValues)
 		{
 			if (member.MemberType == MemberTypes.Property)
 			{
-				if ((member as PropertyInfo).CanWrite)
+				MethodInfo set = ((PropertyInfo) member).GetSetMethod(true);
+				if (set == null)
 				{
 					ZDebug.LogError(string.Format("CSV property must be writable! CSVData type: {0}, Property: {1}",
 						member.DeclaringType, member.Name));
 					return;
 				}
-				(member as PropertyInfo).SetValue(obj,
-					ParseRawValue(value, (member as PropertyInfo).PropertyType, defaultValue, arraySeparator, trueValues),
+				((PropertyInfo) member).SetValue(obj,
+					ParseRawValue(value, ((PropertyInfo) member).PropertyType, defaultValue, arraySeparator, trueValues),
 					null);
 			}
 			else
 			{
-				(member as FieldInfo).SetValue(obj,
-					ParseRawValue(value, (member as FieldInfo).FieldType, defaultValue, arraySeparator, trueValues));
+				((FieldInfo) member).SetValue(obj,
+					ParseRawValue(value, ((FieldInfo) member).FieldType, defaultValue, arraySeparator, trueValues));
 			}
 		}
 
@@ -177,121 +167,49 @@ namespace ZFrame.IO.CSV
 		/// <param name="type">If type is collection, use array only(e.g. int[])</param>
 		/// <param name="defaultValue">If type is collection, use element default(e.g. 0 for int[])</param>
 		/// <param name="arraySeparator"></param>
+		/// <param name="trueValues"></param>
 		/// <returns></returns>
 		private object ParseRawValue(string field, Type type, object defaultValue, char arraySeparator, string[] trueValues)
 		{
-			try
+			if (type.IsValueType && defaultValue == null)
 			{
-				if (type.IsArray)
-				{
-					IEnumerable<object> result =
-						field.Split(arraySeparator)
-							.Select(f => ParseRawValue(f, type.GetElementType(), defaultValue, arraySeparator, trueValues));
-					if (type.GetElementType() == typeof (string))
-					{
-						return result.Cast<string>().ToArray();
-					}
-					if (type.GetElementType() == typeof (int))
-					{
-						return result.Cast<int>().ToArray();
-					}
-					if (type.GetElementType() == typeof (long))
-					{
-						return result.Cast<long>().ToArray();
-					}
-					if (type.GetElementType() == typeof (short))
-					{
-						return result.Cast<short>().ToArray();
-					}
-					if (type.GetElementType() == typeof (uint))
-					{
-						return result.Cast<uint>().ToArray();
-					}
-					if (type.GetElementType() == typeof (ulong))
-					{
-						return result.Cast<ulong>().ToArray();
-					}
-					if (type.GetElementType() == typeof (ushort))
-					{
-						return result.Cast<ushort>().ToArray();
-					}
-					if (type.GetElementType() == typeof (float))
-					{
-						return result.Cast<float>().ToArray();
-					}
-					if (type.GetElementType() == typeof (double))
-					{
-						return result.Cast<double>().ToArray();
-					}
-					if (type.GetElementType() == typeof (bool))
-					{
-						return result.Cast<bool>().ToArray();
-					}
-					return null;
-				}
-				if (type == typeof (string))
-				{
-					return field;
-				}
-				if (type == typeof (int))
-				{
-					return Convert.ToInt32(field);
-				}
-				if (type == typeof (long))
-				{
-					return Convert.ToInt64(field);
-				}
-				if (type == typeof (short))
-				{
-					return Convert.ToInt16(field);
-				}
-				if (type == typeof (uint))
-				{
-					return Convert.ToUInt32(field);
-				}
-				if (type == typeof (ulong))
-				{
-					return Convert.ToUInt64(field);
-				}
-				if (type == typeof (ushort))
-				{
-					return Convert.ToUInt16(field);
-				}
-				if (type == typeof (float))
-				{
-					return Convert.ToSingle(field);
-				}
-				if (type == typeof (double))
-				{
-					return Convert.ToDouble(field);
-				}
-				if (type == typeof (bool))
-				{
-					if (field == null)
-					{
-						return false;
-					}
-					field = field.Trim();
-					return trueValues != null && trueValues.Contains(field, StringComparer.CurrentCultureIgnoreCase);
-				}
+				//Debug.LogError("Value type must be assigned with default value! type: " + type);
+				if (type == typeof(int) || type == typeof(float))
+					defaultValue = -1;
+				else if (type == typeof(bool))
+					defaultValue = false;
 			}
-			catch (FormatException ex)
-			{
-				ZDebug.LogWarning(string.Format("{0}: {1} -> {2}", ex.Message, field, type));
 
-				//In case default value is null but the property/field is not a reference type
-				if (defaultValue == null)
-				{
-					if (type == typeof (int) || type == typeof (float) || type == typeof (double))
-					{
-						defaultValue = -1;
-					}
-					else if (type == typeof (bool))
-					{
-						defaultValue = false;
-					}
-				}
+			if (string.IsNullOrEmpty(field))
+			{
+				return defaultValue;
 			}
+
+			field = field.Trim();
+
+			if (type.IsArray)
+			{
+				IEnumerable<object> result =
+					field.Split(arraySeparator)
+						.Select(f => ParseRawValue(f, type.GetElementType(), defaultValue, arraySeparator, trueValues));
+				if (type.GetElementType() == typeof (string))
+					return result.Cast<string>().ToArray();
+				if (type.GetElementType() == typeof (int))
+					return result.Cast<int>().ToArray();
+				if (type.GetElementType() == typeof (float))
+					return result.Cast<float>().ToArray();
+				if (type.GetElementType() == typeof (bool))
+					return result.Cast<bool>().ToArray();
+				return null;
+			}
+			if (type == typeof (string))
+				return field;
+			if (type == typeof (int))
+				return ValueTypeCheck(type, field) ? Convert.ToInt32(field) : defaultValue;
+			if (type == typeof (float))
+				return ValueTypeCheck(type, field) ? Convert.ToSingle(field) : defaultValue;
+			if (type == typeof (bool))
+				return trueValues != null && trueValues.Contains(field, StringComparer.CurrentCultureIgnoreCase);
 
 			return defaultValue;
 		}
@@ -312,7 +230,7 @@ namespace ZFrame.IO.CSV
 				return false;
 			}
 
-			var check = CheckLegal(content, separator);
+			bool check = CheckLegal(content, separator);
 			if (!check) return false;
 
 			Separator = separator;
@@ -349,7 +267,7 @@ namespace ZFrame.IO.CSV
 		/// <returns></returns>
 		public bool Load<T>()
 		{
-			ClearRecord();
+			ResetMap();
 
 			//Check mapping
 			if (!Attribute.IsDefined(typeof (T), typeof (CSVMapperAttribute), false))
@@ -384,7 +302,7 @@ namespace ZFrame.IO.CSV
 
 			if (result)
 			{
-				if (_records[_keyRow].Any(string.IsNullOrEmpty))
+				if (_keyRow < 0 || _records[_keyRow].Any(string.IsNullOrEmpty))
 				{
 					ZDebug.LogError(
 						string.Format("Encoding Error! No key column found. Make sure target file is in UTF-8 format. Path: {0}",
@@ -432,7 +350,7 @@ namespace ZFrame.IO.CSV
 			string field = this[row, column];
 			if (field == null)
 			{
-				Debug.LogWarning("Field is null. Make sure csv is loaded and field has content.");
+				//Debug.LogWarning("Field is null. Make sure csv is loaded and field has content.");
 				return typeof (T).IsArray ? default(T) : (T) defaultValue;
 			}
 
@@ -448,6 +366,14 @@ namespace ZFrame.IO.CSV
 			_records = null;
 			RowCount = 0;
 			ColumnCount = 0;
+			
+		}
+
+		/// <summary>
+		/// Reset mapping history
+		/// </summary>
+		public void ResetMap()
+		{
 			Separator = ',';
 			_keyRow = -1;
 			_descRow = -1;
@@ -466,7 +392,16 @@ namespace ZFrame.IO.CSV
 			int rowChar = Regex.Matches(content, "\r").Count;
 			int colChar = Regex.Matches(content, separator.ToString()).Count;
 
-			return rowChar > 0 && colChar > 0 && colChar % rowChar == 0;
+			return rowChar > 0 && colChar > 0 && colChar%rowChar == 0;
+		}
+
+		private bool ValueTypeCheck(Type type, string value)
+		{
+			if (type == typeof(int))
+				return Regex.IsMatch(value, "^[-+]?\\d+$");
+			if (type == typeof(float))
+				return Regex.IsMatch(value, @"^[-+]?[0-9]+(\.[0-9]+)?$");
+			return false;
 		}
 
 		#region Overrides of Object

@@ -8,21 +8,28 @@ namespace ZFrame.IO
 {
 	public class ResourceEngine : MonoSingleton<ResourceEngine>, IZDisposable
 	{
-		private const string Path = "ResourceReferences";
-		private ResourceRef _resourceRef;
+		private const string Path = "EZResources";
+		private ZResource _resource;
 
 		private bool CanLoad
 		{
-			get { return _resourceRef != null; }
+			get
+			{
+				if (_resource != null)
+					return true;
+				return InitManager();
+			}
 		}
 
-		private void InitManager()
+		private bool InitManager()
 		{
 			GameObject go = Resources.Load<GameObject>(Path);
 			if (go != null)
-			{
-				_resourceRef = go.GetComponent<ResourceRef>();
-			}
+				_resource = go.GetComponent<ZResource>();
+			else
+				Debug.LogError(Path + " not found!");
+
+			return _resource != null;
 		}
 
 		#region Load by key
@@ -36,7 +43,7 @@ namespace ZFrame.IO
 		{
 			if (CanLoad)
 			{
-				ResourceRef.GameResource resource = Instance._resourceRef[key];
+				ZResource.Resource resource = Instance._resource[key];
 				if (resource != null && resource.resource != null) return resource.resource;
 
 				ZDebug.LogError("Resource not found: " + key);
@@ -81,34 +88,6 @@ namespace ZFrame.IO
 			if (result != null)
 				return Instantiate(result) as GameObject;
 			return null;
-		}
-
-		/// <summary>
-		/// Load and Instantiate a gameobject then get a component
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="key"></param>
-		/// <returns></returns>
-		public T InstantiateAndGet<T>(string key) where T : MonoBehaviour
-		{
-			GameObject gameObject = LoadAndInstantiate(key);
-			if (gameObject != null)
-			{
-				return gameObject.GetComponent<T>();
-			}
-
-			return null;
-		}
-
-		/// <summary>
-		/// Load async using coroutine
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="key"></param>
-		/// <param name="onLoaded"></param>
-		public void LoadAsync<T>(string key, Action<T> onLoaded) where T : Object
-		{
-			StartCoroutine(Load(key, onLoaded));
 		}
 
 		/// <summary>

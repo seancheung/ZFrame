@@ -1,0 +1,378 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mstns="http://tempuri.org/UNITY3D.xsd" xmlns="http://tempuri.org/UNITY3D.xsd"  targetNamespace="http://tempuri.org/UNITY3D.xsd">
+  
+  <xs:element name="gameobject" type="gameobject"/>
+
+  <!--Data Type define-->
+  <xs:simpleType name="Vector3">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\A([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE]-?[0-9]+)?|-?INF|NaN),([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE]-?[0-9]+)?|-?INF|NaN),([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE]-?[0-9]+)?|-?INF|NaN)\z"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RGBA">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\A(2[0-4][0-9]|25[0-5]|[01]?[0-9][0-9]?),(2[0-4][0-9]|25[0-5]|[01]?[0-9][0-9]?),(2[0-4][0-9]|25[0-5]|[01]?[0-9][0-9]?),(2[0-4][0-9]|25[0-5]|[01]?[0-9][0-9]?)\z"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Vector2">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\A([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE]-?[0-9]+)?|-?INF|NaN),([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE]-?[0-9]+)?|-?INF|NaN)\z"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--Base Object define-->
+  <xs:complexType name="gameobject" final="#all">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="transform" type="transform"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="component" type="component"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="gameobject" type="gameobject"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" default="GameObject" />
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="tag" type="xs:string" use="optional" />
+    <xs:attribute name="isStatic" type="xs:boolean" default="false" />
+    <xs:attribute name="layer" default="0" >
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="0"/>
+          <xs:maxInclusive value="31"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="component" abstract="true">
+    <xs:attribute name="enabled" type="xs:boolean" default="true"/>
+  </xs:complexType>
+
+  <xs:complexType name="transform" final="#all">
+    <xs:attribute name="position" type="Vector3" default="0,0,0" />
+    <xs:attribute name="rotation" type="Vector3" default="0,0,0" />
+    <xs:attribute name="scale" type="Vector3" default="1,1,1" />
+  </xs:complexType>
+  
+  <!--Components define-->
+  
+  <!--Internal-->
+  <xs:complexType name="rigidbody">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:sequence>
+          <xs:element name="constrains" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="freezeposition" minOccurs="0">
+                  <xs:complexType>
+                    <xs:attribute name="x" type="xs:boolean" default="false" />
+                    <xs:attribute name="y" type="xs:boolean" default="false" />
+                    <xs:attribute name="z" type="xs:boolean" default="false" />
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="freezerotation" minOccurs="0">
+                  <xs:complexType>
+                    <xs:attribute name="x" type="xs:boolean" default="false" />
+                    <xs:attribute name="y" type="xs:boolean" default="false" />
+                    <xs:attribute name="z" type="xs:boolean" default="false" />
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="enabled" type="xs:boolean" fixed="true" />
+        <xs:attribute name="mass" default="1" >
+          <xs:simpleType>
+            <xs:restriction base="xs:float">
+              <xs:minInclusive value="0.0000001"/>
+              <xs:maxInclusive value="1000000000"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="drag" default="0">
+          <xs:simpleType>
+            <xs:restriction base="xs:float">
+              <xs:minInclusive value="0"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="angulardrag" default="0.05">
+          <xs:simpleType>
+            <xs:restriction base="xs:float">
+              <xs:minInclusive value="0"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="usegravity" type="xs:boolean" default="false" />
+        <xs:attribute name="iskinematic" type="xs:boolean" default="true" />
+        <xs:attribute name="interpolate" default="None" >
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="None"/>
+              <xs:enumeration value="Interpolate"/>
+              <xs:enumeration value="Extrapolate"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="collisiondetection" default="Discrete">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="Discrete"/>
+              <xs:enumeration value="Continuous"/>
+              <xs:enumeration value="ContinuousDynamic"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="camera">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:attribute name="clearflags" default="Skybox">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="Skybox"/>
+              <xs:enumeration value="SolidColor"/>
+              <xs:enumeration value="Color"/>
+              <xs:enumeration value="Depth"/>
+              <xs:enumeration value="Nothing"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="cullingmask" type="xs:string" use="required" />
+        <xs:attribute name="projection" type="xs:string" use="required" />
+        <xs:attribute name="size" type="xs:unsignedByte" use="required" />
+        <xs:attribute name="clippingplanes" type="xs:string" use="required" />
+        <xs:attribute name="viewportrect" type="xs:string" use="required" />
+        <xs:attribute name="depth" type="xs:unsignedByte" use="required" />
+        <xs:attribute name="renderingpath" type="xs:string" use="required" />
+        <xs:attribute name="targettexture" type="xs:string" use="required" />
+        <xs:attribute name="occlusionculling" type="xs:string" use="required" />
+        <xs:attribute name="hdr" type="xs:string" use="required" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!--NGUI-->
+  <xs:complexType name="UIRoot">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:sequence>
+          <xs:element name="constrains" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="contentwidth">
+                  <xs:complexType>
+                    <xs:attribute name="width" type="xs:unsignedShort" default="1280"/>
+                    <xs:attribute name="fit" type="xs:boolean" default="false"/>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="contentheight">
+                  <xs:complexType>
+                    <xs:attribute name="width" type="xs:unsignedShort" default="720"/>
+                    <xs:attribute name="fit" type="xs:boolean" default="true"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="scalingstyle" default="Flexible">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="Flexible"/>
+              <xs:enumeration value="Constrained"/>
+              <xs:enumeration value="ConstrainedOnMobiles"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="minimumheight" type="xs:unsignedShort" default="320" />
+        <xs:attribute name="maximumheight" type="xs:unsignedShort" default="1536" />
+        <xs:attribute name="shrinkportraitui" type="xs:boolean" default="false" />
+        <xs:attribute name="adjustbydpi" type="xs:boolean" default="false" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UIRect" abstract="true">
+    <xs:complexContent>
+      <xs:extension base="component">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UIPanel">
+    <xs:complexContent>
+      <xs:extension base="UIRect">
+        <xs:attribute name="pivot" default="Center">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="TopLeft"/>
+              <xs:enumeration value="Top"/>
+              <xs:enumeration value="TopRight"/>
+              <xs:enumeration value="Left"/>
+              <xs:enumeration value="Center"/>
+              <xs:enumeration value="Right"/>
+              <xs:enumeration value="BottomLeft"/>
+              <xs:enumeration value="Bottom"/>
+              <xs:enumeration value="BottomRight"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="depth" type="xs:int" use="required" />
+        <xs:attribute name="size" use="required" >
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="\A[0-9]+,[0-9]+\z"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="aspect" default="1" >
+          <xs:simpleType>
+            <xs:restriction base="xs:float">
+              <xs:minInclusive value="0"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="aspectratiosource" default="Free" >
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="Free"/>
+              <xs:enumeration value="BasedOnWidth"/>
+              <xs:enumeration value="BasedOnHeight"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UIWidget">
+    <xs:complexContent>
+      <xs:extension base="UIRect">
+        <xs:attribute name="pivot" default="Center">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="TopLeft"/>
+              <xs:enumeration value="Top"/>
+              <xs:enumeration value="TopRight"/>
+              <xs:enumeration value="Left"/>
+              <xs:enumeration value="Center"/>
+              <xs:enumeration value="Right"/>
+              <xs:enumeration value="BottomLeft"/>
+              <xs:enumeration value="Bottom"/>
+              <xs:enumeration value="BottomRight"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="depth" type="xs:int" use="required" />
+        <xs:attribute name="size" use="required" >
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="\A[0-9]+,[0-9]+\z"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="aspect" default="1" >
+          <xs:simpleType>
+            <xs:restriction base="xs:float">
+              <xs:minInclusive value="0"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="aspectratiosource" default="Free" >
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="Free"/>
+              <xs:enumeration value="BasedOnWidth"/>
+              <xs:enumeration value="BasedOnHeight"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UILabel">
+    <xs:complexContent>
+      <xs:extension base="UIWidget">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UIBasicSprite" abstract="true">
+    <xs:complexContent>
+      <xs:extension base="UIWidget">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UISprite">
+    <xs:complexContent>
+      <xs:extension base="UIBasicSprite">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UI2DSprite">
+    <xs:complexContent>
+      <xs:extension base="UIBasicSprite">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UITexture">
+    <xs:complexContent>
+      <xs:extension base="UIBasicSprite">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UICamera">
+    <xs:complexContent>
+      <xs:extension base="component">
+        <xs:sequence>
+          <xs:element name="eventsources">
+            <xs:complexType>
+              <xs:attribute name="mouse" type="xs:string" use="required" />
+              <xs:attribute name="touch" type="xs:string" use="required" />
+              <xs:attribute name="keyboard" type="xs:string" use="required" />
+              <xs:attribute name="controller" type="xs:string" use="required" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="thresholds">
+            <xs:complexType>
+              <xs:attribute name="mousedrag" type="xs:unsignedByte" use="required" />
+              <xs:attribute name="mouseclick" type="xs:unsignedByte" use="required" />
+              <xs:attribute name="touchdrag" type="xs:unsignedByte" use="required" />
+              <xs:attribute name="touchtap" type="xs:unsignedByte" use="required" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="axesandkeys">
+            <xs:complexType>
+              <xs:attribute name="horizontal" type="xs:string" use="required" />
+              <xs:attribute name="Vertical" type="xs:string" use="required" />
+              <xs:attribute name="scroll" type="xs:string" use="required" />
+              <xs:attribute name="submit1" type="xs:string" use="required" />
+              <xs:attribute name="submit2" type="xs:string" use="required" />
+              <xs:attribute name="cancel1" type="xs:string" use="required" />
+              <xs:attribute name="cancel2" type="xs:string" use="required" />
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="eventtype" type="xs:string" use="required" />
+        <xs:attribute name="eventmask" type="xs:string" use="required" />
+        <xs:attribute name="eventsgoto" type="xs:string" use="required" />
+        <xs:attribute name="debug" type="xs:string" use="required" />
+        <xs:attribute name="allowmultitouch" type="xs:string" use="required" />
+        <xs:attribute name="stickytooltip" type="xs:string" use="required" />
+        <xs:attribute name="tooltipdelay" type="xs:unsignedByte" use="required" />
+        <xs:attribute name="raycastrange" type="xs:byte" use="required" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+</xs:schema>

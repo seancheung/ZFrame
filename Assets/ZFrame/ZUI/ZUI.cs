@@ -1,24 +1,18 @@
 ﻿using System.IO;
 using System.Text;
 using System.Xml.Serialization;
-using ZFrame.Debugger;
 
 namespace ZFrame.GUI
 {
 	[XmlRoot]
 	public sealed class ZUI
 	{
-		[XmlAttribute]
-		public UIType type;
-		[XmlElement]
-		public UISize maxSize;
-		[XmlElement]
-		public UISize minSize;
-		[XmlAttribute]
-		public ZoomStyle zoomStyle;
+		[XmlAttribute] public UIType type;
+		[XmlElement] public UISize maxSize;
+		[XmlElement] public UISize minSize;
+		[XmlAttribute] public ZoomStyle zoomStyle;
 
-		[XmlArray]
-		public ZPanel[] panels;
+		[XmlArray] public ZPanel[] panels;
 
 		public string Serialize()
 		{
@@ -31,55 +25,42 @@ namespace ZFrame.GUI
 		}
 	}
 
-	[XmlInclude(typeof(ZButton)), XmlInclude(typeof(ZLabel)), XmlInclude(typeof(ZImage)), XmlInclude(typeof(ZPanel))]
+	[XmlInclude(typeof (ZButton)), XmlInclude(typeof (ZLabel)), XmlInclude(typeof (ZImage)), XmlInclude(typeof (ZPanel))]
 	public abstract class UIItem
 	{
-		[XmlAttribute]
-		public int depth;
-		[XmlElement]
-		public UIPosition position;
-		[XmlElement]
-		public UISize size;
+		[XmlAttribute] public int depth;
+		[XmlElement] public UIPosition position;
+		[XmlElement] public UISize size;
 
-		[XmlArray]
-		public UIItem[] items;
+		[XmlArray] public UIItem[] items;
 	}
 
 	public sealed class ZPanel : UIItem
 	{
-
 	}
 
 	public class ZButton : UIItem
 	{
-		[XmlAttribute]
-		public string name;
+		[XmlAttribute] public string name;
 	}
 
 	public class ZLabel : UIItem
 	{
-		[XmlAttribute]
-		public string content;
-		[XmlAttribute]
-		public int fontSize;
-		[XmlAttribute]
-		public string font;
+		[XmlAttribute] public string content;
+		[XmlAttribute] public int fontSize;
+		[XmlAttribute] public string font;
 	}
 
 	public class ZImage : UIItem
 	{
-		[XmlAttribute]
-		public string src;
+		[XmlAttribute] public string src;
 	}
 
 	public struct UIPosition
 	{
-		[XmlAttribute]
-		public float x;
-		[XmlAttribute]
-		public float y;
-		[XmlAttribute]
-		public float z;
+		[XmlAttribute] public float x;
+		[XmlAttribute] public float y;
+		[XmlAttribute] public float z;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:UIPosition"/> class.
@@ -109,10 +90,8 @@ namespace ZFrame.GUI
 
 	public struct UISize
 	{
-		[XmlAttribute]
-		public int height;
-		[XmlAttribute]
-		public int width;
+		[XmlAttribute] public int height;
+		[XmlAttribute] public int width;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:UISize"/> class.

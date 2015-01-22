@@ -8,7 +8,7 @@ namespace ZFrame.IO
 {
 	public class ResourceEngine : MonoSingleton<ResourceEngine>, IZDisposable
 	{
-		private const string Path = "EZResources";
+		private const string Path = "ZResources";
 		private ZResource _resource;
 
 		private bool CanLoad

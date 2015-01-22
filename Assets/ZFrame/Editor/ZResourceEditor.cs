@@ -12,15 +12,15 @@ using System.Xml.Serialization;
 using LitJson;
 #endif
 
-public class EZResourceEditor : EditorWindow
+public class ZResourceEditor : EditorWindow
 {
 #if USING_XML
-	private const string Path = "Assets/Resources/EZResourceConfig.xml";
+	private const string Path = "Assets/Resources/ZResourceConfig.xml";
 #else
-	private const string Path = "Assets/Resources/EZResource.txt";
-	private const string GroupInfoPath = "Assets/Resources/EZResourceGroupInfo.txt";
+	private const string Path = "Assets/Resources/ZResource.txt";
+	private const string GroupInfoPath = "Assets/Resources/ZResourceGroupInfo.txt";
 #endif
-	private static EZResourceEditor _instance;
+	private static ZResourceEditor _instance;
 	private Vector2 _pos;
 	private List<GroupConfig> _groups;
 	private List<GroupSelection> _selections;
@@ -34,7 +34,7 @@ public class EZResourceEditor : EditorWindow
 	{
 		if (!_instance)
 		{
-			_instance = GetWindow<EZResourceEditor>();
+			_instance = GetWindow<ZResourceEditor>();
 			_instance.minSize = new Vector2(800, 600);
 		}
 	}
@@ -46,25 +46,7 @@ public class EZResourceEditor : EditorWindow
 		_errorStyle.focused.textColor = Color.red;
 		_errorStyle.active.textColor = Color.red;
 
-		if (_groups == null || _selections == null)
-		{
-			if (!File.Exists(Path))
-			{
-				Debug.Log("Config file not found! Rebuilding...");
-				StreamWriter stream = File.CreateText(Path);
-				stream.Close();
-			}
-#if !USING_XML
-			if (!File.Exists(GroupInfoPath))
-			{
-				Debug.Log("Groupinfo file not found! Rebuilding...");
-				StreamWriter stream = File.CreateText(GroupInfoPath);
-				stream.Close();
-			}
-#endif
-
-			Load();
-		}
+		Load();
 	}
 
 	private void OnGUI()
@@ -241,11 +223,11 @@ public class EZResourceEditor : EditorWindow
 	private void Generate()
 	{
 #if USING_XML
-		XmlSerializer ser = new XmlSerializer(typeof (EZConfig));
-		List<GroupConfig> group = null;
+		XmlSerializer ser = new XmlSerializer(typeof (ZConfig));
+		List<GroupConfig> group;
 		using (Stream stream = File.OpenRead(Path))
 		{
-			EZConfig config = ser.Deserialize(stream) as EZConfig;
+			ZConfig config = ser.Deserialize(stream) as ZConfig;
 			group = config.groups;
 		}
 #else
@@ -283,10 +265,10 @@ public class EZResourceEditor : EditorWindow
 			return;
 #if USING_XML
 
-		EZConfig config = new EZConfig();
+		ZConfig config = new ZConfig();
 		config.selections = _selections;
 		config.groups = _groups;
-		XmlSerializer ser = new XmlSerializer(typeof (EZConfig));
+		XmlSerializer ser = new XmlSerializer(typeof (ZConfig));
 
 		using (StreamWriter sw = File.CreateText(Path))
 		{
@@ -306,20 +288,23 @@ public class EZResourceEditor : EditorWindow
 
 	private void Load()
 	{
-#if USING_XML
-		XmlSerializer ser = new XmlSerializer(typeof (EZConfig));
-		using (Stream stream = File.OpenRead(Path))
+		if (File.Exists(Path))
 		{
-			EZConfig config = ser.Deserialize(stream) as EZConfig;
-			_groups = config.groups;
-			_selections = config.selections;
-		}
+#if USING_XML
+			XmlSerializer ser = new XmlSerializer(typeof(ZConfig));
+			using (Stream stream = File.OpenRead(Path))
+			{
+				ZConfig config = ser.Deserialize(stream) as ZConfig;
+				_groups = config.groups;
+				_selections = config.selections;
+			}
 #else
 		string json = File.ReadAllText(Path);
 		string groupJson = File.ReadAllText(GroupInfoPath);
 		_groups = JsonMapper.ToObject<List<GroupConfig>>(json);
 		_selections = JsonMapper.ToObject<List<GroupSelection>>(groupJson);
 #endif
+		}
 
 		if (_groups == null)
 		{
@@ -438,7 +423,7 @@ public class EZResourceEditor : EditorWindow
 #if USING_XML
 	[XmlRoot]
 #endif
-	public class EZConfig
+	public class ZConfig
 	{
 #if USING_XML
 		[XmlArray, XmlArrayItem("selection")]

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ZConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <selections>
+    <selection id="0" name="Default" desc="Default group" />
+    <selection id="1" name="CardDB" desc="Card database in json format" />
+  </selections>
+  <groups>
+    <group id="1">
+      <resources>
+        <resource key="BNG" path="Assets/Resources/Database/BNG-x.json" />
+        <resource key="FRF" path="Assets/Resources/Database/FRF-x.json" />
+        <resource key="JOU" path="Assets/Resources/Database/JOU-x.json" />
+        <resource key="KTK" path="Assets/Resources/Database/KTK-x.json" />
+        <resource key="M15" path="Assets/Resources/Database/M15-x.json" />
+        <resource key="SetList" path="Assets/Resources/Database/SetList.json" />
+        <resource key="THS" path="Assets/Resources/Database/THS-x.json" />
+      </resources>
+    </group>
+  </groups>
+</ZConfig>

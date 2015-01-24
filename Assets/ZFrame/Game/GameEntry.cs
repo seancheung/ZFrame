@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using ZFrame.Debugger;
 
 namespace ZFrame
 {
@@ -7,6 +8,18 @@ namespace ZFrame
 	/// </summary>
 	public class GameEntry : MonoBehaviour
 	{
+
+		void Start()
+		{
+			//var go = new GameObject("MONO", typeof (DelegateMono));
+			//go.GetComponent<DelegateMono>().StartEvent+= Show;
+			//go.GetComponent<DelegateMono>().StartEvent+= () => ZDebug.Log("Start!");
+		}
+
+		void Show()
+		{
+			ZDebug.Log("Start!");
+		}
 		//void OnGUI()
 		//{
 		//	if (!ZSocketServer.Instance.IsListening)

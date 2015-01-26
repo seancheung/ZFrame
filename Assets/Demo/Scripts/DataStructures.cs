@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 public class SetData : SetInfo
 {
@@ -176,6 +177,7 @@ public class CardData : CardInfo
 	}
 }
 
+[Serializable]
 public class CardInfo
 {
 	/// <summary>
@@ -244,6 +246,7 @@ public class CardInfo
 	public string artist;
 }
 
+[Serializable]
 public class SetInfo
 {
 	/// <summary>

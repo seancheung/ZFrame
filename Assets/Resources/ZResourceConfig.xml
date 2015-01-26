@@ -3,6 +3,7 @@
   <selections>
     <selection id="0" name="Default" desc="Default group" />
     <selection id="1" name="CardDB" desc="Card database in json format" />
+    <selection id="2" name="GamePrefab" />
   </selections>
   <groups>
     <group id="1">
@@ -14,6 +15,11 @@
         <resource key="M15" path="Assets/Resources/Database/M15-x.json" />
         <resource key="SetList" path="Assets/Resources/Database/SetList.json" />
         <resource key="THS" path="Assets/Resources/Database/THS-x.json" />
+      </resources>
+    </group>
+    <group id="2">
+      <resources>
+        <resource key="CardObj" path="Assets/Demo/Prefabs/CardObj.prefab" />
       </resources>
     </group>
   </groups>

@@ -1,3 +1,3 @@
-﻿public abstract class Permanent : Entity
+﻿public abstract class Permanent : CardEntity
 {
 }

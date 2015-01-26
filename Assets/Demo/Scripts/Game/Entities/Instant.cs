@@ -1,3 +1,3 @@
-﻿public class Instant : Entity
+﻿public class Instant : CardEntity
 {
 }

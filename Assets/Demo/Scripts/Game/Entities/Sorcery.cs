@@ -1,3 +1,3 @@
-﻿public class Sorcery : Entity
+﻿public class Sorcery : CardEntity
 {
 }

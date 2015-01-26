@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof (Entity))]
+[RequireComponent(typeof (CardEntity))]
 public abstract class EntityFlag : MonoBehaviour
 {
 }

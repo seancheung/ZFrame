@@ -15,7 +15,7 @@ public class CardListItem : MonoBehaviour
 		set
 		{
 			_data = value;
-			if(Data != null)
+			if (Data != null)
 				Refresh();
 		}
 	}
@@ -23,7 +23,7 @@ public class CardListItem : MonoBehaviour
 	private void Refresh()
 	{
 		cardName.text = Data.name;
-		cardType.text = CardLoader.ParseType(Data.types);
+		cardType.text = CardRenderTool.ParseType(Data.types);
 		cardCost.text = Data.manaCost;
 
 		expander.name.text = Data.name;
@@ -47,5 +47,4 @@ public class CardListItem : MonoBehaviour
 		public UILabel rarity;
 		public UILabel text;
 	}
-
 }

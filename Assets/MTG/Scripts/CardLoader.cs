@@ -1,6 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using ZFrame.IO;
@@ -11,26 +9,6 @@ public class CardLoader : MonoBehaviour
 	public UIProgressBar progressBar;
 	public UIPanel dockPanel;
 	public UICamera cam;
-
-	private const string MultiType = "[M]";
-	private const string Creature = "[C]";
-	private const string Artifact = "[A]";
-	private const string Enchantment = "[E]";
-	private const string Instant = "[I]";
-	private const string Sorcery = "[S]";
-	private const string PlanesWalker = "[P]";
-	private const string Land = "[L]";
-
-	private static readonly Dictionary<string, string> Types = new Dictionary<string, string>
-	{
-		{"creature", Creature},
-		{"artifact", Artifact},
-		{"enchantment", Enchantment},
-		{"instant", Instant},
-		{"sorcery", Sorcery},
-		{"planeswalker", PlanesWalker},
-		{"land", Land},
-	};
 
 	public void Load()
 	{
@@ -53,7 +31,7 @@ public class CardLoader : MonoBehaviour
 			item.Data = card;
 			yield return item;
 
-			progressBar.value = (float)i / data.cards.Length;
+			progressBar.value = (float) i/data.cards.Length;
 		}
 
 		grid.gameObject.SetActive(true);
@@ -64,22 +42,15 @@ public class CardLoader : MonoBehaviour
 	private void ShowCardObj(CardData data)
 	{
 		GameObject cardobj = ResourceEngine.Instance.Load<GameObject>("CardObj");
-		var cardgo = NGUITools.AddChild(dockPanel.gameObject, cardobj).GetComponent<CardEntity>();
+		CardEntity cardgo = NGUITools.AddChild(dockPanel.gameObject, cardobj).GetComponent<CardEntity>();
 		cardgo.data = data;
 		UIEventListener.Get(cardgo.transform.GetChild(0).gameObject).onDoubleClick += go =>
 		{
 			grid.gameObject.SetActive(true);
 			Destroy(cardgo.gameObject);
 			cam.GetComponent<TweenPosition>().PlayReverse();
-
 		};
 		cam.GetComponent<TweenPosition>().PlayForward();
 		grid.gameObject.SetActive(false);
-	}
-
-	public static string ParseType(string[] types)
-	{
-		IEnumerable<string> res = types.Select(t => Types[t.ToLower().Trim()]);
-		return res.Aggregate((a, b) => a + b);
 	}
 }

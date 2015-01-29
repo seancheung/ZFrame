@@ -1,6 +1,6 @@
 ﻿namespace ZFrame.Net.Message
 {
-	public class MessageEngine : MonoSingleton<MessageEngine>, IZDisposable
+	public class MessageEngine : MonoSingleton<MessageEngine>, IMonoDisposable
 	{
 		private void Start()
 		{

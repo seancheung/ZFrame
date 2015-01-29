@@ -8,7 +8,7 @@ using ZFrame.Debugger;
 
 namespace ZFrame.Frame.MVVM
 {
-	public class MVVMEngine : MonoSingleton<MVVMEngine>, IZDisposable
+	public class MVVMEngine : MonoSingleton<MVVMEngine>, IMonoDisposable
 	{
 		private class BindingGroup
 		{

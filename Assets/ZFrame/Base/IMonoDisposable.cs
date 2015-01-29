@@ -3,7 +3,7 @@
 	/// <summary>
 	/// For game class dispose
 	/// </summary>
-	public interface IZDisposable
+	public interface IMonoDisposable
 	{
 		/// <summary>
 		/// Called on application quit

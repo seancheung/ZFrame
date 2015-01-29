@@ -4,7 +4,7 @@ using System.Net.Sockets;
 
 namespace ZFrame.Net
 {
-	public class ZSocketServer : MonoSingleton<ZSocketServer>, IDisposable, IZDisposable
+	public class ZSocketServer : MonoSingleton<ZSocketServer>, IDisposable, IMonoDisposable
 	{
 		public delegate void ReceiveHandler();
 
@@ -81,7 +81,7 @@ namespace ZFrame.Net
 			return true;
 		}
 
-		bool IZDisposable.Dispose()
+		bool IMonoDisposable.Dispose()
 		{
 			(this as IDisposable).Dispose();
 			return true;

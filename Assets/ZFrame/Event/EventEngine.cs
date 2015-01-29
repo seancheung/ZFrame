@@ -3,7 +3,7 @@ using ZFrame.Debugger;
 
 namespace ZFrame.Event
 {
-	public class EventEngine : MonoSingleton<EventEngine>, IZDisposable
+	public class EventEngine : MonoSingleton<EventEngine>, IMonoDisposable
 	{
 		private readonly Queue<IEvent> _events = new Queue<IEvent>();
 		private readonly Dictionary<string, List<IEventListener>> _listeners = new Dictionary<string, List<IEventListener>>();

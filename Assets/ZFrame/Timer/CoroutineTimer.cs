@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Timer
 {
-	public class CoroutineTimer : MonoSingleton<CoroutineTimer>, ITimer, IZDisposable
+	public class CoroutineTimer : MonoSingleton<CoroutineTimer>, ITimer, IMonoDisposable
 	{
 		public event Action Ontick;
 		public ulong Time { get; protected set; }

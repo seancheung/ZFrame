@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace ZFrame.IO
 {
-	public class ResourceEngine : MonoSingleton<ResourceEngine>, IZDisposable
+	public class ResourceEngine : MonoSingleton<ResourceEngine>, IMonoDisposable
 	{
 		private const string Path = "ZResources";
 		private ZResource _resource;

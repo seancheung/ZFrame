@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ZFrame.Timer
 {
-	public class ElapsedTimer : MonoSingleton<ElapsedTimer>, ITimer, IZDisposable
+	public class ElapsedTimer : MonoSingleton<ElapsedTimer>, ITimer, IMonoDisposable
 	{
 		public event Action Ontick;
 		protected System.Timers.Timer timer;

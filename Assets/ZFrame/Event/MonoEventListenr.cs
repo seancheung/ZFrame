@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ZFrame.Event
 {
-	public class ZEventListenr : MonoBehaviour, IEventListener
+	public class MonoEventListenr : MonoBehaviour, IEventListener
 	{
 		private readonly Dictionary<string, Action<object>> _events = new Dictionary<string, Action<object>>();
 		public bool stopHandle;

@@ -4,7 +4,7 @@ using System.Net.Sockets;
 
 namespace ZFrame.Net
 {
-	public class ZSocketClient : MonoSingleton<ZSocketClient>, IDisposable, IZDisposable
+	public class ZSocketClient : MonoSingleton<ZSocketClient>, IDisposable, IMonoDisposable
 	{
 		public delegate void MsgHandle(byte[] data);
 
@@ -172,7 +172,7 @@ namespace ZFrame.Net
 			return true;
 		}
 
-		bool IZDisposable.Dispose()
+		bool IMonoDisposable.Dispose()
 		{
 			(this as IDisposable).Dispose();
 			ReleaseInstance();

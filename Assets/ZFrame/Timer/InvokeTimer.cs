@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ZFrame.Timer
 {
-	public class InvokeTimer : MonoSingleton<InvokeTimer>, ITimer, IZDisposable
+	public class InvokeTimer : MonoSingleton<InvokeTimer>, ITimer, IMonoDisposable
 	{
 		public event Action Ontick;
 		public ulong Time { get; protected set; }

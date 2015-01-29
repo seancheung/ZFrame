@@ -57,13 +57,13 @@ public class CSVEditor : EditorWindow
 
 			for (int i = 0; i < _reader.RowCount; i++)
 			{
-				EditorGUILayout.BeginHorizontal(GUILayout.Width(position.width - 10));
+				var rect = EditorGUILayout.BeginHorizontal(GUILayout.Width(position.width - 10));
 				{
 					for (int j = 0; j < _reader.ColumnCount; j++)
 					{
 						if (j == 0)
 							DrawRowMarker(i);
-						EditorGUILayout.TextField(_reader[i, j]);
+						EditorGUILayout.SelectableLabel(_reader[i, j]);
 					}
 				}
 				EditorGUILayout.EndHorizontal();

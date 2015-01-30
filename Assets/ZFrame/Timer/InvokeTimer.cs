@@ -1,9 +1,9 @@
 ﻿using System;
-using UnityEngine;
+using ZFrame.MonoBase;
 
 namespace ZFrame.Timer
 {
-	public class InvokeTimer : MonoSingleton<InvokeTimer>, ITimer, IMonoDisposable
+	public class InvokeTimer : MonoSingleton<InvokeTimer>, ITimer
 	{
 		public event Action Ontick;
 		public ulong Time { get; protected set; }
@@ -12,7 +12,6 @@ namespace ZFrame.Timer
 
 		private void Start()
 		{
-			GameEngine.Instance.RegisterDispose(this);
 			Sync(0);
 			Sync(DateTime.Now);
 		}
@@ -57,38 +56,5 @@ namespace ZFrame.Timer
 				InvokeRepeating("Tick", 0, 1*UnityEngine.Time.timeScale);
 			}
 		}
-
-		#region Test
-
-		private void OnGUI()
-		{
-			GUILayout.Label(Time.ToString());
-		}
-
-		#endregion
-
-		#region Implementation of IGameDisposable
-
-		/// <summary>
-		/// Called on application quit
-		/// </summary>
-		/// <returns></returns>
-		public bool DisposeOnApplicationQuit()
-		{
-			return false;
-		}
-
-		/// <summary>
-		/// Dispose
-		/// </summary>
-		/// <returns></returns>
-		public bool Dispose()
-		{
-			StopTimer();
-			ReleaseInstance();
-			return true;
-		}
-
-		#endregion
 	}
 }

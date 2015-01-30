@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Net.Sockets;
+using ZFrame.MonoBase;
 
 namespace ZFrame.Net
 {
-	public class ZSocketClient : MonoSingleton<ZSocketClient>, IDisposable, IMonoDisposable
+	public class ZSocketClient : MonoSingleton<ZSocketClient>
 	{
 		public delegate void MsgHandle(byte[] data);
 
@@ -18,11 +19,6 @@ namespace ZFrame.Net
 		protected Queue sendQueue = Queue.Synchronized(new Queue());
 		protected static object locker = new object();
 		public MsgHandle msgHandle;
-
-		private void Start()
-		{
-			GameEngine.Instance.RegisterDispose(this);
-		}
 
 		public virtual void Setup(string ip, int port)
 		{
@@ -166,20 +162,7 @@ namespace ZFrame.Net
 			}
 		}
 
-		public bool DisposeOnApplicationQuit()
-		{
-			(this as IDisposable).Dispose();
-			return true;
-		}
-
-		bool IMonoDisposable.Dispose()
-		{
-			(this as IDisposable).Dispose();
-			ReleaseInstance();
-			return true;
-		}
-
-		void IDisposable.Dispose()
+		private void OnDestroy()
 		{
 			Close();
 		}

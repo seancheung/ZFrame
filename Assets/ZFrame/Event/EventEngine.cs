@@ -1,17 +1,13 @@
 ﻿using System.Collections.Generic;
 using ZFrame.Debugger;
+using ZFrame.MonoBase;
 
-namespace ZFrame.Event
+namespace ZFrame.EventSystem
 {
-	public class EventEngine : MonoSingleton<EventEngine>, IMonoDisposable
+	public class EventEngine : MonoSingleton<EventEngine>
 	{
 		private readonly Queue<IEvent> _events = new Queue<IEvent>();
 		private readonly Dictionary<string, List<IEventListener>> _listeners = new Dictionary<string, List<IEventListener>>();
-
-		private void Start()
-		{
-			GameEngine.Instance.RegisterDispose(this);
-		}
 
 		/// <summary>
 		/// Listen to target event
@@ -87,28 +83,5 @@ namespace ZFrame.Event
 		{
 			Dispatch();
 		}
-
-		#region Implementation of IGameDisposable
-
-		/// <summary>
-		/// Called on application quit
-		/// </summary>
-		/// <returns></returns>
-		public bool DisposeOnApplicationQuit()
-		{
-			return false;
-		}
-
-		/// <summary>
-		/// Dispose
-		/// </summary>
-		/// <returns></returns>
-		public bool Dispose()
-		{
-			ReleaseInstance();
-			return true;
-		}
-
-		#endregion
 	}
 }

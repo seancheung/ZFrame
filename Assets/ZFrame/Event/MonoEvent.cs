@@ -1,9 +1,8 @@
-﻿namespace ZFrame.Event
+﻿namespace ZFrame.EventSystem
 {
-	public class MonoEvent : IEvent
+	public class MonoEvent
 	{
 		public string Name { get; protected set; }
-		object IEvent.Data { get { return EventArg; }}
 
 		public MonoEventArg EventArg { get; protected set; }
 
@@ -16,9 +15,9 @@
 			EventArg = eventArg;
 		}
 
-		public static implicit operator string(MonoEvent evt)
+		public override string ToString()
 		{
-			return evt.Name;
+			return string.Format("Name: {0}, EventArg: {1}", Name, EventArg);
 		}
 	}
 
@@ -34,6 +33,11 @@
 		{
 			Sender = sender;
 			Data = data;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("Sender: {0}, Data: {1}", Sender, Data);
 		}
 	}
 }

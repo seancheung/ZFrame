@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-namespace ZFrame.Event
+namespace ZFrame.EventSystem
 {
-	public class MonoEventListenr : MonoBehaviour, IEventListener
+	public class MonoEventListenr : MonoBehaviour
 	{
-		private readonly Dictionary<string, Action<object>> _events = new Dictionary<string, Action<object>>();
-		public bool stopHandle;
+		private readonly Dictionary<string, Action<MonoEventArg>> _events = new Dictionary<string, Action<MonoEventArg>>();
+		public bool isListening = true;
 
-		public bool AddEvent(string key, Action<object> action)
+		public bool AddEvent(string key, Action<MonoEventArg> action)
 		{
 			if (!_events.SafeAdd(key, action)) return false;
-			EventEngine.Instance.AddListener(this, key);
 			return true;
 		}
 
@@ -21,7 +19,6 @@ namespace ZFrame.Event
 		{
 			if (!_events.SafeRemove(key))
 				return false;
-			EventEngine.Instance.RemoveListener(this, key);
 			return true;
 		}
 
@@ -30,35 +27,23 @@ namespace ZFrame.Event
 			_events.Clear();
 		}
 
-		#region Implementation of IEventListener
-
-		public void HandleEvent(IEvent evt)
+		public void HandleEvent(MonoEvent evt)
 		{
-			if (!stopHandle)
+			Action<MonoEventArg> action = _events.TryGet(evt.Name);
+			if (action != null)
 			{
-				Action<object> action = _events.TryGet(evt.Name);
-				if (action != null)
-				{
-					action.Invoke(evt.Data);
-				}
+				action.Invoke(evt.EventArg);
 			}
 		}
 
-		#endregion
-
 		private void OnDisable()
 		{
-			stopHandle = true;
+			isListening = true;
 		}
 
 		private void OnEnable()
 		{
-			stopHandle = false;
-		}
-
-		private void OnDestroy()
-		{
-			_events.Keys.ToList().ForEach(key => EventEngine.Instance.RemoveListener(this, key));
+			isListening = false;
 		}
 	}
 }

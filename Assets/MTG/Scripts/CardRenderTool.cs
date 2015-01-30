@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ZFrame;
+using ZFrame.MonoBase;
 
 public class CardRenderTool : MonoSingleton<CardRenderTool>
 {

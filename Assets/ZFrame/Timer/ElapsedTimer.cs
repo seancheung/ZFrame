@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Timers;
-using UnityEngine;
+using ZFrame.MonoBase;
 
 namespace ZFrame.Timer
 {
-	public class ElapsedTimer : MonoSingleton<ElapsedTimer>, ITimer, IMonoDisposable
+	public class ElapsedTimer : MonoSingleton<ElapsedTimer>, ITimer
 	{
 		public event Action Ontick;
 		protected System.Timers.Timer timer;
@@ -14,7 +14,6 @@ namespace ZFrame.Timer
 
 		private void Start()
 		{
-			GameEngine.Instance.RegisterDispose(this);
 			Sync(0);
 			Sync(DateTime.Now);
 		}
@@ -65,38 +64,5 @@ namespace ZFrame.Timer
 				timer.Start();
 			}
 		}
-
-		#region Test
-
-		private void OnGUI()
-		{
-			GUILayout.Label(Now.ToLongTimeString());
-		}
-
-		#endregion
-
-		#region Implementation of IGameDisposable
-
-		/// <summary>
-		/// Called on application quit
-		/// </summary>
-		/// <returns></returns>
-		public bool DisposeOnApplicationQuit()
-		{
-			timer.Close();
-			return true;
-		}
-
-		/// <summary>
-		/// Dispose
-		/// </summary>
-		/// <returns></returns>
-		public bool Dispose()
-		{
-			ReleaseInstance();
-			return true;
-		}
-
-		#endregion
 	}
 }

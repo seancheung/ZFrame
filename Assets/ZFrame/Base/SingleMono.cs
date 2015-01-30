@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
 
-public abstract class SingleMono : MonoBehaviour
+namespace ZFrame.MonoBase
 {
-	protected virtual void Start()
+	public abstract class SingleMono : MonoBehaviour
 	{
-		foreach (SingleMono component in GetComponents<SingleMono>())
+		protected virtual void Awake()
 		{
-			if (component != this)
-				Destroy(component);
+			foreach (SingleMono component in GetComponents<SingleMono>())
+			{
+				if (component != this)
+					Destroy(component);
+			}
 		}
 	}
 }

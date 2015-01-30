@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using ZFrame.MonoBase;
 
 namespace ZFrame.Net
 {
-	public class ZSocketServer : MonoSingleton<ZSocketServer>, IDisposable, IMonoDisposable
+	public class ZSocketServer : MonoSingleton<ZSocketServer>
 	{
 		public delegate void ReceiveHandler();
 
@@ -13,11 +14,6 @@ namespace ZFrame.Net
 
 		public ReceiveHandler receiveHandler;
 		public bool IsListening { get; protected set; }
-
-		private void Start()
-		{
-			GameEngine.Instance.RegisterDispose(this);
-		}
 
 		public void StartListen()
 		{
@@ -43,12 +39,12 @@ namespace ZFrame.Net
 
 		private void ReceiveCallback(IAsyncResult ar)
 		{
-			TcpClient client = listener.EndAcceptTcpClient(ar);
+			//TcpClient client = listener.EndAcceptTcpClient(ar);
 
-			if (receiveHandler != null)
-			{
-				receiveHandler();
-			}
+			//if (receiveHandler != null)
+			//{
+			//	receiveHandler();
+			//}
 			//NetworkStream stream = client.GetStream();
 			//if (stream.DataAvailable)
 			//{
@@ -56,7 +52,7 @@ namespace ZFrame.Net
 			//	stream.Write(data, 0, data.Length);
 			//	OnReceived(data);
 			//}
-			listener.BeginAcceptTcpClient(ReceiveCallback, null);
+			//listener.BeginAcceptTcpClient(ReceiveCallback, null);
 		}
 
 		//protected virtual void OnReceived(byte[] data)
@@ -74,20 +70,7 @@ namespace ZFrame.Net
 			}
 		}
 
-		public bool DisposeOnApplicationQuit()
-		{
-			(this as IDisposable).Dispose();
-			ReleaseInstance();
-			return true;
-		}
-
-		bool IMonoDisposable.Dispose()
-		{
-			(this as IDisposable).Dispose();
-			return true;
-		}
-
-		void IDisposable.Dispose()
+		private void OnDestroy()
 		{
 			Close();
 		}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using ZFrame.MonoBase;
 
 [CustomEditor(typeof (DelegateMono))]
 public class DelegateMonoInspector : Editor

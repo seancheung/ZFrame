@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+using ZFrame.MonoBase;
 
 namespace ZFrame.Timer
 {
-	public class ThreadTimer : MonoSingleton<ThreadTimer>, ITimer, IMonoDisposable
+	public class ThreadTimer : MonoSingleton<ThreadTimer>, ITimer
 	{
 		protected System.Threading.Timer timer;
 		public event Action Ontick;
@@ -18,7 +18,6 @@ namespace ZFrame.Timer
 
 		protected virtual void Start()
 		{
-			GameEngine.Instance.RegisterDispose(this);
 			Sync(0);
 			Sync(DateTime.Now);
 		}
@@ -101,39 +100,5 @@ namespace ZFrame.Timer
 
 			return reminders.SafeAdd(new Reminder(key, type, time, callback));
 		}
-
-		#region Test
-
-		private void OnGUI()
-		{
-			GUILayout.Label(Time.ToString());
-		}
-
-		#endregion
-
-		#region Implementation of IGameDisposable
-
-		/// <summary>
-		/// Called on application quit
-		/// </summary>
-		/// <returns></returns>
-		public bool DisposeOnApplicationQuit()
-		{
-			StopTimer();
-			return true;
-		}
-
-		/// <summary>
-		/// Dispose
-		/// </summary>
-		/// <returns></returns>
-		public bool Dispose()
-		{
-			StopTimer();
-			ReleaseInstance();
-			return true;
-		}
-
-		#endregion
 	}
 }

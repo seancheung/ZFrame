@@ -2,11 +2,12 @@
 using System.Collections;
 using UnityEngine;
 using ZFrame.Debugger;
+using ZFrame.MonoBase;
 using Object = UnityEngine.Object;
 
 namespace ZFrame.IO
 {
-	public class ResourceEngine : MonoSingleton<ResourceEngine>, IMonoDisposable
+	public class ResourceEngine : MonoSingleton<ResourceEngine>
 	{
 		private const string Path = "ZResources";
 		private ZResource _resource;
@@ -125,19 +126,8 @@ namespace ZFrame.IO
 
 		private void Start()
 		{
-			GameEngine.Instance.RegisterDispose(this);
 			InitManager();
 		}
 
-		public bool DisposeOnApplicationQuit()
-		{
-			return false;
-		}
-
-		public bool Dispose()
-		{
-			ReleaseInstance();
-			return true;
-		}
 	}
 }

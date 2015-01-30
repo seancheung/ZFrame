@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.IO;
 using UnityEngine;
-using ZFrame;
+using ZFrame.MonoBase;
 
 public class AsyncImageDownloader : MonoSingleton<AsyncImageDownloader>
 {
@@ -9,7 +9,7 @@ public class AsyncImageDownloader : MonoSingleton<AsyncImageDownloader>
 
 	private readonly string _path = Application.persistentDataPath + "/ImageCache/";
 
-	private void Start()
+	protected void Start()
 	{
 		if (!Directory.Exists(Application.persistentDataPath + "/ImageCache/"))
 		{

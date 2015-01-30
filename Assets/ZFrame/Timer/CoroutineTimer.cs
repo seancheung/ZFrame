@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using ZFrame.MonoBase;
 
 namespace ZFrame.Timer
 {
-	public class CoroutineTimer : MonoSingleton<CoroutineTimer>, ITimer, IMonoDisposable
+	public class CoroutineTimer : MonoSingleton<CoroutineTimer>, ITimer
 	{
 		public event Action Ontick;
 		public ulong Time { get; protected set; }
@@ -27,7 +28,6 @@ namespace ZFrame.Timer
 
 		private void Start()
 		{
-			GameEngine.Instance.RegisterDispose(this);
 			Sync(0);
 			Sync(DateTime.Now);
 		}
@@ -58,26 +58,6 @@ namespace ZFrame.Timer
 				IsRunning = true;
 				StartCoroutine(Tick());
 			}
-		}
-
-		#region Test
-
-		private void OnGUI()
-		{
-			GUILayout.Label(Time.ToString());
-		}
-
-		#endregion
-
-		public bool DisposeOnApplicationQuit()
-		{
-			return false;
-		}
-
-		public bool Dispose()
-		{
-			ReleaseInstance();
-			return true;
 		}
 	}
 }

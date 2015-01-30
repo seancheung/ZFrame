@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using ZFrame.Debugger;
 
-namespace ZFrame
+namespace ZFrame.MonoBase
 {
-	public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
+	public abstract class MonoSingleton<T> : SingleMono where T : MonoBehaviour
 	{
 		///// <summary>
 		///// A readonly instance
@@ -18,7 +18,8 @@ namespace ZFrame
 			{
 				if (_instance == null)
 				{
-					_instance = new GameObject(typeof (T).ToString(), typeof (T));
+					T find = FindObjectOfType<T>();
+					_instance = find == null ? new GameObject(typeof (T).ToString(), typeof (T)) : find.gameObject;
 					DontDestroyOnLoad(_instance);
 				}
 				return _instance.GetComponent<T>();

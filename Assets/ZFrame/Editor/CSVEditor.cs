@@ -57,7 +57,7 @@ public partial class CSVEditor : EditorWindow
 
 			for (int i = 0; i < _reader.RowCount; i++)
 			{
-				var rect = EditorGUILayout.BeginHorizontal(GUILayout.Width(position.width - 10));
+				EditorGUILayout.BeginHorizontal(GUILayout.Width(position.width - 10));
 				{
 					for (int j = 0; j < _reader.ColumnCount; j++)
 					{

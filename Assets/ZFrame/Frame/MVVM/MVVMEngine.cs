@@ -5,10 +5,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using ZFrame.Debugger;
+using ZFrame.MonoBase;
 
 namespace ZFrame.Frame.MVVM
 {
-	public class MVVMEngine : MonoSingleton<MVVMEngine>, IMonoDisposable
+	public class MVVMEngine : MonoSingleton<MVVMEngine>
 	{
 		private class BindingGroup
 		{
@@ -161,7 +162,7 @@ namespace ZFrame.Frame.MVVM
 			}
 		}
 
-		#region Property Notify
+		#region Property OnNotify
 
 		private void Notify(PropertyInfo prop)
 		{
@@ -264,16 +265,5 @@ namespace ZFrame.Frame.MVVM
 		}
 
 		#endregion
-
-		public bool DisposeOnApplicationQuit()
-		{
-			return false;
-		}
-
-		public bool Dispose()
-		{
-			ReleaseInstance();
-			return true;
-		}
 	}
 }

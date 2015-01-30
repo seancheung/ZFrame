@@ -1,4 +1,4 @@
-﻿namespace ZFrame.Event
+﻿namespace ZFrame.EventSystem
 {
 	public interface IEvent
 	{

@@ -1,4 +1,6 @@
-﻿public abstract class MonoState : SingleMono, IGameState
+﻿using ZFrame.MonoBase;
+
+public abstract class MonoState : SingleMono, IGameState
 {
 	private void Start()
 	{

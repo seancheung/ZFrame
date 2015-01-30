@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using ZFrame.IO.CSV;
 
-public class CSVEditor : EditorWindow
+public partial class CSVEditor : EditorWindow
 {
 	private static CSVEditor _instance;
 	private TextAsset _file;
@@ -131,4 +131,9 @@ public class CSVEditor : EditorWindow
 		}
 		EditorGUILayout.EndHorizontal();
 	}
+}
+
+public partial class CSVEditor
+{
+	 
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ZFrame.MonoBase;
@@ -15,26 +14,21 @@ namespace ZFrame.EventSystem.Voting
 
 		internal bool Vote(MonoVote vote)
 		{
-			return Voters.All(v => v.Agree(vote));
+			return Voters.Where(v => v != vote.EventArg.Sender).All(v => v.Agree(vote));
 		}
 
 		internal void VoteAsync(MonoVote vote, Action<bool> voteCallback)
 		{
-			StartCoroutine(GetVote(vote, voteCallback));
-		}
-
-		private IEnumerator GetVote(MonoVote vote, Action<bool> callback)
-		{
-			foreach (MonoVoter voter in Voters)
+			List<bool> results = new List<bool>();
+			foreach (MonoVoter voter in Voters.Where(v => v != vote.EventArg.Sender))
 			{
-				if (!voter.Agree(vote))
+				voter.AgreeAsync(vote, result =>
 				{
-					callback.Invoke(false);
-					yield break;
-				}
-				yield return voter;
+					results.Add(result);
+					if (results.Count >= Voters.Count(v => v != vote.EventArg.Sender))
+						voteCallback.Invoke(results.All(r => r));
+				});
 			}
-			callback.Invoke(true);
 		}
 	}
 }

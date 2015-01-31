@@ -2,22 +2,19 @@
 {
 	public class MonoEvent
 	{
-		public string Name { get; protected set; }
+		public MonoEventType Type { get; set; }
 
 		public MonoEventArg EventArg { get; protected set; }
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="T:MonoEvent"/> class.
-		/// </summary>
-		public MonoEvent(string name, MonoEventArg eventArg)
+		public MonoEvent(MonoEventType type, MonoEventArg eventArg)
 		{
-			Name = name;
+			Type = type;
 			EventArg = eventArg;
 		}
 
 		public override string ToString()
 		{
-			return string.Format("Name: {0}, EventArg: {1}", Name, EventArg);
+			return string.Format("Type: {0}, EventArg: {1}", Type, EventArg);
 		}
 	}
 
@@ -33,6 +30,14 @@
 		{
 			Sender = sender;
 			Data = data;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MonoEventArg"/> class.
+		/// </summary>
+		public MonoEventArg(object sender)
+		{
+			Sender = sender;
 		}
 
 		public override string ToString()

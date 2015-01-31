@@ -1,39 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZFrame.EventSystem
 {
 	public class MonoEventListenr : MonoBehaviour
 	{
-		private readonly Dictionary<string, Action<MonoEventArg>> _events = new Dictionary<string, Action<MonoEventArg>>();
+		public event Action<MonoEvent> EventHandler;
+
+		protected virtual void OnEventHandler(MonoEvent obj)
+		{
+			Action<MonoEvent> handler = EventHandler;
+			if (handler != null) handler(obj);
+		}
+
+
 		public bool isListening = true;
-
-		public bool AddEvent(string key, Action<MonoEventArg> action)
-		{
-			if (!_events.SafeAdd(key, action)) return false;
-			return true;
-		}
-
-		public bool RemoveEvent(string key)
-		{
-			if (!_events.SafeRemove(key))
-				return false;
-			return true;
-		}
-
-		public void ClearEvent()
-		{
-			_events.Clear();
-		}
 
 		public void HandleEvent(MonoEvent evt)
 		{
-			Action<MonoEventArg> action = _events.TryGet(evt.Name);
-			if (action != null)
-			{
-				action.Invoke(evt.EventArg);
-			}
+			OnEventHandler(evt);
 		}
 
 		private void OnDisable()

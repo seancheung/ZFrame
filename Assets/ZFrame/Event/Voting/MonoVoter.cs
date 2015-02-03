@@ -4,15 +4,15 @@ using UnityEngine;
 
 namespace ZFrame.EventSystem.Voting
 {
-	public class MonoVoter : MonoBehaviour
+	public class MonoVoter<TEnum> : MonoBehaviour where TEnum : IComparable, IConvertible
 	{
-		public delegate bool HandleVote(MonoVote vote);
+		public delegate bool HandleVote(MonoVote<TEnum> vote);
 
-		public delegate IEnumerator HandleVoteAsync(MonoVote vote, Action<bool> agreeCallback);
+		public delegate IEnumerator HandleVoteAsync(MonoVote<TEnum> vote, Action<bool> agreeCallback);
 
 		public event HandleVote VoteHandler;
 
-		protected virtual bool OnVoteHandler(MonoVote vote)
+		private bool OnVoteHandler(MonoVote<TEnum> vote)
 		{
 			HandleVote handler = VoteHandler;
 			if (handler != null) return handler(vote);
@@ -21,29 +21,29 @@ namespace ZFrame.EventSystem.Voting
 
 		public event HandleVoteAsync VoteAsyncHandler;
 
-		protected virtual void OnVoteAsyncHandler(MonoVote vote, Action<bool> agreecallback)
+		private void OnVoteAsyncHandler(MonoVote<TEnum> vote, Action<bool> agreecallback)
 		{
 			HandleVoteAsync handler = VoteAsyncHandler;
 			if (handler != null) StartCoroutine(handler(vote, agreecallback));
 			else agreecallback.Invoke(true);
 		}
 
-		public bool Vote(MonoVote vote)
+		public bool Vote(MonoVote<TEnum> vote)
 		{
 			return MonoVoteEngine.Instance.Vote(vote);
 		}
 
-		public void VoteAsync(MonoVote vote, Action<bool> voteCallback)
+		public void VoteAsync(MonoVote<TEnum> vote, Action<bool> voteCallback)
 		{
 			MonoVoteEngine.Instance.VoteAsync(vote, voteCallback);
 		}
 
-		public bool Agree(MonoVote vote)
+		public bool Agree(MonoVote<TEnum> vote)
 		{
 			return OnVoteHandler(vote);
 		}
 
-		public void AgreeAsync(MonoVote vote, Action<bool> agreeCallback)
+		public void AgreeAsync(MonoVote<TEnum> vote, Action<bool> agreeCallback)
 		{
 			OnVoteAsyncHandler(vote, agreeCallback);
 		}

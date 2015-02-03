@@ -3,25 +3,24 @@ using System.Collections;
 using UnityEngine;
 using ZFrame.EventSystem.Voting;
 
-[RequireComponent(typeof (MonoVoter))]
-public class VoterA : MonoBehaviour
+public class VoterA : MonoVoter<VoteEventType>
 {
 	private string _tip = "";
 
 	private void Awake()
 	{
-		GetComponent<MonoVoter>().VoteHandler += OnVoteHandler;
-		GetComponent<MonoVoter>().VoteAsyncHandler += OnVoteAsyncHandler;
+		VoteHandler += OnVoteHandler;
+		VoteAsyncHandler += OnVoteAsyncHandler;
 	}
 
-	private bool OnVoteHandler(MonoVote vote)
+	private bool OnVoteHandler(MonoVote<VoteEventType> vote)
 	{
 		_tip = "";
 
-		switch (vote.Type)
+		switch (vote.Key)
 		{
-			case MonoEventType.CreatureAttack:
-				var result = vote.EventArg.Data is VoterA;
+			case VoteEventType.CreatureAttack:
+				bool result = vote.EventArg.Data is VoterA;
 				_tip = "my vote: " + result;
 				return result;
 		}
@@ -30,13 +29,13 @@ public class VoterA : MonoBehaviour
 		return true;
 	}
 
-	private IEnumerator OnVoteAsyncHandler(MonoVote vote, Action<bool> agreeCallback)
+	private IEnumerator OnVoteAsyncHandler(MonoVote<VoteEventType> vote, Action<bool> agreeCallback)
 	{
 		_tip = "";
 
-		switch (vote.Type)
+		switch (vote.Key)
 		{
-			case MonoEventType.CreatureAttack:
+			case VoteEventType.CreatureAttack:
 			{
 				int count = 10;
 				while (count-- > 0)
@@ -59,9 +58,9 @@ public class VoterA : MonoBehaviour
 	{
 		if (GUI.Button(new Rect(5, 5, 200, 50), "VoterA: CreatureAttack"))
 		{
-			bool result = GetComponent<MonoVoter>()
-				.Vote(new MonoVote(MonoEventType.CreatureAttack,
-					new MonoVoteArg(GetComponent<MonoVoter>(), FindObjectsOfType<VoterA>())));
+			bool result = GetComponent<MonoVoter<VoteEventType>>()
+				.Vote(new MonoVote<VoteEventType>(VoteEventType.CreatureAttack,
+					new MonoVoteArg<VoteEventType>(GetComponent<MonoVoter<VoteEventType>>(), FindObjectsOfType<VoterA>())));
 			_tip = "total: " + result;
 		}
 		GUI.Label(new Rect(5, 60, 200, 50), _tip);

@@ -5,6 +5,20 @@ namespace ZFrame.Collections.Observable
 {
 	public class ObservableQueue<T> : Queue<T>
 	{
+		public ObservableQueue()
+		{
+		}
+
+		public ObservableQueue(int capacity) : base(capacity)
+		{
+		}
+
+		public ObservableQueue(IEnumerable<T> collection) : base(collection)
+		{
+		}
+
+		#region Observable Handler
+
 		public event Action<T> EnqueHandler;
 
 		protected virtual void OnEnqueHandler(T obj)
@@ -20,6 +34,9 @@ namespace ZFrame.Collections.Observable
 			Action<T> handler = DequeHandler;
 			if (handler != null) handler(obj);
 		}
+
+		#endregion
+
 
 		public new T Dequeue()
 		{

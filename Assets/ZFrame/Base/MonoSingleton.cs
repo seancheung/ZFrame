@@ -3,7 +3,7 @@ using ZFrame.Debugger;
 
 namespace ZFrame.MonoBase
 {
-	public abstract class MonoSingleton<T> : SingleMono where T : MonoBehaviour
+	public abstract class MonoSingleton<T> : SingleMono where T : MonoSingleton<T>
 	{
 		///// <summary>
 		///// A readonly instance

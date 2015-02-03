@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace ZFrame.MonoBase
 {
+	[Serializable]
 	public class MonoMethod : ZMethod
 	{
 		public new Component target;
@@ -30,12 +31,6 @@ namespace ZFrame.MonoBase
 			method = methodName;
 		}
 
-		/// <summary>
-		/// Returns a string that represents the current object.
-		/// </summary>
-		/// <returns>
-		/// A string that represents the current object.
-		/// </returns>
 		public override string ToString()
 		{
 			return string.Format("{0}:{1}.{2}", target.name, target.GetType(), method ?? "NULL");
@@ -53,12 +48,6 @@ namespace ZFrame.MonoBase
 			method = del;
 		}
 
-		/// <summary>
-		/// Returns a string that represents the current object.
-		/// </summary>
-		/// <returns>
-		/// A string that represents the current object.
-		/// </returns>
 		public override string ToString()
 		{
 			return string.Format("{0}:{1}", target, method.Method);

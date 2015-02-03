@@ -7,25 +7,26 @@ namespace ZFrame.EventSystem.Voting
 {
 	public class MonoVoteEngine : MonoSingleton<MonoVoteEngine>
 	{
-		private IEnumerable<MonoVoter> Voters
+		private IEnumerable<MonoVoter<TEnum>> GetVoters<TEnum>() where TEnum : IComparable, IConvertible
 		{
-			get { return FindObjectsOfType<MonoVoter>(); }
+			return FindObjectsOfType<MonoVoter<TEnum>>();
 		}
 
-		internal bool Vote(MonoVote vote)
+		internal bool Vote<TEnum>(MonoVote<TEnum> vote) where TEnum : IComparable, IConvertible
 		{
-			return Voters.Where(v => v != vote.EventArg.Sender).All(v => v.Agree(vote));
+			return GetVoters<TEnum>().Where(v => v != vote.EventArg.Sender).All(v => v.Agree(vote));
 		}
 
-		internal void VoteAsync(MonoVote vote, Action<bool> voteCallback)
+		internal void VoteAsync<TEnum>(MonoVote<TEnum> vote, Action<bool> voteCallback)
+			where TEnum : IComparable, IConvertible
 		{
 			List<bool> results = new List<bool>();
-			foreach (MonoVoter voter in Voters.Where(v => v != vote.EventArg.Sender))
+			foreach (MonoVoter<TEnum> voter in GetVoters<TEnum>().Where(v => v != vote.EventArg.Sender))
 			{
 				voter.AgreeAsync(vote, result =>
 				{
 					results.Add(result);
-					if (results.Count >= Voters.Count(v => v != vote.EventArg.Sender))
+					if (results.Count >= GetVoters<TEnum>().Count(v => v != vote.EventArg.Sender))
 						voteCallback.Invoke(results.All(r => r));
 				});
 			}

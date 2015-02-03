@@ -5,6 +5,20 @@ namespace ZFrame.Collections.Observable
 {
 	public class ObservableList<T> : List<T>
 	{
+		public ObservableList()
+		{
+		}
+
+		public ObservableList(int capacity) : base(capacity)
+		{
+		}
+
+		public ObservableList(IEnumerable<T> collection) : base(collection)
+		{
+		}
+
+		#region Observable Handler
+
 		public event Action<T> AddHandler;
 
 		protected virtual void OnAddHandler(T obj)
@@ -20,6 +34,16 @@ namespace ZFrame.Collections.Observable
 			Action<T> handler = RemoveHandler;
 			if (handler != null) handler(obj);
 		}
+
+		public event Action<T> ChangedHandler;
+
+		protected virtual void OnChangedHandler(T obj)
+		{
+			Action<T> handler = ChangedHandler;
+			if (handler != null) handler(obj);
+		}
+
+		#endregion
 
 		public new void Add(T item)
 		{
@@ -84,6 +108,16 @@ namespace ZFrame.Collections.Observable
 			base.Clear();
 			foreach (T item in items)
 				OnRemoveHandler(item);
+		}
+
+		public new T this[int index]
+		{
+			get { return base[index]; }
+			set
+			{
+				base[index] = value;
+				OnChangedHandler(value);
+			}
 		}
 	}
 }

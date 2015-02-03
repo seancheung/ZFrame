@@ -5,6 +5,22 @@ namespace ZFrame.Collections.Observable
 {
 	public class ObservableStack<T> : Stack<T>
 	{
+		public ObservableStack()
+		{
+		}
+
+		public ObservableStack(int capacity)
+			: base(capacity)
+		{
+		}
+
+		public ObservableStack(IEnumerable<T> collection)
+			: base(collection)
+		{
+		}
+
+		#region Observable Handler
+
 		public event Action<T> PopHandler;
 
 		protected virtual void OnPopHandler(T obj)
@@ -20,6 +36,8 @@ namespace ZFrame.Collections.Observable
 			Action<T> handler = PushHandler;
 			if (handler != null) handler(obj);
 		}
+
+		#endregion
 
 		public new T Pop()
 		{
@@ -42,5 +60,4 @@ namespace ZFrame.Collections.Observable
 				OnPopHandler(item);
 		}
 	}
-
 }

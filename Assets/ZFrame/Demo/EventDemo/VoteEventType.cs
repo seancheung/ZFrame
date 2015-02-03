@@ -1,4 +1,4 @@
-﻿public enum MonoEventType
+﻿public enum VoteEventType
 {
 	CreatureAttack,
 	CreatureBlock

@@ -3,30 +3,29 @@ using UnityEngine;
 
 namespace ZFrame.EventSystem
 {
-	public class MonoEventListenr : MonoBehaviour
+	public class MonoEventListenr<TEnum> : MonoBehaviour where TEnum : IComparable, IConvertible
 	{
-		public event Action<MonoEvent> EventHandler;
+		public bool isListening = true;
 
-		protected virtual void OnEventHandler(MonoEvent obj)
+		public event Action<MonoEvent<TEnum>> EventHandler;
+
+		private void OnEventHandler(MonoEvent<TEnum> obj)
 		{
-			Action<MonoEvent> handler = EventHandler;
+			Action<MonoEvent<TEnum>> handler = EventHandler;
 			if (handler != null) handler(obj);
 		}
 
-
-		public bool isListening = true;
-
-		public void HandleEvent(MonoEvent evt)
+		public void HandleEvent(MonoEvent<TEnum> evt)
 		{
 			OnEventHandler(evt);
 		}
 
-		private void OnDisable()
+		protected virtual void OnDisable()
 		{
 			isListening = true;
 		}
 
-		private void OnEnable()
+		protected virtual void OnEnable()
 		{
 			isListening = false;
 		}

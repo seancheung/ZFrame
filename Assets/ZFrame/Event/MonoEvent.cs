@@ -1,20 +1,22 @@
-﻿namespace ZFrame.EventSystem
+﻿using System;
+
+namespace ZFrame.EventSystem
 {
-	public class MonoEvent
+	public class MonoEvent<TEnum> where TEnum : IComparable, IConvertible
 	{
-		public MonoEventType Type { get; set; }
+		public TEnum Key { get; set; }
 
 		public MonoEventArg EventArg { get; protected set; }
 
-		public MonoEvent(MonoEventType type, MonoEventArg eventArg)
+		public MonoEvent(TEnum key, MonoEventArg eventArg)
 		{
-			Type = type;
+			Key = key;
 			EventArg = eventArg;
 		}
 
 		public override string ToString()
 		{
-			return string.Format("Type: {0}, EventArg: {1}", Type, EventArg);
+			return string.Format("Type: {0}, EventArg: {1}", Key, EventArg);
 		}
 	}
 

@@ -1,26 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace ZFrame.Collections.Observable
 {
 	public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>
 	{
+		public ObservableDictionary()
+		{
+		}
+
+		public ObservableDictionary(int capacity)
+			: base(capacity)
+		{
+		}
+
+		public ObservableDictionary(int capacity, IEqualityComparer<TKey> comparer)
+			: base(capacity, comparer)
+		{
+		}
+
+		public ObservableDictionary(IEqualityComparer<TKey> comparer)
+			: base(comparer)
+		{
+		}
+
+		public ObservableDictionary(IDictionary<TKey, TValue> dictionary)
+			: base(dictionary)
+		{
+		}
+
+		public ObservableDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
+			: base(dictionary, comparer)
+		{
+		}
+
+		protected ObservableDictionary(SerializationInfo info, StreamingContext context)
+			: base(info, context)
+		{
+		}
+
+		#region Observable Handler
+
 		public event Action<TKey, TValue> AddHanler;
 
-		protected virtual void OnAddHanler(TKey arg1, TValue arg2)
+		protected virtual void OnAddHanler(TKey key, TValue value)
 		{
 			Action<TKey, TValue> handler = AddHanler;
-			if (handler != null) handler(arg1, arg2);
+			if (handler != null) handler(key, value);
 		}
 
 		public event Action<TKey, TValue> RemoveHandler;
 
-		protected virtual void OnRemoveHandler(TKey arg1, TValue arg2)
+		protected virtual void OnRemoveHandler(TKey key, TValue value)
 		{
 			Action<TKey, TValue> handler = RemoveHandler;
-			if (handler != null) handler(arg1, arg2);
+			if (handler != null) handler(key, value);
 		}
+
+		public event Action<TKey, TValue> ChangedHandler;
+
+		protected virtual void OnChangedHandler(TKey key, TValue value)
+		{
+			Action<TKey, TValue> handler = ChangedHandler;
+			if (handler != null) handler(key, value);
+		}
+
+		#endregion
 
 		public new void Add(TKey key, TValue value)
 		{
@@ -42,6 +89,16 @@ namespace ZFrame.Collections.Observable
 			bool result = base.Remove(key);
 			if (result) OnRemoveHandler(key, value);
 			return result;
+		}
+
+		public new TValue this[TKey key]
+		{
+			get { return base[key]; }
+			set
+			{
+				base[key] = value;
+				OnChangedHandler(key, value);
+			}
 		}
 	}
 }

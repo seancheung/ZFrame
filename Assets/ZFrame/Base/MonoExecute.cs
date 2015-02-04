@@ -33,14 +33,14 @@ namespace ZFrame.MonoBase
 			else
 			{
 				if (onUpdate != null) onUpdate.Invoke(onUpdateParameter);
-				gameObject.name = "MonoExecute_" + time;
+				gameObject.name = GetType().Name + "_" + time;
 			}
 		}
 
 		public static void Execute<T1, T2, T3>(float time, Action<T1> onStart, T1 onStartParameter, Action<T2> onUpdate,
 			T2 onUpdateParameter, Action<T3> onComplete, T3 onCompleteParameter)
 		{
-			GameObject temp = new GameObject("MonoExecute_" + time);
+			GameObject temp = new GameObject(typeof (MonoExecute).Name + "_" + time);
 			MonoExecute mono = temp.AddComponent<MonoExecute>();
 			if (onStart != null) mono.onStart += obj => onStart((T1) obj);
 			if (onUpdate != null) mono.onUpdate += obj => onUpdate((T2) obj);

@@ -2,13 +2,29 @@
 
 namespace ZFrame.EventSystem
 {
-	public class MonoEvent<TEnum> where TEnum : IComparable, IConvertible
+	public class MonoEvent<TEnum> : MonoEvent where TEnum : IComparable, IConvertible
 	{
-		public TEnum Key { get; set; }
+		public new TEnum Key
+		{
+			get { return (TEnum) base.Key; }
+			protected set { base.Key = value; }
+		}
+
+		public MonoEvent(TEnum key, MonoEventArg eventArg) : base(key, eventArg)
+		{
+			Key = key;
+			EventArg = eventArg;
+		}
+
+	}
+
+	public class MonoEvent
+	{
+		public object Key { get; protected set; }
 
 		public MonoEventArg EventArg { get; protected set; }
 
-		public MonoEvent(TEnum key, MonoEventArg eventArg)
+		public MonoEvent(object key, MonoEventArg eventArg)
 		{
 			Key = key;
 			EventArg = eventArg;
@@ -16,35 +32,7 @@ namespace ZFrame.EventSystem
 
 		public override string ToString()
 		{
-			return string.Format("Type: {0}, EventArg: {1}", Key, EventArg);
-		}
-	}
-
-	public class MonoEventArg
-	{
-		public object Sender { get; set; }
-		public object Data { get; set; }
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MonoEventArg"/> class.
-		/// </summary>
-		public MonoEventArg(object sender, object data)
-		{
-			Sender = sender;
-			Data = data;
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MonoEventArg"/> class.
-		/// </summary>
-		public MonoEventArg(object sender)
-		{
-			Sender = sender;
-		}
-
-		public override string ToString()
-		{
-			return string.Format("Sender: {0}, Data: {1}", Sender, Data);
+			return string.Format("Key: {0}, EventArg: {1}", Key, EventArg);
 		}
 	}
 }

@@ -22,12 +22,41 @@ namespace ZFrame.EventSystem
 
 		protected virtual void OnDisable()
 		{
-			isListening = true;
+			isListening = false;
 		}
 
 		protected virtual void OnEnable()
 		{
+			isListening = true;
+		}
+		
+	}
+
+	public class MonoEventListener : MonoBehaviour
+	{
+		public bool isListening = true;
+
+		public event Action<MonoEvent> EventHandler;
+
+		protected virtual void OnEventHandler(MonoEvent obj)
+		{
+			Action<MonoEvent> handler = EventHandler;
+			if (handler != null) handler(obj);
+		}
+
+		public void HandleEvent(MonoEvent evt)
+		{
+			OnEventHandler(evt);
+		}
+
+		protected virtual void OnDisable()
+		{
 			isListening = false;
+		}
+
+		protected virtual void OnEnable()
+		{
+			isListening = true;
 		}
 	}
 }

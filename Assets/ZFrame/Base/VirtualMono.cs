@@ -11,7 +11,7 @@ namespace ZFrame.MonoBase
 
 		protected VirtualMono()
 		{
-			Mono = new GameObject(GetType().ToString(), typeof (VirtualMonoManager));
+			Mono = new GameObject(GetType().Name, typeof (VirtualMonoManager));
 			_dispatcher = Mono.GetComponent<VirtualMonoManager>().dispatcher;
 		}
 

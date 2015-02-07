@@ -3,11 +3,6 @@ using System.Linq;
 
 public class CSVRecord
 {
-	public CSVRecord()
-	{
-		recordList = new List<List<string>>();
-	}
-
 	public int Count
 	{
 		get { return recordList.Count; }
@@ -19,7 +14,6 @@ public class CSVRecord
 	{
 		get { return recordList[index]; }
 	}
-
 
 	public void Add(IEnumerable<string> row)
 	{

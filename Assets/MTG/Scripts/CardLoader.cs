@@ -38,19 +38,4 @@ public class CardLoader : MonoBehaviour
 		grid.Reposition();
 		progressBar.gameObject.SetActive(false);
 	}
-
-	private void ShowCardObj(CardData data)
-	{
-		GameObject cardobj = ResourceEngine.Instance.Load<GameObject>("CardObj");
-		CardEntity cardgo = NGUITools.AddChild(dockPanel.gameObject, cardobj).GetComponent<CardEntity>();
-		cardgo.data = data;
-		UIEventListener.Get(cardgo.transform.GetChild(0).gameObject).onDoubleClick += go =>
-		{
-			grid.gameObject.SetActive(true);
-			Destroy(cardgo.gameObject);
-			cam.GetComponent<TweenPosition>().PlayReverse();
-		};
-		cam.GetComponent<TweenPosition>().PlayForward();
-		grid.gameObject.SetActive(false);
-	}
 }

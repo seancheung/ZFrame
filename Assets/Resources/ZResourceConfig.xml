@@ -19,8 +19,8 @@
     </group>
     <group id="2">
       <resources>
+        <resource key="Card" path="Assets/MTG/Prefabs/Card.prefab" />
         <resource key="CardListItem" path="Assets/MTG/Prefabs/CardListItem.prefab" />
-        <resource key="CardObj" path="Assets/MTG/Prefabs/CardObj.prefab" />
       </resources>
     </group>
   </groups>

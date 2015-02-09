@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+[Serializable]
 public class SetData : SetInfo
 {
 	/// <summary>
@@ -50,6 +51,7 @@ public class SetData : SetInfo
 /// <summary>
 /// A unique identifier (UID) key for each card can be made by combining: setCode + cardName + imageName
 /// </summary>
+[Serializable]
 public class CardData : CardInfo
 {
 	/// <summary>
@@ -164,12 +166,14 @@ public class CardData : CardInfo
 	/// </summary>
 	public string source;
 
+	[Serializable]
 	public struct Ruling
 	{
 		public string date;
 		public string text;
 	}
 
+	[Serializable]
 	public struct ForeignName
 	{
 		public string language;

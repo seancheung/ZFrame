@@ -20,6 +20,7 @@
     <group id="2">
       <resources>
         <resource key="Card" path="Assets/MTG/Prefabs/Card.prefab" />
+        <resource key="ListItem" path="Assets/MTG/Prefabs/ListItem.prefab" />
       </resources>
     </group>
   </groups>

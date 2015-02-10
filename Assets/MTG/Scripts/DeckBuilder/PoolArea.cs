@@ -6,6 +6,7 @@ using ZFrame.IO;
 public class PoolArea : MonoBehaviour
 {
 	public UITable tab;
+	public float zoomRatio = 0.5f;
 
 	IEnumerator Start()
 	{
@@ -19,7 +20,7 @@ public class PoolArea : MonoBehaviour
 		{
 			var item = NGUITools.AddChild(tab.gameObject, cardobj).GetComponent<CardRenderer>();
 			item.data = card;
-			item.transform.localScale *= 0.5f;
+			item.transform.localScale *= zoomRatio;
 			item.gameObject.AddComponent<UIDragDropItem>().cloneOnDrag = true;
 			yield return item;
 		}

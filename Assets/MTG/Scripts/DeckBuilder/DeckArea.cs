@@ -5,6 +5,7 @@ using ZFrame.IO;
 
 public class DeckArea : MonoBehaviour
 {
+	public float zoomRatio = 1.5f;
 	public UIGrid grid;
 	private readonly List<ListItem> _items = new List<ListItem>();
 
@@ -21,6 +22,7 @@ public class DeckArea : MonoBehaviour
 				GameObject listitem = ResourceEngine.Instance.Load<GameObject>("ListItem");
 				item = NGUITools.AddChild(grid.gameObject, listitem).GetComponent<ListItem>();
 				item.Data = card.data;
+				item.transform.localScale *= zoomRatio;
 				_items.Add(item);
 				grid.Reposition();
 			}

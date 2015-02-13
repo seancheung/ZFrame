@@ -7,6 +7,11 @@ public class CardRenderer : MonoBehaviour
 
 	public CardData data;
 
+	void Awake()
+	{
+		data = null;
+	}
+
 	private void Start()
 	{
 		if (data != null)

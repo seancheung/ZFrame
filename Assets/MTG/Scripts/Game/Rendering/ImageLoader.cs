@@ -30,7 +30,7 @@ public class ImageLoader : MonoSingleton<ImageLoader>
 		WWW www = new WWW(filePath);
 		yield return www;
 
-		image.sprite = Sprite.Create(www.texture, image.rectTransform.rect, image.rectTransform.pivot);
+		image.sprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0.5f, 0.5f));
 	}
 
 	private IEnumerator CacheLocal(Image image, string multiverseid)
@@ -41,6 +41,6 @@ public class ImageLoader : MonoSingleton<ImageLoader>
 		byte[] img = www.texture.EncodeToJPG();
 		File.WriteAllBytes(_path + multiverseid, img);
 
-		image.sprite = Sprite.Create(www.texture, image.rectTransform.rect, image.rectTransform.pivot);
+		image.sprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0.5f, 0.5f));
 	}
 }

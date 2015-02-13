@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class ListItem : MonoBehaviour
 {
-	public UILabel header;
-	public UILabel cardName;
-	public UILabel quantity;
+	public Text header;
+	public Text cardName;
+	public Text quantity;
 	private int _quantity;
 	public CardData data;
 

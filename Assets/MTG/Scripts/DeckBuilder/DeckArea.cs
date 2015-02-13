@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using ZFrame.IO;
 
 public class DeckArea : MonoBehaviour
 {
 	public float zoomRatio = 1.5f;
-	public UIGrid grid;
+	public GridLayoutGroup grid;
 	private readonly List<ListItem> _items = new List<ListItem>();
 
 	private void OnDrop(GameObject go)
@@ -19,12 +20,11 @@ public class DeckArea : MonoBehaviour
 				item.Quantity ++;
 			else
 			{
-				GameObject listitem = ResourceEngine.Instance.Load<GameObject>("ListItem");
-				item = NGUITools.AddChild(grid.gameObject, listitem).GetComponent<ListItem>();
+				item = ResourceEngine.Instance.LoadAndInstantiate("ListItem").GetComponent<ListItem>();
+				item.transform.SetParent(grid.transform);
 				item.Data = card.data;
 				item.transform.localScale *= zoomRatio;
 				_items.Add(item);
-				grid.Reposition();
 			}
 		}
 	}

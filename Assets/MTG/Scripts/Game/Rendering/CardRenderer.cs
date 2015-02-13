@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class CardRenderer : MonoBehaviour
 {
-	public UITexture texture;
+	public Image image;
 
 	public CardData data;
 
@@ -10,7 +11,7 @@ public class CardRenderer : MonoBehaviour
 	{
 		if (data != null)
 		{
-			ImageLoader.Instance.LoadAsync(texture, data.multiverseid);
+			ImageLoader.Instance.LoadAsync(image, data.multiverseid);
 		}
 	}
 }

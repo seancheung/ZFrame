@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.IO;
-using ICSharpCode.SharpZipLib.Zip;
 using UnityEngine;
+using UnityEngine.UI;
 using ZFrame.MonoBase;
 
 public class ImageLoader : MonoSingleton<ImageLoader>
@@ -17,23 +17,23 @@ public class ImageLoader : MonoSingleton<ImageLoader>
 		}
 	}
 
-	public void LoadAsync(UITexture texture, string multiverseid)
+	public void LoadAsync(Image image, string multiverseid)
 	{
 		StartCoroutine(File.Exists(_path + multiverseid)
-			? LoadLoacl(texture, multiverseid)
-			: CacheLocal(texture, multiverseid));
+			? LoadLoacl(image, multiverseid)
+			: CacheLocal(image, multiverseid));
 	}
 
-	private IEnumerator LoadLoacl(UITexture texture, string multiverseid)
+	private IEnumerator LoadLoacl(Image image, string multiverseid)
 	{
 		string filePath = "file:///" + _path + multiverseid;
 		WWW www = new WWW(filePath);
 		yield return www;
 
-		texture.mainTexture = www.texture;
+		image.sprite = Sprite.Create(www.texture, image.rectTransform.rect, image.rectTransform.pivot);
 	}
 
-	private IEnumerator CacheLocal(UITexture texture, string multiverseid)
+	private IEnumerator CacheLocal(Image image, string multiverseid)
 	{
 		WWW www = new WWW(string.Format("http://mtgimage.com/multiverseid/{0}.jpg", multiverseid));
 		yield return www;
@@ -41,27 +41,6 @@ public class ImageLoader : MonoSingleton<ImageLoader>
 		byte[] img = www.texture.EncodeToJPG();
 		File.WriteAllBytes(_path + multiverseid, img);
 
-		texture.mainTexture = www.texture;
-	}
-
-	private IEnumerator LoadZip(UITexture texture, string setCode, string name)
-	{
-		FileStream fs = File.OpenRead(_path + setCode + ".zip");
-		ZipFile zip = new ZipFile(fs);
-		int index = zip.FindEntry(name, true);
-		yield return index;
-
-		if (index > 0)
-		{
-			ZipEntry entry = zip[index];
-			Stream stream = zip.GetInputStream(entry);
-			byte[] buffer = new byte[stream.Length];
-			stream.Read(buffer, 0, (int) stream.Length);
-			Texture2D t2d = new Texture2D(texture.width, texture.height);
-			t2d.LoadImage(buffer);
-			File.WriteAllBytes(_path + setCode + "/" + name, buffer);
-			texture.mainTexture = t2d;
-			yield return texture;
-		}
+		image.sprite = Sprite.Create(www.texture, image.rectTransform.rect, image.rectTransform.pivot);
 	}
 }

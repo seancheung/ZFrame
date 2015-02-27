@@ -3,6 +3,7 @@ using UnityEngine;
 using ZFrame.Frame.MVVM;
 
 [View(typeof (MVVMDemoViewModel))]
+[RequireComponent(typeof(MVVMBind))]
 public class MVVMDemoView : MonoBehaviour
 {
 	[BindingMember("Key")]
@@ -34,11 +35,6 @@ public class MVVMDemoView : MonoBehaviour
 		{
 			EventA.Invoke();
 		}
-	}
-
-	private void Awake()
-	{
-		MVVMEngine.Instance.Register(this);
 	}
 
 	[BindingMember("MethodA")]

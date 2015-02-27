@@ -5,6 +5,7 @@ using ZFrame.Debugger;
 using ZFrame.Frame.MVVM;
 
 [ViewModel]
+[RequireComponent(typeof(MVVMBind))]
 public class MVVMDemoViewModel : MonoBehaviour, INotifyPropertyChanged
 {
 	private string _key;
@@ -18,7 +19,6 @@ public class MVVMDemoViewModel : MonoBehaviour, INotifyPropertyChanged
 			if (_key != value)
 			{
 				_key = value;
-				//MVVMEngine.Instance.Notify(() => Key);
 				OnPropertyChanged("Key");
 			}
 		}
@@ -32,8 +32,7 @@ public class MVVMDemoViewModel : MonoBehaviour, INotifyPropertyChanged
 			if (_id != value)
 			{
 				_id = value;
-				MVVMEngine.Instance.Notify(this, "ID");
-				//OnPropertyChanged("ID");
+                OnPropertyChanged("ID");
 			}
 		}
 	}
@@ -42,11 +41,6 @@ public class MVVMDemoViewModel : MonoBehaviour, INotifyPropertyChanged
 	{
 		Key = DateTime.Now.ToLongTimeString();
 		ID = DateTime.Now.Second;
-	}
-
-	private void Awake()
-	{
-		MVVMEngine.Instance.Register(this);
 	}
 
 	public void MethodA()

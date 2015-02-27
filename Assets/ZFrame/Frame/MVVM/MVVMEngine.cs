@@ -9,261 +9,274 @@ using ZFrame.MonoBase;
 
 namespace ZFrame.Frame.MVVM
 {
-	public class MVVMEngine : MonoSingleton<MVVMEngine>
-	{
-		private class BindingGroup
-		{
-			public object ViewModel { get; set; }
-			public MemberInfo ViewModelMember { get; set; }
-			public object View { get; set; }
-			public MemberInfo ViewMember { get; set; }
+    public class MVVMEngine : MonoSingleton<MVVMEngine>
+    {
+        private readonly List<BindingGroup> _groups = new List<BindingGroup>();
+        private readonly Dictionary<Type, object> _viewModels = new Dictionary<Type, object>();
+        private readonly List<object> _views = new List<object>();
 
-			public bool CanUpdate
-			{
-				get { return ViewModel != null && ViewModelMember != null && View != null && ViewMember != null; }
-			}
-		}
+        public void Register<T>(T bindable) where T : class
+        {
+            if (Attribute.IsDefined(bindable.GetType(), typeof (ViewModelAttribute)))
+            {
+                if (!_viewModels.TryAdd(bindable.GetType(), bindable))
+                {
+                    ZDebug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}",
+                        bindable.GetType(), bindable));
+                }
+            }
+            if (Attribute.IsDefined(bindable.GetType(), typeof (ViewAttribute)))
+            {
+                if (!_views.SafeAdd(bindable))
+                {
+                    ZDebug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}",
+                        bindable.GetType(), bindable));
+                }
+            }
 
-		private readonly List<BindingGroup> _groups = new List<BindingGroup>();
-		private readonly Dictionary<Type, object> _viewModels = new Dictionary<Type, object>();
-		private readonly List<object> _views = new List<object>();
+            _groups.Clear();
 
-		public void Register<T>(T bindable) where T : class
-		{
-			if (Attribute.IsDefined(bindable.GetType(), typeof (ViewModelAttribute)))
-			{
-				if (!_viewModels.TryAdd(bindable.GetType(), bindable))
-				{
-					ZDebug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}", bindable.GetType(), bindable));
-				}
-			}
-			if (Attribute.IsDefined(bindable.GetType(), typeof (ViewAttribute)))
-			{
-				if (!_views.SafeAdd(bindable))
-				{
-					ZDebug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}", bindable.GetType(), bindable));
-				}
-			}
+            foreach (object view in _views)
+            {
+                Type viewModelType =
+                    ((ViewAttribute) Attribute.GetCustomAttribute(view.GetType(), typeof (ViewAttribute)))
+                        .SourceType;
+                if (viewModelType == null)
+                {
+                    ZDebug.LogError(string.Format("View class has no viewModel class! view type: {0}", view.GetType()));
+                    continue;
+                }
+                object viewModel = _viewModels.TryGet(viewModelType);
+                if (viewModel == null)
+                {
+                    ZDebug.LogWarning(
+                        string.Format(
+                            "It may happend when view has been registered but view model has not yet. View: {0}, ViewModel: {1}",
+                            view,
+                            viewModelType));
+                    continue;
+                }
 
-			_groups.Clear();
+                foreach (
+                    MemberInfo member in
+                        view.GetType().GetMembers().Where(p => Attribute.IsDefined(p, typeof (BindingMemberAttribute))))
+                {
+                    var group = new BindingGroup();
+                    group.ViewMember = member;
+                    group.View = view;
+                    group.ViewModel = viewModel;
 
-			foreach (object view in _views)
-			{
-				Type viewModelType =
-					((ViewAttribute) Attribute.GetCustomAttribute(view.GetType(), typeof (ViewAttribute)))
-						.SourceType;
-				if (viewModelType == null)
-				{
-					ZDebug.LogError(string.Format("View class has no viewModel class! view type: {0}", view.GetType()));
-					continue;
-				}
-				object viewModel = _viewModels.TryGet(viewModelType);
-				if (viewModel == null)
-				{
-					ZDebug.LogWarning(
-						string.Format(
-							"It may happend when view has been registered but view model has not yet. View: {0}, ViewModel: {1}", view,
-							viewModelType));
-					continue;
-				}
+                    string bindingKey =
+                        ((BindingMemberAttribute) Attribute.GetCustomAttribute(member, typeof (BindingMemberAttribute)))
+                            .BindingKey;
+                    switch (member.MemberType)
+                    {
+                        case MemberTypes.Event:
+                        {
+                            Delegate del = Delegate.CreateDelegate(((EventInfo) member).EventHandlerType, viewModel,
+                                bindingKey, false,
+                                false);
+                            if (del == null)
+                                ZDebug.LogError(
+                                    string.Format("Binding method to event failed! event: {0}, methodName: {1}", member,
+                                        bindingKey));
+                            else
+                                ((EventInfo) member).AddEventHandler(view, del);
+                        }
+                            break;
+                        case MemberTypes.Field:
+                            break;
+                        case MemberTypes.Method:
+                        {
+                            MethodInfo method = viewModelType.GetMethod(bindingKey);
 
-				foreach (
-					MemberInfo member in
-						view.GetType().GetMembers().Where(p => Attribute.IsDefined(p, typeof (BindingMemberAttribute))))
-				{
-					BindingGroup group = new BindingGroup();
-					group.ViewMember = member;
-					group.View = view;
-					group.ViewModel = viewModel;
+                            if (method.ReturnType == ((MethodInfo) member).ReturnType)
+                            {
+                                if (method.GetParameters().Length == ((MethodInfo) member).GetParameters().Length)
+                                {
+                                    bool ok = true;
+                                    for (int i = 0; i < method.GetParameters().Length; i++)
+                                        if (method.GetParameters()[i].ParameterType !=
+                                            ((MethodInfo) member).GetParameters()[i].ParameterType)
+                                            ok = false;
+                                    if (ok)
+                                    {
+                                        group.ViewModelMember = method;
+                                        break;
+                                    }
+                                }
+                            }
 
-					string bindingKey =
-						((BindingMemberAttribute) Attribute.GetCustomAttribute(member, typeof (BindingMemberAttribute)))
-							.BindingKey;
-					switch (member.MemberType)
-					{
-						case MemberTypes.Event:
-						{
-							Delegate del = Delegate.CreateDelegate(((EventInfo) member).EventHandlerType, viewModel, bindingKey, false,
-								false);
-							if (del == null)
-								ZDebug.LogError(string.Format("Binding method to event failed! event: {0}, methodName: {1}", member, bindingKey));
-							else
-								((EventInfo) member).AddEventHandler(view, del);
-						}
-							break;
-						case MemberTypes.Field:
-							break;
-						case MemberTypes.Method:
-						{
-							MethodInfo method = viewModelType.GetMethod(bindingKey);
+                            ZDebug.LogError(string.Format("View method does not match view model method! {0}, {1}",
+                                member, method));
+                        }
+                            break;
+                        case MemberTypes.Property:
+                        {
+                            if (!((PropertyInfo) member).CanRead || !((PropertyInfo) member).CanWrite)
+                            {
+                                ZDebug.LogError(
+                                    string.Format("View property is not accessable! {2} Read: {0}, Write: {1}",
+                                        ((PropertyInfo) member).CanRead, ((PropertyInfo) member).CanWrite, member));
+                                break;
+                            }
+                            PropertyInfo prop = viewModelType.GetProperty(bindingKey);
+                            if (!prop.CanRead || !prop.CanWrite)
+                            {
+                                ZDebug.LogError(
+                                    string.Format("View model property is not accessable! {2} Read: {0}, Write: {1}",
+                                        prop.CanRead, prop.CanWrite, prop));
+                                break;
+                            }
+                            if (((PropertyInfo) member).PropertyType != prop.PropertyType)
+                            {
+                                ZDebug.LogError(
+                                    string.Format("View property does not match view model property! {0}, {1}",
+                                        member, prop));
+                                break;
+                            }
+                            group.ViewModelMember = prop;
+                        }
+                            break;
+                        default:
+                            ZDebug.LogError("Member type not surported for binding! type: " + member.MemberType);
+                            break;
+                    }
 
-							if (method.ReturnType == ((MethodInfo) member).ReturnType)
-							{
-								if (method.GetParameters().Length == ((MethodInfo) member).GetParameters().Length)
-								{
-									bool ok = true;
-									for (int i = 0; i < method.GetParameters().Length; i++)
-										if (method.GetParameters()[i].ParameterType != ((MethodInfo) member).GetParameters()[i].ParameterType)
-											ok = false;
-									if (ok)
-									{
-										group.ViewModelMember = method;
-										break;
-									}
-								}
-							}
+                    if (group.CanUpdate)
+                    {
+                        _groups.Add(group);
+                    }
+                }
+            }
 
-							ZDebug.LogError(string.Format("View method does not match view model method! {0}, {1}",
-								member, method));
-						}
-							break;
-						case MemberTypes.Property:
-						{
-							if (!((PropertyInfo) member).CanRead || !((PropertyInfo) member).CanWrite)
-							{
-								ZDebug.LogError(string.Format("View property is not accessable! {2} Read: {0}, Write: {1}",
-									((PropertyInfo) member).CanRead, ((PropertyInfo) member).CanWrite, member));
-								break;
-							}
-							PropertyInfo prop = viewModelType.GetProperty(bindingKey);
-							if (!prop.CanRead || !prop.CanWrite)
-							{
-								ZDebug.LogError(string.Format("View model property is not accessable! {2} Read: {0}, Write: {1}",
-									prop.CanRead, prop.CanWrite, prop));
-								break;
-							}
-							if (((PropertyInfo) member).PropertyType != prop.PropertyType)
-							{
-								ZDebug.LogError(string.Format("View property does not match view model property! {0}, {1}",
-									member, prop));
-								break;
-							}
-							group.ViewModelMember = prop;
-						}
-							break;
-						default:
-							ZDebug.LogError("Member type not surported for binding! type: " + member.MemberType);
-							break;
-					}
+            foreach (object viewModel in _viewModels.Values)
+            {
+                if (viewModel is INotifyPropertyChanged)
+                {
+                    ((INotifyPropertyChanged) viewModel).PropertyChanged +=
+                        (sender, args) => Notify(sender, args.PropertyName);
+                }
+            }
+        }
 
-					if (group.CanUpdate)
-					{
-						_groups.Add(group);
-					}
-				}
-			}
+        #region Property OnNotify
 
-			foreach (object viewModel in _viewModels.Values)
-			{
-				if (viewModel is INotifyPropertyChanged)
-				{
-					((INotifyPropertyChanged) viewModel).PropertyChanged += (sender, args) => Notify(sender, args.PropertyName);
-				}
-			}
-		}
+        private void Notify(PropertyInfo prop)
+        {
+            foreach (BindingGroup group in _groups.Where(g => g.CanUpdate))
+            {
+                if (group.ViewModelMember == prop)
+                {
+                    ((PropertyInfo) group.ViewMember).SetValue(group.View, prop.GetValue(group.ViewModel, null), null);
+                }
+                else if (group.ViewMember == prop)
+                {
+                    ((PropertyInfo) group.ViewModelMember).SetValue(group.ViewModel, prop.GetValue(group.View, null),
+                        null);
+                }
+            }
+        }
 
-		#region Property OnNotify
+        public void Notify<T>(T sender, string propName) where T : class
+        {
+            if (sender == null)
+            {
+                ZDebug.LogError(string.Format("Notify property sender is null! type: {0}, propertyName: {1}", typeof (T),
+                    propName));
+                return;
+            }
+            if (string.IsNullOrEmpty(propName))
+            {
+                ZDebug.LogError(
+                    string.Format("Notify property Name cannot be null or empty! sender: {0}, propertyName: {1}", sender,
+                        propName));
+                return;
+            }
 
-		private void Notify(PropertyInfo prop)
-		{
-			foreach (BindingGroup group in _groups.Where(g => g.CanUpdate))
-			{
-				if (group.ViewModelMember == prop)
-				{
-					((PropertyInfo) group.ViewMember).SetValue(group.View, prop.GetValue(group.ViewModel, null), null);
-				}
-				else if (group.ViewMember == prop)
-				{
-					((PropertyInfo) group.ViewModelMember).SetValue(group.ViewModel, prop.GetValue(group.View, null), null);
-				}
-			}
-		}
+            PropertyInfo prop = sender.GetType().GetProperty(propName);
+            if (prop == null)
+            {
+                ZDebug.LogError(string.Format("Notify property not found! sender: {0}, propertyName: {1}", sender,
+                    propName));
+                return;
+            }
+            Notify(prop);
+        }
 
-		public void Notify<T>(T sender, string propName) where T : class
-		{
-			if (sender == null)
-			{
-				ZDebug.LogError(string.Format("Notify property sender is null! type: {0}, propertyName: {1}", typeof (T),
-					propName));
-				return;
-			}
-			if (string.IsNullOrEmpty(propName))
-			{
-				ZDebug.LogError(string.Format("Notify property Name cannot be null or empty! sender: {0}, propertyName: {1}", sender,
-					propName));
-				return;
-			}
+        public void Notify<T>(Expression<Func<T>> exp)
+        {
+            var bodyExpr = exp.Body as MemberExpression;
+            if (bodyExpr == null)
+            {
+                throw new ArgumentException("Expression must be a MemberExpression!", "exp");
+            }
+            var propInfo = bodyExpr.Member as PropertyInfo;
+            if (propInfo == null)
+            {
+                throw new ArgumentException("Expression must be a PropertyExpression!", "exp");
+            }
 
-			PropertyInfo prop = sender.GetType().GetProperty(propName);
-			if (prop == null)
-			{
-				ZDebug.LogError(string.Format("Notify property not found! sender: {0}, propertyName: {1}", sender,
-					propName));
-				return;
-			}
-			Notify(prop);
-		}
+            Notify(propInfo);
+        }
 
-		public void Notify<T>(Expression<Func<T>> exp)
-		{
-			MemberExpression bodyExpr = exp.Body as MemberExpression;
-			if (bodyExpr == null)
-			{
-				throw new ArgumentException("Expression must be a MemberExpression!", "exp");
-			}
-			PropertyInfo propInfo = bodyExpr.Member as PropertyInfo;
-			if (propInfo == null)
-			{
-				throw new ArgumentException("Expression must be a PropertyExpression!", "exp");
-			}
+        #endregion
 
-			Notify(propInfo);
-		}
+        #region Method notify
 
-		#endregion
+        public void Notify(Action method)
+        {
+            Invoke(method.Method, null);
+        }
 
-		#region Method notify
+        public void Notify<T>(Action<T> method, T parameter)
+        {
+            Invoke(method.Method, new object[] {parameter});
+        }
 
-		public void Notify(Action method)
-		{
-			Invoke(method.Method, null);
-		}
+        public void Notify<T1, T2>(Action<T1, T2> method, T1 param1, T2 param2)
+        {
+            Invoke(method.Method, new object[] {param1, param2});
+        }
 
-		public void Notify<T>(Action<T> method, T parameter)
-		{
-			Invoke(method.Method, new object[] {parameter});
-		}
+        public void Notify<T1, T2, T3>(Action<T1, T2, T3> method, T1 param1, T2 param2, T3 param3)
+        {
+            Invoke(method.Method, new object[] {param1, param2, param3});
+        }
 
-		public void Notify<T1, T2>(Action<T1, T2> method, T1 param1, T2 param2)
-		{
-			Invoke(method.Method, new object[] {param1, param2});
-		}
+        public void Notify<T1, T2, T3, T4>(Action<T1, T2, T3, T4> method, T1 param1, T2 param2, T3 param3, T4 param4)
+        {
+            Invoke(method.Method, new object[] {param1, param2, param3, param4});
+        }
 
-		public void Notify<T1, T2, T3>(Action<T1, T2, T3> method, T1 param1, T2 param2, T3 param3)
-		{
-			Invoke(method.Method, new object[] {param1, param2, param3});
-		}
+        private void Invoke(MethodInfo method, object[] parameters)
+        {
+            foreach (BindingGroup group in _groups.Where(g => g.CanUpdate))
+            {
+                if (group.ViewModelMember == method)
+                {
+                    ((MethodInfo) group.ViewMember).Invoke(group.View, parameters);
+                }
+                else if (group.ViewMember == method)
+                {
+                    ((MethodInfo) group.ViewModelMember).Invoke(group.ViewModel, parameters);
+                }
+            }
+        }
 
-		public void Notify<T1, T2, T3, T4>(Action<T1, T2, T3, T4> method, T1 param1, T2 param2, T3 param3, T4 param4)
-		{
-			Invoke(method.Method, new object[] {param1, param2, param3, param4});
-		}
+        #endregion
 
-		private void Invoke(MethodInfo method, object[] parameters)
-		{
-			foreach (BindingGroup group in _groups.Where(g => g.CanUpdate))
-			{
-				if (group.ViewModelMember == method)
-				{
-					((MethodInfo) group.ViewMember).Invoke(group.View, parameters);
-				}
-				else if (group.ViewMember == method)
-				{
-					((MethodInfo) group.ViewModelMember).Invoke(group.ViewModel, parameters);
-				}
-			}
-		}
+        private class BindingGroup
+        {
+            public object ViewModel { get; set; }
+            public MemberInfo ViewModelMember { get; set; }
+            public object View { get; set; }
+            public MemberInfo ViewMember { get; set; }
 
-		#endregion
-	}
+            public bool CanUpdate
+            {
+                get { return ViewModel != null && ViewModelMember != null && View != null && ViewMember != null; }
+            }
+        }
+    }
 }

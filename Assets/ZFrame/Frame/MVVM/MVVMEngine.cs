@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using ZFrame.Debugger;
 using ZFrame.MonoBase;
 
 namespace ZFrame.Frame.MVVM
@@ -21,7 +20,7 @@ namespace ZFrame.Frame.MVVM
             {
                 if (!_viewModels.TryAdd(bindable.GetType(), bindable))
                 {
-                    ZDebug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}",
+                    Debug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}",
                         bindable.GetType(), bindable));
                 }
             }
@@ -29,7 +28,7 @@ namespace ZFrame.Frame.MVVM
             {
                 if (!_views.SafeAdd(bindable))
                 {
-                    ZDebug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}",
+                    Debug.LogError(string.Format("Register mvvm binding failed. type: {0}, object: {1}",
                         bindable.GetType(), bindable));
                 }
             }
@@ -43,13 +42,13 @@ namespace ZFrame.Frame.MVVM
                         .SourceType;
                 if (viewModelType == null)
                 {
-                    ZDebug.LogError(string.Format("View class has no viewModel class! view type: {0}", view.GetType()));
+                    Debug.LogError(string.Format("View class has no viewModel class! view type: {0}", view.GetType()));
                     continue;
                 }
                 object viewModel = _viewModels.TryGet(viewModelType);
                 if (viewModel == null)
                 {
-                    ZDebug.LogWarning(
+                    Debug.LogWarning(
                         string.Format(
                             "It may happend when view has been registered but view model has not yet. View: {0}, ViewModel: {1}",
                             view,
@@ -61,7 +60,7 @@ namespace ZFrame.Frame.MVVM
                     MemberInfo member in
                         view.GetType().GetMembers().Where(p => Attribute.IsDefined(p, typeof (BindingMemberAttribute))))
                 {
-                    var group = new BindingGroup();
+                    BindingGroup group = new BindingGroup();
                     group.ViewMember = member;
                     group.View = view;
                     group.ViewModel = viewModel;
@@ -77,7 +76,7 @@ namespace ZFrame.Frame.MVVM
                                 bindingKey, false,
                                 false);
                             if (del == null)
-                                ZDebug.LogError(
+                                Debug.LogError(
                                     string.Format("Binding method to event failed! event: {0}, methodName: {1}", member,
                                         bindingKey));
                             else
@@ -107,7 +106,7 @@ namespace ZFrame.Frame.MVVM
                                 }
                             }
 
-                            ZDebug.LogError(string.Format("View method does not match view model method! {0}, {1}",
+                            Debug.LogError(string.Format("View method does not match view model method! {0}, {1}",
                                 member, method));
                         }
                             break;
@@ -115,7 +114,7 @@ namespace ZFrame.Frame.MVVM
                         {
                             if (!((PropertyInfo) member).CanRead || !((PropertyInfo) member).CanWrite)
                             {
-                                ZDebug.LogError(
+                                Debug.LogError(
                                     string.Format("View property is not accessable! {2} Read: {0}, Write: {1}",
                                         ((PropertyInfo) member).CanRead, ((PropertyInfo) member).CanWrite, member));
                                 break;
@@ -123,14 +122,14 @@ namespace ZFrame.Frame.MVVM
                             PropertyInfo prop = viewModelType.GetProperty(bindingKey);
                             if (!prop.CanRead || !prop.CanWrite)
                             {
-                                ZDebug.LogError(
+                                Debug.LogError(
                                     string.Format("View model property is not accessable! {2} Read: {0}, Write: {1}",
                                         prop.CanRead, prop.CanWrite, prop));
                                 break;
                             }
                             if (((PropertyInfo) member).PropertyType != prop.PropertyType)
                             {
-                                ZDebug.LogError(
+                                Debug.LogError(
                                     string.Format("View property does not match view model property! {0}, {1}",
                                         member, prop));
                                 break;
@@ -139,7 +138,7 @@ namespace ZFrame.Frame.MVVM
                         }
                             break;
                         default:
-                            ZDebug.LogError("Member type not surported for binding! type: " + member.MemberType);
+                            Debug.LogError("Member type not surported for binding! type: " + member.MemberType);
                             break;
                     }
 
@@ -182,13 +181,13 @@ namespace ZFrame.Frame.MVVM
         {
             if (sender == null)
             {
-                ZDebug.LogError(string.Format("Notify property sender is null! type: {0}, propertyName: {1}", typeof (T),
+                Debug.LogError(string.Format("Notify property sender is null! type: {0}, propertyName: {1}", typeof (T),
                     propName));
                 return;
             }
             if (string.IsNullOrEmpty(propName))
             {
-                ZDebug.LogError(
+                Debug.LogError(
                     string.Format("Notify property Name cannot be null or empty! sender: {0}, propertyName: {1}", sender,
                         propName));
                 return;
@@ -197,7 +196,7 @@ namespace ZFrame.Frame.MVVM
             PropertyInfo prop = sender.GetType().GetProperty(propName);
             if (prop == null)
             {
-                ZDebug.LogError(string.Format("Notify property not found! sender: {0}, propertyName: {1}", sender,
+                Debug.LogError(string.Format("Notify property not found! sender: {0}, propertyName: {1}", sender,
                     propName));
                 return;
             }
@@ -206,12 +205,12 @@ namespace ZFrame.Frame.MVVM
 
         public void Notify<T>(Expression<Func<T>> exp)
         {
-            var bodyExpr = exp.Body as MemberExpression;
+            MemberExpression bodyExpr = exp.Body as MemberExpression;
             if (bodyExpr == null)
             {
                 throw new ArgumentException("Expression must be a MemberExpression!", "exp");
             }
-            var propInfo = bodyExpr.Member as PropertyInfo;
+            PropertyInfo propInfo = bodyExpr.Member as PropertyInfo;
             if (propInfo == null)
             {
                 throw new ArgumentException("Expression must be a PropertyExpression!", "exp");

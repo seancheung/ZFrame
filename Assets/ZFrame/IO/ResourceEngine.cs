@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
-using ZFrame.Debugger;
 using ZFrame.MonoBase;
 using Object = UnityEngine.Object;
 
@@ -47,11 +46,11 @@ namespace ZFrame.IO
 				ZResource.Resource resource = Instance._resource[key];
 				if (resource != null && resource.resource != null) return resource.resource;
 
-				ZDebug.LogError("Resource not found: " + key);
+                Debug.LogError("Resource not found: " + key);
 				return null;
 			}
 
-			ZDebug.LogError("Resource cannot be loaded: " + key);
+            Debug.LogError("Resource cannot be loaded: " + key);
 			return null;
 		}
 
@@ -70,7 +69,7 @@ namespace ZFrame.IO
 			if (result != null)
 				return result;
 
-			ZDebug.LogError("Resource converting failed: " + key + " --> " + typeof (T));
+            Debug.LogError("Resource converting failed: " + key + " --> " + typeof(T));
 
 			return null;
 		}

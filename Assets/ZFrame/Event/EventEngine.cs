@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ZFrame.Debugger;
 using ZFrame.MonoBase;
 
 namespace ZFrame.EventSystem
@@ -60,7 +59,7 @@ namespace ZFrame.EventSystem
 				IEvent evt = _events.Dequeue();
 				if (!_listeners.ContainsKey(evt.Name))
 				{
-					ZDebug.LogError("Event " + evt.Name + " has no listeners");
+                    Debug.LogError("Event " + evt.Name + " has no listeners");
 					return;
 				}
 

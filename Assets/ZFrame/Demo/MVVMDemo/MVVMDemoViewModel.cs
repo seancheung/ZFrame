@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using UnityEngine;
-using ZFrame.Debugger;
 using ZFrame.Frame.MVVM;
 
 [ViewModel]
@@ -45,17 +44,17 @@ public class MVVMDemoViewModel : MonoBehaviour, INotifyPropertyChanged
 
 	public void MethodA()
 	{
-		ZDebug.Log("MethodA");
+        Debug.Log("MethodA");
 	}
 
 	public void MethodB(string value)
 	{
-		ZDebug.Log("MethodB: " + value);
+        Debug.Log("MethodB: " + value);
 	}
 
 	public void MethodC(string value, int value2)
 	{
-		ZDebug.Log("MethodB: " + value + " -- " + value2);
+        Debug.Log("MethodB: " + value + " -- " + value2);
 	}
 
 	public event PropertyChangedEventHandler PropertyChanged;

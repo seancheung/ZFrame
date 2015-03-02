@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using ZFrame.Debugger;
 
 namespace ZFrame
 {
@@ -20,7 +19,7 @@ namespace ZFrame
 		{
 			if (source == null || target == null)
 			{
-				ZDebug.LogError("argument NULL");
+                Debug.LogError("argument NULL");
 				return false;
 			}
 

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using ZFrame.Debugger;
 
 namespace ZFrame
 {
@@ -18,7 +17,7 @@ namespace ZFrame
 
 		void Show()
 		{
-			ZDebug.Log("Start!");
+            Debug.Log("Start!");
 		}
 		//void OnGUI()
 		//{

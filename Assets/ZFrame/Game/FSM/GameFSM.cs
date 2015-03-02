@@ -1,5 +1,4 @@
-﻿using ZFrame.Debugger;
-
+﻿
 public class GameFSM
 {
 	public IGameState CurrentState { get; private set; }
@@ -8,7 +7,7 @@ public class GameFSM
 	{
 		if (newState == null)
 		{
-			ZDebug.LogError("State error!");
+            Debug.LogError("State error!");
 			return;
 		}
 		if (CurrentState != null)

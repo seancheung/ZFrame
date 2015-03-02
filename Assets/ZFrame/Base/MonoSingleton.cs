@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using ZFrame.Debugger;
 
 namespace ZFrame.MonoBase
 {
@@ -34,7 +33,7 @@ namespace ZFrame.MonoBase
 		/// </summary>
 		public virtual void Init()
 		{
-			ZDebug.Log(typeof (T) + " is ready");
+            Debug.Log(typeof(T) + " is ready");
 		}
 	}
 

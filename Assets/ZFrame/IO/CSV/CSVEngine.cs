@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using ZFrame.Debugger;
 
 namespace ZFrame.IO.CSV
 {
@@ -46,7 +45,7 @@ namespace ZFrame.IO.CSV
 		{
 			if (_records == null || _keyRow < 0 || _descRow < 0 || _startRow < 0)
 			{
-				ZDebug.LogError(string.Format("Decoding Failed: {0}", typeof (T)));
+                Debug.LogError(string.Format("Decoding Failed: {0}", typeof(T)));
 				yield break;
 			}
 
@@ -123,7 +122,7 @@ namespace ZFrame.IO.CSV
 			{
 				return fields[keys.IndexOf(name)];
 			}
-			ZDebug.LogError(string.Format("Mapping Error! Column: {0}, Key: {1}, Name:{2}", attribute.Column,
+            Debug.LogError(string.Format("Mapping Error! Column: {0}, Key: {1}, Name:{2}", attribute.Column,
 				attribute.Key ?? "NULL", name));
 			return name;
 		}
@@ -145,7 +144,7 @@ namespace ZFrame.IO.CSV
 				MethodInfo set = ((PropertyInfo) member).GetSetMethod(true);
 				if (set == null)
 				{
-					ZDebug.LogError(string.Format("CSV property must be writable! CSVData type: {0}, Property: {1}",
+                    Debug.LogError(string.Format("CSV property must be writable! CSVData type: {0}, Property: {1}",
 						member.DeclaringType, member.Name));
 					return;
 				}
@@ -226,7 +225,7 @@ namespace ZFrame.IO.CSV
 			ClearRecord();
 			if (string.IsNullOrEmpty(content))
 			{
-				ZDebug.LogError(string.Format("CSV file content empty!"));
+                Debug.LogError(string.Format("CSV file content empty!"));
 				return false;
 			}
 
@@ -241,7 +240,7 @@ namespace ZFrame.IO.CSV
 				//Check each row's column count. They must match
 				if (ColumnCount != 0 && columns.Count != ColumnCount)
 				{
-					ZDebug.LogError(
+                    Debug.LogError(
 						string.Format("CSV parsing error at line {0} : columns counts do not match! Separator: '{1}'",
 							content.IndexOf(row), separator));
 					return false;
@@ -253,7 +252,7 @@ namespace ZFrame.IO.CSV
 
 			if (_records == null || !_records.Any())
 			{
-				ZDebug.LogWarning(string.Format("CSV file parsing failed(empty records)!"));
+                Debug.LogWarning(string.Format("CSV file parsing failed(empty records)!"));
 				return false;
 			}
 
@@ -272,7 +271,7 @@ namespace ZFrame.IO.CSV
 			//Check mapping
 			if (!Attribute.IsDefined(typeof (T), typeof (CSVMapperAttribute), false))
 			{
-				ZDebug.LogError(string.Format("CSV mapping attribute not found in type: {0}", typeof (T)));
+                Debug.LogError(string.Format("CSV mapping attribute not found in type: {0}", typeof(T)));
 				return false;
 			}
 
@@ -284,7 +283,7 @@ namespace ZFrame.IO.CSV
 
 			if (string.IsNullOrEmpty(mapper.Path))
 			{
-				ZDebug.LogError(string.Format("CSV path not found: {0}", mapper.Path));
+                Debug.LogError(string.Format("CSV path not found: {0}", mapper.Path));
 				return false;
 			}
 
@@ -293,7 +292,7 @@ namespace ZFrame.IO.CSV
 
 			if (asset == null)
 			{
-				ZDebug.LogError(string.Format("CSV file not found: {0}", mapper.Path));
+                Debug.LogError(string.Format("CSV file not found: {0}", mapper.Path));
 				return false;
 			}
 
@@ -304,7 +303,7 @@ namespace ZFrame.IO.CSV
 			{
 				if (_keyRow < 0 || _records[_keyRow].Any(string.IsNullOrEmpty))
 				{
-					ZDebug.LogError(
+                    Debug.LogError(
 						string.Format("Encoding Error! No key column found. Make sure target file is in UTF-8 format. Path: {0}",
 							mapper.Path));
 					return false;

@@ -1,384 +1,262 @@
-﻿/*
- * build cmd 
- * "...\Unity4.5\Editor\Data\MonoBleedingEdge\lib\mono\2.0\mcs.exe" -r:"...\Unity4.5\Editor\Data\PlaybackEngines\metrosupport\Managed\UnityEngine.dll" -target:library ...\ZFrame\Assets\ZFrame\Debugger\ZDebug.cs
- *
- * /
-
-/* 
-
-#define LOGGUI
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace ZFrame.Debugger
+public sealed class Debug
 {
-	public static class ZDebug
-	{
-		private static MonoDebugger _monoDebugger;
-		private static ZDebugger _zDebugger;
+    public static bool EnableLog = true;
+    public static bool EnableTime = true;
 
-		private static IDebugger Instance
-		{
-			get
-			{
-				if (!Application.isPlaying) return _zDebugger ?? (_zDebugger = new ZDebugger());
+    internal static readonly Queue<LogContent> Prints = new Queue<LogContent>();
+    private static GameObject _debugger;
 
-				if (!_monoDebugger)
-					_monoDebugger = new GameObject(typeof (ZDebug).ToString(), typeof (MonoDebugger)).GetComponent<MonoDebugger>();
-				return _monoDebugger;
-			}
-		}
+    public static GUIMono Debugger
+    {
+        get
+        {
+            if (!_debugger)
+                _debugger = new GameObject("_Debugger_", typeof (GUIMono));
+            return _debugger.GetComponent<GUIMono>();
+        }
+    }
 
-		private static readonly Queue<LogContent> Prints = new Queue<LogContent>();
+    private static string Time
+    {
+        get { return EnableTime ? (DateTime.Now.ToString("hh:mm:ss.fff") + ": ") : ""; }
+    }
 
-		private static string Time
-		{
-			get { return EnableTime ? (DateTime.Now.ToString("hh:mm:ss.fff") + ": ") : ""; }
-		}
+    public static void Log(object message)
+    {
+        Log(message, null);
+    }
 
-		/// <summary>
-		/// Enable log
-		/// </summary>
-		public static bool EnableLog
-		{
-			get { return Instance.EnableLog; }
-			set { Instance.EnableLog = value; }
-		}
+    public static void Log(object message, Object context)
+    {
+        Print(LogLevel.Log, message, context);
+    }
 
-		/// <summary>
-		/// Enable GUI log
-		/// </summary>
-		public static bool EnablePrint
-		{
-			get { return Instance.EnablePrint; }
-			set { Instance.EnablePrint = value; }
-		}
+    public static void LogError(object message)
+    {
+        LogError(message, null);
+    }
 
-		/// <summary>
-		/// Add time when print common log or GUI log
-		/// </summary>
-		public static bool EnableTime
-		{
-			get { return Instance.EnableTime; }
-			set { Instance.EnableTime = value; }
-		}
+    public static void LogError(object message, Object context)
+    {
+        Print(LogLevel.Error, message, context);
+    }
 
-		/// <summary>
-		/// Max GUI log lines. Earlier lines will be erased. 
-		/// </summary>
-		public static int MaxPrintLines
-		{
-			get { return Instance.MaxPrintLines; }
-			set { Instance.MaxPrintLines = value; }
-		}
+    public static void LogException(Exception exception)
+    {
+        LogException(exception, null);
+    }
 
-		/// <summary>
-		/// Print errors on screen
-		/// </summary>
-		public static bool PrintErrors
-		{
-			get { return Instance.PrintErrors; }
-			set { Instance.PrintErrors = value; }
-		}
+    public static void LogException(Exception exception, Object context)
+    {
+        Print(LogLevel.Exception, exception, context);
+    }
 
-		/// <summary>
-		/// Print warnings on screen
-		/// </summary>
-		public static bool PrintWarnings
-		{
-			get { return Instance.PrintWarnings; }
-			set { Instance.PrintWarnings = value; }
-		}
+    public static void LogWarning(object message)
+    {
+        LogWarning(message, null);
+    }
 
-		/// <summary>
-		/// Print logs on screen
-		/// </summary>
-		public static bool PrintLogs
-		{
-			get { return Instance.PrintLogs; }
-			set { Instance.PrintLogs = value; }
-		}
+    public static void LogWarning(object message, Object context)
+    {
+        Print(LogLevel.Warning, message, context);
+    }
 
-		/// <summary>
-		/// Log message
-		/// </summary>
-		/// <param name="message"></param>
-		public static void Log(object message)
-		{
-			Log(message, null);
-		}
+    private static void Print(LogLevel level, object message, Object context)
+    {
+        if (EnableLog)
+        {
+            switch (level)
+            {
+                case LogLevel.Log:
+                    UnityEngine.Debug.Log(Time + message, context);
+                    break;
+                case LogLevel.Warning:
+                    UnityEngine.Debug.LogWarning(Time + message, context);
+                    break;
+                case LogLevel.Error:
+                    UnityEngine.Debug.LogError(Time + message, context);
+                    break;
+                case LogLevel.Exception:
+                    UnityEngine.Debug.LogException((Exception) message, context);
+                    break;
+            }
 
-		/// <summary>
-		/// Log message
-		/// </summary>
-		/// <param name="message"></param>
-		/// <param name="context"></param>
-		public static void Log(object message, Object context)
-		{
-			if (EnableLog)
-			{
-				Debug.Log(Time + message, context);
-			}
-			if (PrintLogs)
-			{
-				LogGUI(message, LogLevel.Log);
-			}
-		}
+            if (Application.isPlaying && !Application.isEditor && Debugger.enablePrint)
+            {
+                switch (level)
+                {
+                    case LogLevel.Log:
+                        if (!Debugger.printLogs)
+                            return;
+                        break;
+                    case LogLevel.Warning:
+                        if (!Debugger.printWarnings)
+                            return;
+                        break;
+                    case LogLevel.Error:
+                    case LogLevel.Exception:
+                        if (!Debugger.printErrors)
+                            return;
+                        break;
+                }
+                Prints.Enqueue(new LogContent(Time + message, level));
 
-		/// <summary>
-		/// Log error message
-		/// </summary>
-		/// <param name="message"></param>
-		public static void LogError(object message)
-		{
-			LogError(message, null);
-		}
+                if (Debugger.maxPrintLines < 1)
+                {
+                    Debugger.maxPrintLines = 1;
+                }
 
-		/// <summary>
-		/// Log error message
-		/// </summary>
-		/// <param name="message"></param>
-		/// <param name="context"></param>
-		public static void LogError(object message, Object context)
-		{
-			if (EnableLog)
-			{
-				Debug.LogError(Time + message, context);
-			}
-			if (PrintErrors)
-			{
-				LogGUI(message, LogLevel.Error);
-			}
-		}
+                while (Prints.Count > Debugger.maxPrintLines)
+                {
+                    Prints.Dequeue();
+                }
+            }
+        }
+    }
 
-		/// <summary>
-		/// Log warning message
-		/// </summary>
-		/// <param name="message"></param>
-		public static void LogWarning(object message)
-		{
-			LogWarning(message, null);
-		}
+    #region Internal
 
-		/// <summary>
-		/// Log warning message
-		/// </summary>
-		/// <param name="message"></param>
-		/// <param name="context"></param>
-		public static void LogWarning(object message, Object context)
-		{
-			if (EnableLog)
-			{
-				Debug.LogWarning(Time + message, context);
-			}
-			if (PrintWarnings)
-			{
-				LogGUI(message, LogLevel.Warning);
-			}
-		}
+    internal class LogContent
+    {
+        public LogContent(string message, LogLevel level)
+        {
+            Message = message;
+            Level = level;
+        }
 
-		private static void LogGUI(object message, LogLevel level)
-		{
-			if (EnablePrint)
-			{
-				Prints.Enqueue(new LogContent(Time + message, level));
+        public LogLevel Level { get; private set; }
+        public string Message { get; private set; }
+    }
 
-				if (MaxPrintLines < 1)
-				{
-					MaxPrintLines = 1;
-				}
+    [Flags]
+    internal enum LogLevel
+    {
+        Log = 1,
+        Warning = 2,
+        Error = 4,
+        Exception = 8
+    }
 
-				while (Prints.Count > MaxPrintLines)
-				{
-					Prints.Dequeue();
-				}
-			}
-			else if (EnableLog)
-			{
-				Log(message);
-			}
-		}
-
-		///// <summary>
-		///// Print message on screen
-		///// </summary>
-		///// <param name="message"></param>
-		//public static void LogGUI(object message)
-		//{
-		//	LogGUI(message, LogLevel.Log);
-		//}
-
-		private class ZDebugger : IDebugger
-		{
-			#region Implementation of IDebugger
-
-			public bool EnableLog { get; set; }
-			public bool EnablePrint { get; set; }
-			public bool EnableTime { get; set; }
-			public int MaxPrintLines { get; set; }
-			public bool PrintErrors { get; set; }
-			public bool PrintWarnings { get; set; }
-			public bool PrintLogs { get; set; }
-			public Color ErrorColor { get; set; }
-			public Color WarningColor { get; set; }
-			public Color LogColor { get; set; }
-
-			#endregion
-
-			/// <summary>
-			/// Initializes a new instance of the <see cref="T:ZDebugger"/> class.
-			/// </summary>
-			public ZDebugger()
-			{
-				EnableLog = true;
-			}
-		}
-
-		private interface IDebugger
-		{
-			bool EnableLog { get; set; }
-			bool EnablePrint { get; set; }
-			bool EnableTime { get; set; }
-			int MaxPrintLines { get; set; }
-			bool PrintErrors { get; set; }
-			bool PrintWarnings { get; set; }
-			bool PrintLogs { get; set; }
-			Color ErrorColor { get; set; }
-			Color WarningColor { get; set; }
-			Color LogColor { get; set; }
-		}
-
-		private class MonoDebugger : MonoBehaviour, IDebugger
-		{
-			private readonly Dictionary<LogLevel, GUIStyle> _styles = new Dictionary<LogLevel, GUIStyle>();
-
-			private void Awake()
-			{
-				DontDestroyOnLoad(this);
-
-				GUIStyle errorStyle = new GUIStyle();
-				GUIStyle warningStyle = new GUIStyle();
-				GUIStyle logStyle = new GUIStyle();
-				errorStyle.normal.textColor = errorColor;
-				warningStyle.normal.textColor = warningColor;
-				logStyle.normal.textColor = logColor;
-				_styles.Add(LogLevel.Log, logStyle);
-				_styles.Add(LogLevel.Warning, warningStyle);
-				_styles.Add(LogLevel.Error, errorStyle);
-			}
-
-			#region Fields
-
-			public bool enableLog = true;
-			public bool enablePrint = true;
-			public bool enableTime = true;
-			public int maxPrintLines = 20;
-			public bool printErrors = true;
-			public bool printWarnings;
-			public bool printLogs;
-			public Color errorColor = Color.red;
-			public Color warningColor = Color.yellow;
-			public Color logColor = Color.white;
-
-			#endregion
-
-			public bool EnableLog
-			{
-				get { return enableLog; }
-				set { enableLog = value; }
-			}
-
-			public bool EnablePrint
-			{
-				get { return enablePrint; }
-				set { enablePrint = value; }
-			}
-
-			public bool EnableTime
-			{
-				get { return enableTime; }
-				set { enableTime = value; }
-			}
-
-			public int MaxPrintLines
-			{
-				get { return maxPrintLines; }
-				set { maxPrintLines = value; }
-			}
-
-			public bool PrintErrors
-			{
-				get { return printErrors; }
-				set { printErrors = value; }
-			}
-
-			public bool PrintWarnings
-			{
-				get { return printWarnings; }
-				set { printWarnings = value; }
-			}
-
-			public bool PrintLogs
-			{
-				get { return printLogs; }
-				set { printLogs = value; }
-			}
-
-			public Color ErrorColor
-			{
-				get { return errorColor; }
-				set { errorColor = value; }
-			}
-
-			public Color WarningColor
-			{
-				get { return warningColor; }
-				set { warningColor = value; }
-			}
-
-			public Color LogColor
-			{
-				get { return logColor; }
-				set { logColor = value; }
-			}
-
-#if LOGGUI
-			private void OnGUI()
-			{
-				if (enablePrint)
-				{
-					foreach (LogContent print in Prints)
-					{
-						GUILayout.Label(print.Message, _styles[print.Level]);
-					}
-				}
-			}
-#endif
-		}
-
-		[Flags]
-		private enum LogLevel
-		{
-			Log = 1,
-			Warning = 2,
-			Error = 4
-		}
-
-		private class LogContent
-		{
-			public LogLevel Level { get; private set; }
-			public string Message { get; private set; }
-
-			public LogContent(string message, LogLevel level)
-			{
-				Message = message;
-				Level = level;
-			}
-		}
-	}
+    #endregion
 }
 
-/**/
+public sealed class GUIMono : MonoBehaviour
+{
+    private readonly Dictionary<Debug.LogLevel, GUIStyle> _styles = new Dictionary<Debug.LogLevel, GUIStyle>();
+
+    #region Fields
+
+    public bool enablePrint = true;
+    [Range(1, 20)] public int maxPrintLines = 10;
+    public bool printErrors = true;
+    public bool printWarnings;
+    public bool printLogs;
+    public Color errorColor = Color.red;
+    public Color warningColor = Color.yellow;
+    public Color logColor = Color.white;
+
+    #endregion
+
+    private void Awake()
+    {
+        ReadHistory();
+
+        GUIStyle errorStyle = new GUIStyle();
+        GUIStyle warningStyle = new GUIStyle();
+        GUIStyle logStyle = new GUIStyle();
+        errorStyle.normal.textColor = errorColor;
+        warningStyle.normal.textColor = warningColor;
+        logStyle.normal.textColor = logColor;
+        errorStyle.wordWrap = true;
+        warningStyle.wordWrap = true;
+        logStyle.wordWrap = true;
+        _styles.Add(Debug.LogLevel.Log, logStyle);
+        _styles.Add(Debug.LogLevel.Warning, warningStyle);
+        _styles.Add(Debug.LogLevel.Error, errorStyle);
+        _styles.Add(Debug.LogLevel.Exception, errorStyle);
+    }
+
+    private void ReadHistory()
+    {
+        string ep = PlayerPrefs.GetString("enablePrint");
+        if (!string.IsNullOrEmpty(ep))
+            enablePrint = HashConverter.ToObject<bool>(ep);
+
+        string mp = PlayerPrefs.GetString("maxPrintLines");
+        if (!string.IsNullOrEmpty(mp))
+            maxPrintLines = HashConverter.ToObject<int>(mp);
+
+        string pe = PlayerPrefs.GetString("printErrors");
+        if (!string.IsNullOrEmpty(pe))
+            printErrors = HashConverter.ToObject<bool>(pe);
+
+        string pw = PlayerPrefs.GetString("printWarnings");
+        if (!string.IsNullOrEmpty(pw))
+            printWarnings = HashConverter.ToObject<bool>(pw);
+
+        string pl = PlayerPrefs.GetString("printLogs");
+        if (!string.IsNullOrEmpty(pl))
+            printLogs = HashConverter.ToObject<bool>(pl);
+
+        string ec = PlayerPrefs.GetString("errorColor");
+        if (!string.IsNullOrEmpty(ec))
+        {
+            float[] pams = HashConverter.ToObjects<float>(ec);
+            errorColor = new Color(pams[0], pams[1], pams[2], pams[3]);
+        }
+
+        string lc = PlayerPrefs.GetString("logColor");
+        if (!string.IsNullOrEmpty(lc))
+        {
+            float[] pams = HashConverter.ToObjects<float>(lc);
+            logColor = new Color(pams[0], pams[1], pams[2], pams[3]);
+        }
+
+        string wc = PlayerPrefs.GetString("warningColor");
+        if (!string.IsNullOrEmpty(wc))
+        {
+            float[] pams = HashConverter.ToObjects<float>(wc);
+            warningColor = new Color(pams[0], pams[1], pams[2], pams[3]);
+        }
+    }
+
+    private void OnGUI()
+    {
+        if (enablePrint)
+        {
+            GUI.depth = 0;
+
+            GUILayout.BeginVertical("box");
+            {
+                foreach (Debug.LogContent print in Debug.Prints)
+                {
+                    GUILayout.Label(print.Message, _styles[print.Level], GUILayout.MaxWidth(Screen.width),
+                        GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(false));
+                }
+            }
+            GUILayout.EndVertical();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        PlayerPrefs.SetString("enablePrint", HashConverter.ToHash(enablePrint));
+        PlayerPrefs.SetString("maxPrintLines", HashConverter.ToHash(maxPrintLines));
+        PlayerPrefs.SetString("printErrors", HashConverter.ToHash(printErrors));
+        PlayerPrefs.SetString("printWarnings", HashConverter.ToHash(printWarnings));
+        PlayerPrefs.SetString("printLogs", HashConverter.ToHash(printLogs));
+
+        PlayerPrefs.SetString("errorColor",
+            HashConverter.ToHash(new[] {errorColor.r, errorColor.g, errorColor.b, errorColor.a}));
+        PlayerPrefs.SetString("warningColor",
+            HashConverter.ToHash(new[] {warningColor.r, warningColor.g, warningColor.b, warningColor.a}));
+        PlayerPrefs.SetString("logColor",
+            HashConverter.ToHash(new[] {logColor.r, logColor.g, logColor.b, logColor.a}));
+    }
+}
+

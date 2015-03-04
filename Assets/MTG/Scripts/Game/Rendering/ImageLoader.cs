@@ -10,7 +10,6 @@ public class ImageLoader : MonoSingleton<ImageLoader>
 
 	private void Start()
 	{
-		Debug.Log(_path);
 		if (!Directory.Exists(Application.persistentDataPath + "/ImageCache/"))
 		{
 			Directory.CreateDirectory(Application.persistentDataPath + "/ImageCache/");

@@ -4,6 +4,7 @@
     <selection id="0" name="Default" desc="Default group" />
     <selection id="1" name="CardDB" desc="Card database in json format" />
     <selection id="2" name="GamePrefab" />
+    <selection id="3" name="Configs" />
   </selections>
   <groups>
     <group id="1">
@@ -21,6 +22,11 @@
       <resources>
         <resource key="Card" path="Assets/MTG/Prefabs/Card.prefab" />
         <resource key="ListItem" path="Assets/MTG/Prefabs/ListItem.prefab" />
+      </resources>
+    </group>
+    <group id="3">
+      <resources>
+        <resource key="DebugConfig" path="Assets/ZFrame/Debugger/DebugConfig.asset" />
       </resources>
     </group>
   </groups>

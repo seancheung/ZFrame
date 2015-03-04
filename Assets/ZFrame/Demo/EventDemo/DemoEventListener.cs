@@ -23,7 +23,7 @@ public class DemoEventListener : MonoEventListenr<int>
                 Debug.Log(monoEvent.EventArg.Sender + " => " + monoEvent.Key);
                 break;
             default:
-                Debug.Log(monoEvent.EventArg.Sender + " => " + monoEvent.Key + " =>" + monoEvent.Key*monoEvent.Key);
+                Debug.Log(monoEvent.EventArg.Sender + " => " + monoEvent.Key + " =>" + monoEvent.Key * monoEvent.Key);
                 break;
         }
     }

@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<gameobject xmlns="http://tempuri.org/UNITY3D.xsd" name="Gameobject">
-  <component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="UIRoot" adjustbydpi="true"/>
-  <component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="UILabel"  depth="0" size="10,10"/>
-  <gameobject name="child">
-    <component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rigidbody"/>
-  </gameobject>
-</gameobject>

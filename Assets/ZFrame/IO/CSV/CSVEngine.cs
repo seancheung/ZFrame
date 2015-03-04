@@ -35,13 +35,12 @@ namespace ZFrame.IO.CSV
 		private int _descRow = -1;
 		private int _startRow = -1;
 
-		/// <summary>
-		/// Decode CSV file to target mapped type.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="path"></param>
-		/// <returns></returns>
-		public IEnumerable<T> Decode<T>() where T : new()
+	    /// <summary>
+	    /// Decode CSV file to target mapped type.
+	    /// </summary>
+	    /// <typeparam name="T"></typeparam>
+	    /// <returns></returns>
+	    public IEnumerable<T> Decode<T>() where T : new()
 		{
 			if (_records == null || _keyRow < 0 || _descRow < 0 || _startRow < 0)
 			{

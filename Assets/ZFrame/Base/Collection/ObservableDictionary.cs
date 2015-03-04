@@ -43,11 +43,11 @@ namespace ZFrame.Collections.Observable
 
 		#region Observable Handler
 
-		public event Action<TKey, TValue> AddHanler;
+		public event Action<TKey, TValue> AddHandler;
 
-		protected virtual void OnAddHanler(TKey key, TValue value)
+		protected virtual void OnAddHandler(TKey key, TValue value)
 		{
-			Action<TKey, TValue> handler = AddHanler;
+			Action<TKey, TValue> handler = AddHandler;
 			if (handler != null) handler(key, value);
 		}
 
@@ -72,7 +72,7 @@ namespace ZFrame.Collections.Observable
 		public new void Add(TKey key, TValue value)
 		{
 			base.Add(key, value);
-			OnAddHanler(key, value);
+			OnAddHandler(key, value);
 		}
 
 		public new void Clear()

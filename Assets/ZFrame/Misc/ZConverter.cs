@@ -16,7 +16,7 @@ public static class ZConverter
         if (type == null)
             throw new ArgumentNullException("type");
         if (type != typeof (IConvertible))
-            throw new ArgumentException(type.ToString());
+            throw new ArgumentException("type must be IConvertible", type.ToString());
         TypeConverter converter = TypeDescriptor.GetConverter(type);
         return converter.ConvertFromString(value);
     }
@@ -30,7 +30,7 @@ public static class ZConverter
     {
         if (converter == null)
             throw new ArgumentNullException("converter");
-        return (T) ToObject(value, (input) => (object) converter.Invoke(value));
+        return (T) ToObject(value, input => (object) converter.Invoke(value));
     }
 
     public static object ToObject(string value, Converter<string, object> converter)
@@ -62,6 +62,6 @@ public static class ZConverter
 
     public static IEnumerable<T> ToObjects<T>(IEnumerable<string> values, Converter<string, T> converter)
     {
-        return values.Select(value => ToObject<T>(value, converter));
+        return values.Select(value => ToObject(value, converter));
     }
 }

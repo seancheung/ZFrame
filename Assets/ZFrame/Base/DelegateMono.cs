@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ZFrame.MonoBase
 {
-	public sealed class DelegateMonoFull : DelegateMonoUltra
+	public sealed class DelegateMonoUltimate : DelegateMonoUltra
 	{
 		/// <summary>
 		/// <see cref="OnBecameVisible"/> is called when the renderer became visible by any camera

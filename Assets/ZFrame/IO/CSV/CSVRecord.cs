@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
-public class CSVRecord
+public class CSVRecord : IEnumerable<List<string>>
 {
 	public int Count
 	{
 		get { return recordList.Count; }
 	}
 
-	protected List<List<string>> recordList;
+	protected List<List<string>> recordList = new List<List<string>>();
 
 	public IList<string> this[int index]
 	{
@@ -34,4 +35,14 @@ public class CSVRecord
 	{
 		get { return Count > 0 && recordList.TrueForAll(c => c.Count == recordList[0].Count); }
 	}
+
+    public IEnumerator<List<string>> GetEnumerator()
+    {
+        return recordList.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 }

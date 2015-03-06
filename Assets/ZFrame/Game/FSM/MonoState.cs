@@ -1,4 +1,4 @@
-﻿using ZFrame.MonoBase;
+﻿using ZFrame.Base.MonoBase;
 
 public abstract class MonoState : SingleMono, IGameState
 {

@@ -1,122 +1,125 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using ZFrame.MonoBase;
+using ZFrame.Base.MonoBase;
 
-public sealed class ZDebug : MonoSingleton<ZDebug>
+namespace ZFrame.Debugger
 {
-    public DebugConfig Config;
-
-    private readonly Queue<LogContent> _logs = new Queue<LogContent>();
-    private readonly Dictionary<LogType, GUIStyle> _styles = new Dictionary<LogType, GUIStyle>();
-    private Vector2 _scrollPos;
-
-    private string Time
+    public sealed class ZDebug : MonoSingleton<ZDebug>
     {
-        get { return Config.enableTime ? (DateTime.Now.ToString("hh:mm:ss.fff") + ": ") : ""; }
-    }
+        public DebugConfig Config;
 
-    private void Start()
-    {
-        _styles.Add(LogType.Log, Config.logStyle);
-        _styles.Add(LogType.Warning, Config.warningStyle);
-        _styles.Add(LogType.Error, Config.errorStyle);
-        _styles.Add(LogType.Exception, Config.exceptionStyle);
-    }
+        private readonly Queue<LogContent> _logs = new Queue<LogContent>();
+        private readonly Dictionary<LogType, GUIStyle> _styles = new Dictionary<LogType, GUIStyle>();
+        private Vector2 _scrollPos;
 
-    private void OnGUI()
-    {
-        if (Config.enableDebug)
+        private string Time
         {
-            GUI.depth = 0;
+            get { return Config.enableTime ? (DateTime.Now.ToString("hh:mm:ss.fff") + ": ") : ""; }
+        }
 
-            _scrollPos = GUILayout.BeginScrollView(_scrollPos, GUILayout.MaxHeight(Screen.height));
+        private void Start()
+        {
+            _styles.Add(LogType.Log, Config.logStyle);
+            _styles.Add(LogType.Warning, Config.warningStyle);
+            _styles.Add(LogType.Error, Config.errorStyle);
+            _styles.Add(LogType.Exception, Config.exceptionStyle);
+        }
+
+        private void OnGUI()
+        {
+            if (Config.enableDebug)
             {
-                GUILayout.BeginVertical("box");
+                GUI.depth = 0;
+
+                _scrollPos = GUILayout.BeginScrollView(_scrollPos, GUILayout.MaxHeight(Screen.height));
                 {
-                    foreach (LogContent print in _logs)
+                    GUILayout.BeginVertical("box");
                     {
-                        GUILayout.Label("<b>" + print.Message + "</b>", _styles[print.Type],
-                            GUILayout.MaxWidth(Screen.width));
-                        if (print.Type != LogType.Log && !string.IsNullOrEmpty(print.Trace))
-                            GUILayout.Label("<i>" + print.Trace + "</i>", _styles[print.Type],
+                        foreach (LogContent print in _logs)
+                        {
+                            GUILayout.Label("<b>" + print.Message + "</b>", _styles[print.Type],
                                 GUILayout.MaxWidth(Screen.width));
+                            if (print.Type != LogType.Log && !string.IsNullOrEmpty(print.Trace))
+                                GUILayout.Label("<i>" + print.Trace + "</i>", _styles[print.Type],
+                                    GUILayout.MaxWidth(Screen.width));
+                        }
                     }
+                    GUILayout.EndVertical();
                 }
-                GUILayout.EndVertical();
+                GUILayout.EndScrollView();
             }
-            GUILayout.EndScrollView();
         }
-    }
 
-    private void OnEnable()
-    {
-        Application.RegisterLogCallback(HandleLog);
-    }
-
-    private void OnDisable()
-    {
-        Application.RegisterLogCallback(null);
-    }
-
-    private void HandleLog(string logString, string stackTrace, LogType type)
-    {
-        switch (type)
+        private void OnEnable()
         {
-            case LogType.Error:
-                if (!Config.enableErrors)
+            Application.logMessageReceived += HandleLog;
+        }
+
+        private void OnDisable()
+        {
+            Application.logMessageReceived -= HandleLog;
+        }
+
+        private void HandleLog(string logString, string stackTrace, LogType type)
+        {
+            switch (type)
+            {
+                case LogType.Error:
+                    if (!Config.enableErrors)
+                        return;
+                    break;
+                case LogType.Warning:
+                    if (!Config.enableWarnings)
+                        return;
+                    break;
+                case LogType.Log:
+                    if (!Config.enableLogs)
+                        return;
+                    break;
+                case LogType.Exception:
+                    if (!Config.enableExceptions)
+                        return;
+                    break;
+                default:
                     return;
-                break;
-            case LogType.Warning:
-                if (!Config.enableWarnings)
-                    return;
-                break;
-            case LogType.Log:
-                if (!Config.enableLogs)
-                    return;
-                break;
-            case LogType.Exception:
-                if (!Config.enableExceptions)
-                    return;
-                break;
-            default:
-                return;
-        }
-        _logs.Enqueue(Config.enableTrace
-            ? new LogContent(Time + logString, type, stackTrace)
-            : new LogContent(Time + logString, type));
+            }
+            _logs.Enqueue(Config.enableTrace
+                ? new LogContent(Time + logString, type, stackTrace)
+                : new LogContent(Time + logString, type));
 
-        if (Config.maxDebugLines < 1)
-        {
-            Config.maxDebugLines = 1;
+            if (Config.maxDebugLines < 1)
+            {
+                Config.maxDebugLines = 1;
+            }
+            while (_logs.Count > Config.maxDebugLines)
+            {
+                _logs.Dequeue();
+            }
         }
-        while (_logs.Count > Config.maxDebugLines)
+
+        #region Internal
+
+        private class LogContent
         {
-            _logs.Dequeue();
+            public LogContent(string message, LogType type)
+            {
+                Message = message;
+                Type = type;
+            }
+
+            public LogContent(string message, LogType type, string trace)
+            {
+                Message = message;
+                Type = type;
+                Trace = trace;
+            }
+
+            public LogType Type { get; private set; }
+            public string Message { get; private set; }
+            public string Trace { get; private set; }
         }
+
+        #endregion
     }
-
-    #region Internal
-
-    private class LogContent
-    {
-        public LogContent(string message, LogType type)
-        {
-            Message = message;
-            Type = type;
-        }
-
-        public LogContent(string message, LogType type, string trace)
-        {
-            Message = message;
-            Type = type;
-            Trace = trace;
-        }
-
-        public LogType Type { get; private set; }
-        public string Message { get; private set; }
-        public string Trace { get; private set; }
-    }
-
-    #endregion
 }

@@ -3,133 +3,140 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using ZFrame.IO.CSV;
+using ZFrame.Utilities;
 
-public class CSVParser
+namespace ZFrame.IO.CSV
 {
-    public static IEnumerable<T> Parse<T>() where T : new()
+    public class CSVParser
     {
-        //Check mapping
-        if (!Attribute.IsDefined(typeof (T), typeof (CSVMapperAttribute), false))
-            throw new ArgumentException("CSV mapping attribute not found", typeof (T).ToString());
-
-        CSVMapperAttribute mapper =
-            Attribute.GetCustomAttribute(typeof (T), typeof (CSVMapperAttribute), false) as CSVMapperAttribute;
-
-        if (string.IsNullOrEmpty(mapper.Path))
-            throw new ArgumentException("CSV path not found", typeof (T).ToString());
-
-        TextAsset asset = Resources.Load<TextAsset>(mapper.Path);
-
-        if (asset == null)
-            throw new ArgumentException("CSV file not found", typeof (T).ToString());
-
-        if (string.IsNullOrEmpty(asset.text))
-            throw new ArgumentException("CSV file content empty", typeof (T).ToString());
-
-        CSVReader reader = new CSVReader();
-        CSVRecord csv = reader.Read(asset.text);
-
-        IEnumerable<MemberInfo> members =
-            typeof (T).GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(m => m.MemberType == MemberTypes.Property || m.MemberType == MemberTypes.Field)
-                .Where(m => Attribute.IsDefined(m, typeof (CSVColumnAttribute), false));
-
-        foreach (List<string> record in csv)
+        public static IEnumerable<T> Parse<T>() where T : new()
         {
-            T obj = new T();
+            //Check mapping
+            if (!Attribute.IsDefined(typeof (T), typeof (CSVDocumentAttribute), false))
+                throw new ArgumentException("CSV mapping attribute not found", typeof (T).ToString());
 
-            foreach (MemberInfo member in members)
+            CSVDocumentAttribute doc =
+                Attribute.GetCustomAttribute(typeof (T), typeof (CSVDocumentAttribute), false) as CSVDocumentAttribute;
+
+            if (string.IsNullOrEmpty(doc.Path))
+                throw new ArgumentException("CSV path not found", typeof (T).ToString());
+
+            TextAsset asset = Resources.Load<TextAsset>(doc.Path);
+
+            if (asset == null)
+                throw new ArgumentException("CSV file not found", typeof (T).ToString());
+
+            if (string.IsNullOrEmpty(asset.text))
+                throw new ArgumentException("CSV file content empty", typeof (T).ToString());
+
+            CSVReader reader = new CSVReader();
+            CSVRecord csv = reader.Read(asset.text);
+
+            IEnumerable<MemberInfo> members =
+                typeof (T).GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Where(m => m.MemberType == MemberTypes.Property || m.MemberType == MemberTypes.Field)
+                    .Where(m => Attribute.IsDefined(m, typeof (CSVColumnAttribute), false));
+
+            foreach (List<string> record in csv)
             {
-                CSVColumnAttribute attribute =
-                    member.GetCustomAttributes(typeof (CSVColumnAttribute), false).First() as CSVColumnAttribute;
-                string value = GetValue(attribute, csv[mapper.KeyRow], record, member.Name, typeof (T));
+                if (doc.MappingRow == csv.IndexOf(record) ||
+                    doc.SkippedRows != null && doc.SkippedRows.Contains(csv.IndexOf(record)))
+                    continue;
 
-                SetValue(member, obj, value, attribute.DefaultValue, attribute.ArraySeparator, attribute.TrueValues,
-                    typeof (T));
-            }
+                T obj = new T();
 
-            yield return obj;
-        }
-    }
+                foreach (MemberInfo member in members)
+                {
+                    CSVColumnAttribute attribute =
+                        member.GetCustomAttributes(typeof (CSVColumnAttribute), false).First() as CSVColumnAttribute;
+                    string value = GetValue(attribute, csv[doc.MappingRow], record, member.Name, typeof (T));
 
-    private static void SetValue(MemberInfo member, object obj, string value, object defaultValue, char arraySeparator,
-        string[] trueValues, Type type)
-    {
-        if (member.MemberType == MemberTypes.Property)
-        {
-            MethodInfo set = ((PropertyInfo) member).GetSetMethod(true);
-            if (set == null)
-                throw new ArgumentException("CSV property " + member.Name + " must be writable", type.ToString());
-            try
-            {
-                if (((PropertyInfo) member).PropertyType.IsArray)
-                {
-                    object[] val =
-                        ZConverter.ToObjects(((PropertyInfo) member).PropertyType, value.Split(arraySeparator))
-                            .ToArray();
-                    ((PropertyInfo) member).SetValue(obj, val, null);
+                    SetValue(member, obj, value, attribute.DefaultValue, attribute.ArraySeparator, attribute.TrueValues,
+                        typeof (T));
                 }
-                else if (((PropertyInfo) member).PropertyType == typeof (Boolean))
-                {
-                    ((PropertyInfo) member).SetValue(obj, trueValues.Contains(value), null);
-                }
-                else
-                {
-                    object val = ZConverter.ToObject(((PropertyInfo) member).PropertyType, value);
-                    ((PropertyInfo) member).SetValue(obj, val, null);
-                }
-            }
-            catch (NotSupportedException)
-            {
-                ((PropertyInfo) member).SetValue(obj, defaultValue, null);
+
+                yield return obj;
             }
         }
-        else
+
+
+        private static void SetValue(MemberInfo member, object obj, string value, object defaultValue,
+            char arraySeparator,
+            string[] trueValues, Type type)
         {
-            try
+            if (member.MemberType == MemberTypes.Property)
             {
-                if (((FieldInfo) member).FieldType.IsArray)
+                MethodInfo set = ((PropertyInfo) member).GetSetMethod(true);
+                if (set == null)
+                    throw new ArgumentException("CSV property " + member.Name + " must be writable", type.ToString());
+                try
                 {
-                    object val = ZConverter.ToObjects(((FieldInfo) member).FieldType, value.Split(arraySeparator));
-                    ((FieldInfo) member).SetValue(obj, val);
+                    if (((PropertyInfo) member).PropertyType.IsArray)
+                    {
+                        object[] val =
+                            ZConverter.ToObjects(((PropertyInfo) member).PropertyType, value.Split(arraySeparator))
+                                .ToArray();
+                        ((PropertyInfo) member).SetValue(obj, val, null);
+                    }
+                    else if (((PropertyInfo) member).PropertyType == typeof (Boolean))
+                    {
+                        ((PropertyInfo) member).SetValue(obj, trueValues.Contains(value), null);
+                    }
+                    else
+                    {
+                        object val = ZConverter.ToObject(((PropertyInfo) member).PropertyType, value);
+                        ((PropertyInfo) member).SetValue(obj, val, null);
+                    }
                 }
-                else if (((FieldInfo) member).FieldType == typeof (Boolean))
+                catch (NotSupportedException)
                 {
-                    ((FieldInfo) member).SetValue(obj, trueValues.Contains(value));
-                }
-                else
-                {
-                    object val = ZConverter.ToObject(((FieldInfo) member).FieldType, value);
-                    ((FieldInfo) member).SetValue(obj, val);
+                    ((PropertyInfo) member).SetValue(obj, defaultValue, null);
                 }
             }
-            catch (NotSupportedException)
+            else
             {
-                ((FieldInfo) member).SetValue(obj, defaultValue);
+                try
+                {
+                    if (((FieldInfo) member).FieldType.IsArray)
+                    {
+                        object val = ZConverter.ToObjects(((FieldInfo) member).FieldType, value.Split(arraySeparator));
+                        ((FieldInfo) member).SetValue(obj, val);
+                    }
+                    else if (((FieldInfo) member).FieldType == typeof (Boolean))
+                    {
+                        ((FieldInfo) member).SetValue(obj, trueValues.Contains(value));
+                    }
+                    else
+                    {
+                        object val = ZConverter.ToObject(((FieldInfo) member).FieldType, value);
+                        ((FieldInfo) member).SetValue(obj, val);
+                    }
+                }
+                catch (NotSupportedException)
+                {
+                    ((FieldInfo) member).SetValue(obj, defaultValue);
+                }
             }
         }
-    }
 
-    private static string GetValue(CSVColumnAttribute attribute, IList<string> keys, List<string> record, string name,
-        Type type)
-    {
-        if (attribute.Column >= 0 && record.Count > attribute.Column)
+        private static string GetValue(CSVColumnAttribute attribute, IList<string> keys, List<string> record,
+            string name,
+            Type type)
         {
-            return record[attribute.Column];
-        }
-        if (!string.IsNullOrEmpty(attribute.Key) && keys.Contains(attribute.Key))
-        {
-            return record[keys.IndexOf(attribute.Key)];
-        }
-        if (keys.Contains(name))
-        {
-            return record[keys.IndexOf(name)];
-        }
+            if (attribute.Index >= 0 && record.Count > attribute.Index)
+            {
+                return record[attribute.Index];
+            }
+            if (!string.IsNullOrEmpty(attribute.Key) && keys.Contains(attribute.Key))
+            {
+                return record[keys.IndexOf(attribute.Key)];
+            }
+            if (keys.Contains(name))
+            {
+                return record[keys.IndexOf(name)];
+            }
 
-        Debug.LogError(string.Format("Mapping Error! Column: {0}, Key: {1}, Name:{2}", attribute.Column,
-            attribute.Key ?? "NULL", name));
-
-        throw new ArgumentException("Mapping key not found on member" + name, type.ToString());
+            throw new ArgumentException("Mapping key not found on member" + name, type.ToString());
+        }
     }
 }

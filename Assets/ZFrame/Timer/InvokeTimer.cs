@@ -1,14 +1,16 @@
 ﻿using System;
-using ZFrame.MonoBase;
+using UnityEngine;
+using ZFrame.Base.MonoBase;
 
 namespace ZFrame.Timer
 {
-	public class InvokeTimer : MonoSingleton<InvokeTimer>, ITimer
+	public sealed class InvokeTimer : MonoSingleton<InvokeTimer>, ITimer
 	{
-		public event Action Ontick;
-		public ulong Time { get; protected set; }
-		public DateTime Now { get; protected set; }
-		public bool IsRunning { get; protected set; }
+	    public float Interval { get; private set; }
+	    public event Action Ontick;
+		public ulong TickCount { get; private set; }
+        public DateTime Now { get; private set; }
+        public bool IsRunning { get; private set; }
 
 		private void Start()
 		{
@@ -16,12 +18,12 @@ namespace ZFrame.Timer
 			Sync(DateTime.Now);
 		}
 
-		protected virtual void Tick()
+		private void Tick()
 		{
 			if (IsRunning)
 			{
-				Time++;
-				Now = Now.AddSeconds(1);
+				TickCount++;
+				Now = Now.AddSeconds(Interval);
 				if (Ontick != null)
 				{
 					Ontick();
@@ -31,7 +33,7 @@ namespace ZFrame.Timer
 
 		public void Sync(ulong time)
 		{
-			Time = time;
+			TickCount = time;
 		}
 
 		public void Sync(DateTime time)
@@ -48,12 +50,16 @@ namespace ZFrame.Timer
 			}
 		}
 
-		public void StartTimer()
+        public void StartTimer(float interval = 1f)
 		{
+            if (interval <= 0)
+                throw new ArgumentException("Interval must be above 0");
+
 			if (!IsRunning)
 			{
+                Interval = interval;
 				IsRunning = true;
-				InvokeRepeating("Tick", 0, 1*UnityEngine.Time.timeScale);
+                InvokeRepeating("Tick", 0, Interval * Time.timeScale);
 			}
 		}
 	}

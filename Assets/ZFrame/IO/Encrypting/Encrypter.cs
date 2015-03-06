@@ -5,80 +5,71 @@ using System.Text;
 
 namespace ZFrame.IO.Encrypting
 {
-	public static class Encrypter
-	{
-		#region Temp Test
+    public static class Encrypter
+    {
+        public static string Encode(string data, byte[] key, byte[] iv)
+        {
+            DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider();
 
-		private const string KEY_64 = "ZFrameENC";
-		private const string IV_64 = "ZFrameENC";
+            MemoryStream ms = new MemoryStream();
 
-		#endregion
+            CryptoStream cst = new CryptoStream(ms, cryptoProvider.CreateEncryptor(key, iv), CryptoStreamMode.Write);
 
-		public static string Encode(string data, byte[] key, byte[] iv)
-		{
-			DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider();
+            StreamWriter sw = new StreamWriter(cst);
 
-			//int i = cryptoProvider.KeySize;
+            sw.Write(data);
 
-			MemoryStream ms = new MemoryStream();
+            sw.Flush();
 
-			CryptoStream cst = new CryptoStream(ms, cryptoProvider.CreateEncryptor(key, iv), CryptoStreamMode.Write);
+            cst.FlushFinalBlock();
 
-			StreamWriter sw = new StreamWriter(cst);
+            sw.Flush();
 
-			sw.Write(data);
+            return Convert.ToBase64String(ms.GetBuffer(), 0, (int) ms.Length);
+        }
 
-			sw.Flush();
+        public static string Encode(string data, string key, string iv)
+        {
+            byte[] byKey = Encoding.ASCII.GetBytes(key);
 
-			cst.FlushFinalBlock();
-
-			sw.Flush();
-
-			return Convert.ToBase64String(ms.GetBuffer(), 0, (int) ms.Length);
-		}
-
-		public static string Encode(string data)
-		{
-			byte[] byKey = Encoding.ASCII.GetBytes(KEY_64);
-
-			byte[] byIV = Encoding.ASCII.GetBytes(IV_64);
+            byte[] byIV = Encoding.ASCII.GetBytes(iv);
 
 
-			return Encode(data, byKey, byIV);
-		}
+            return Encode(data, byKey, byIV);
+        }
 
-		public static string Decode(string data, byte[] key, byte[] iv)
-		{
-			byte[] byEnc;
+        public static string Decode(string data, byte[] key, byte[] iv)
+        {
+            byte[] byEnc;
 
-			try
-			{
-				byEnc = Convert.FromBase64String(data);
-			}
+            try
+            {
+                byEnc = Convert.FromBase64String(data);
+            }
 
-			catch
-			{
-				return null;
-			}
+            catch
+            {
+                return null;
+            }
 
-			DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider();
+            DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider();
 
-			MemoryStream ms = new MemoryStream(byEnc);
+            MemoryStream ms = new MemoryStream(byEnc);
 
-			CryptoStream cst = new CryptoStream(ms, cryptoProvider.CreateDecryptor(key, iv), CryptoStreamMode.Read);
+            CryptoStream cst = new CryptoStream(ms, cryptoProvider.CreateDecryptor(key, iv), CryptoStreamMode.Read);
 
-			StreamReader sr = new StreamReader(cst);
+            StreamReader sr = new StreamReader(cst);
 
-			return sr.ReadToEnd();
-		}
+            return sr.ReadToEnd();
+        }
 
-		public static string Decode(string data)
-		{
-			byte[] byKey = Encoding.ASCII.GetBytes(KEY_64);
+        public static string Decode(string data, string key, string iv)
+        {
+            byte[] byKey = Encoding.ASCII.GetBytes(key);
 
-			byte[] byIV = Encoding.ASCII.GetBytes(IV_64);
+            byte[] byIV = Encoding.ASCII.GetBytes(iv);
 
-			return Decode(data, byKey, byIV);
-		}
-	}
+            return Decode(data, byKey, byIV);
+        }
+    }
 }

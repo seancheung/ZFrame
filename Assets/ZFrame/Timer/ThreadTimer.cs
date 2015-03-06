@@ -1,104 +1,70 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ZFrame.MonoBase;
+using ZFrame.Base.MonoBase;
 
 namespace ZFrame.Timer
 {
-	public class ThreadTimer : MonoSingleton<ThreadTimer>, ITimer
-	{
-		protected System.Threading.Timer timer;
-		public event Action Ontick;
-		public ulong Time { get; protected set; }
-		public DateTime Now { get; protected set; }
-		public bool IsRunning { get; protected set; }
+    public sealed class ThreadTimer : MonoSingleton<ThreadTimer>, ITimer
+    {
+        private System.Threading.Timer _timer;
+        public float Interval { get; private set; }
+        public event Action Ontick;
+        public ulong TickCount { get; private set; }
+        public DateTime Now { get; private set; }
+        public bool IsRunning { get; private set; }
 
-		internal List<Clock> clocks = new List<Clock>();
-		internal List<Reminder> reminders = new List<Reminder>();
+        private void Start()
+        {
+            Sync(0);
+            Sync(DateTime.Now);
+        }
 
-		protected virtual void Start()
-		{
-			Sync(0);
-			Sync(DateTime.Now);
-		}
+        private void OnTick(object state)
+        {
+            if (IsRunning)
+            {
+                TickCount++;
+                Now = Now.AddSeconds(Interval);
 
-		protected virtual void OnTick(object state)
-		{
-			if (IsRunning)
-			{
-				Time++;
-				Now = Now.AddSeconds(1);
+                if (Ontick != null)
+                {
+                    Ontick();
+                }
+            }
+        }
 
-				if (Ontick != null)
-				{
-					Ontick();
-				}
+        public void Sync(ulong time)
+        {
+            TickCount = time;
+        }
 
-				clocks.ForEach(c => c.Update());
-				for (int i = 0; i < reminders.Count; i++)
-				{
-					if (reminders[i].Update(Now) && reminders[i].Type == ReminderType.OneTime)
-					{
-						reminders.RemoveAt(i);
-					}
-				}
-			}
-		}
+        public void Sync(DateTime time)
+        {
+            Now = time;
+        }
 
-		public void Sync(ulong time)
-		{
-			Time = time;
-		}
+        public void StopTimer()
+        {
+            if (IsRunning)
+            {
+                IsRunning = false;
+                if (_timer != null)
+                {
+                    _timer.Dispose();
+                }
+            }
+        }
 
-		public void Sync(DateTime time)
-		{
-			Now = time;
-		}
+        public void StartTimer(float interval = 1f)
+        {
+            if (interval <= 0)
+                throw new ArgumentException("Interval must be above 0");
 
-		public void StopTimer()
-		{
-			if (IsRunning)
-			{
-				IsRunning = false;
-				if (timer != null)
-				{
-					timer.Dispose();
-				}
-			}
-		}
-
-		public void StartTimer()
-		{
-			if (!IsRunning)
-			{
-				IsRunning = true;
-				timer = new System.Threading.Timer(OnTick, null, 0, 1000);
-			}
-		}
-
-		public bool AddClock(string key, int interval, Action callback)
-		{
-			if (string.IsNullOrEmpty(key) || clocks.Any(c => c.Key == key))
-			{
-				return false;
-			}
-
-			return clocks.SafeAdd(new Clock(key, interval, callback));
-		}
-
-		public void RemoveClock(string key)
-		{
-			clocks.RemoveAll(clock => clock.Key == key);
-		}
-
-		public bool AddReminder(string key, ReminderType type, DateTime time, Action callback)
-		{
-			if (string.IsNullOrEmpty(key) || reminders.Any(c => c.Key == key))
-			{
-				return false;
-			}
-
-			return reminders.SafeAdd(new Reminder(key, type, time, callback));
-		}
-	}
+            if (!IsRunning)
+            {
+                Interval = interval;
+                IsRunning = true;
+                _timer = new System.Threading.Timer(OnTick, null, 0, (int) (Interval*1000));
+            }
+        }
+    }
 }

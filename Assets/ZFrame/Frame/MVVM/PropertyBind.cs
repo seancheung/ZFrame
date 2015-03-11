@@ -5,15 +5,19 @@ using System.Reflection;
 using Fasterflect;
 using UnityEngine;
 
-[ExecuteInEditMode]
 public class PropertyBind : MonoBehaviour
 {
-    public List<MonoProperty> bindingGroups = new List<MonoProperty>();
+	[SerializeField]private List<MonoProperty> bindingGroups = new List<MonoProperty>();
 
     private void Awake()
     {
         bindingGroups.ForEach(g => g.GetMembers());
     }
+
+	private void Start()
+	{
+		bindingGroups.ForEach(g => g.Update());
+	}
 
     private void Update()
     {
@@ -23,17 +27,20 @@ public class PropertyBind : MonoBehaviour
     [Serializable]
     public class MonoProperty
     {
-        public Component source;
-        public string sourceProp;
-        public Component target;
-        public string targetProp;
-        public BindType bindingDirection;
+		[SerializeField]private Component source;
+		[SerializeField]private  string sourceProp;
+		[SerializeField]private  Component target;
+		[SerializeField]private  string targetProp;
+		[SerializeField]private  BindType bindingDirection;
 
-        public string sourceMember;
-        public string targetMember;
+		private string sourceMember;
+		private string targetMember;
 
         private object _sourceVal;
         private object _targetVal;
+
+		private UnityEngine.Object safeSource;
+		private UnityEngine.Object safeTarget;
 
         public void GetMembers()
         {
@@ -43,18 +50,30 @@ public class PropertyBind : MonoBehaviour
                 return;
             }
 
-            sourceMember = sourceProp.Split(new[] {'/', '('})[1];
-            targetMember = targetProp.Split(new[] {'/', '('})[1];
+			var sourceParams = sourceProp.Split (new[] { '/', '(' });
+			var targetParams = targetProp.Split (new[] { '/', '(' });
+			sourceMember = sourceParams[1];
+			targetMember = targetParams[1];
 
-            MemberInfo sm = source.GetType()
+			if(sourceParams [0] == typeof(GameObject).Name())
+				safeSource = source.gameObject;
+			else
+				safeSource = source;
+
+			if(targetParams [0] == typeof(GameObject).Name ())
+				safeTarget = target.gameObject;
+			else
+				safeTarget = target;
+
+			MemberInfo sm = safeSource.GetType()
                 .FieldsAndProperties(BindingFlags.Instance | BindingFlags.Public)
-                .FirstOrDefault(m => m.Name == sourceMember);
+				.FirstOrDefault(m => m.Name == sourceMember);
 
-            MemberInfo tm = target.GetType()
+			MemberInfo tm = safeTarget.GetType()
                 .FieldsAndProperties(BindingFlags.Instance | BindingFlags.Public)
                 .FirstOrDefault(m => m.Name == targetMember);
 
-            if (source == null || target == null || sm.Type() != tm.Type())
+			if (sm == null || tm == null || sm.Type() != tm.Type())
             {
                 canUpdate = false;
                 return;
@@ -71,24 +90,24 @@ public class PropertyBind : MonoBehaviour
                 {
                     case BindType.SourceUpdateTarget:
                     {
-                        object value = source.TryGetValue(sourceMember, BindingFlags.Instance | BindingFlags.Public);
-                        target.TrySetValue(targetMember, value, BindingFlags.Instance | BindingFlags.Public);
+						object value = safeSource.TryGetValue(sourceMember, BindingFlags.Instance | BindingFlags.Public);
+						safeTarget.TrySetValue(targetMember, value, BindingFlags.Instance | BindingFlags.Public);
                     }
                         break;
                     case BindType.TargetUpdateSource:
                     {
-                        object value = target.TryGetValue(targetMember, BindingFlags.Instance | BindingFlags.Public);
-                        source.TrySetValue(sourceMember, value, BindingFlags.Instance | BindingFlags.Public);
+						object value = safeTarget.TryGetValue(targetMember, BindingFlags.Instance | BindingFlags.Public);
+						safeSource.TrySetValue(sourceMember, value, BindingFlags.Instance | BindingFlags.Public);
                     }
                         break;
                     case BindType.Both:
                     {
-                        object sVal = source.TryGetValue(sourceMember, BindingFlags.Instance | BindingFlags.Public);
-                        object tVal = target.TryGetValue(targetMember, BindingFlags.Instance | BindingFlags.Public);
+						object sVal = safeSource.TryGetValue(sourceMember, BindingFlags.Instance | BindingFlags.Public);
+						object tVal = safeTarget.TryGetValue(targetMember, BindingFlags.Instance | BindingFlags.Public);
                         if (!string.Equals(sVal,_sourceVal))
-                            target.TrySetValue(targetMember, sVal, BindingFlags.Instance | BindingFlags.Public);
+							safeTarget.TrySetValue(targetMember, sVal, BindingFlags.Instance | BindingFlags.Public);
                         else if (!string.Equals(tVal, _targetVal))
-                            source.TrySetValue(sourceMember, tVal, BindingFlags.Instance | BindingFlags.Public);
+							safeSource.TrySetValue(sourceMember, tVal, BindingFlags.Instance | BindingFlags.Public);
 
                         _sourceVal = sVal;
                         _targetVal = tVal;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using UnityEngine;
 
 [Serializable]
@@ -19,7 +20,7 @@ public class MonoAction : ISerializationCallbackReceiver
     public void OnAfterDeserialize()
     {
         if (component && component)
-            action = (Action) Delegate.CreateDelegate(typeof (Action), component, method);
+            action = (Action) CreateDelegate<Action>(this);
     }
 
     public static Delegate CreateDelegate(Type type, MonoAction monoAction)
@@ -32,9 +33,9 @@ public class MonoAction : ISerializationCallbackReceiver
         return Delegate.CreateDelegate(type, monoAction.component, monoAction.method, false, false);
     }
 
-    public static Delegate CreateDelegate<T>(MonoAction monoAction)
+    public static Delegate CreateDelegate<T>(MonoAction monoAction) where T : ICloneable, ISerializable
     {
-        return CreateDelegate(typeof(T), monoAction);
+        return CreateDelegate(typeof (T), monoAction);
     }
 
     public override string ToString()

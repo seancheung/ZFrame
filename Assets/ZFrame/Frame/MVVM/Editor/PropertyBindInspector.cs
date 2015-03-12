@@ -59,7 +59,7 @@ public class PropertyBindInspector : Editor
                 {
                     source.objectReferenceValue = sourcePaths.ElementAt(i).component;
                 }
-                sourceProp.stringValue = props.Length > i ? props[i] : null;
+                sourceProp.stringValue = props.At(i);
             }
 
             //direction
@@ -92,7 +92,7 @@ public class PropertyBindInspector : Editor
                 {
                     target.objectReferenceValue = targetPaths.ElementAt(i).component;
                 }
-                targetProp.stringValue = props.Length > i ? props[i] : null;
+                targetProp.stringValue = props.At(i);
             }
 
             //if (target.objectReferenceValue)
@@ -140,23 +140,7 @@ public class PropertyBindInspector : Editor
         }
     }
 
-    private IEnumerable<MethodPath> GetMethods(GameObject gameObject)
-    {
-        IEnumerable<Component> components = gameObject.GetComponents<Component>();
-
-        foreach (Component component in components)
-        {
-            Type type = component.GetType();
-            IList<MethodInfo> props = type.Methods(BindingFlags.Instance | BindingFlags.Public);
-            foreach (MethodInfo memberInfo in props)
-                yield return new MethodPath(component, memberInfo);
-        }
-
-        foreach (MethodInfo memberInfo in typeof(GameObject).Methods(BindingFlags.Instance | BindingFlags.Public))
-        {
-            yield return new MethodPath(gameObject, memberInfo);
-        }
-    } 
+   
 
     private class MemberPath
     {
@@ -172,23 +156,6 @@ public class PropertyBindInspector : Editor
         public override string ToString()
         {
             return string.Format(format, component.GetType().Name(), member.Name, member.Type().Name());
-        }
-    }
-
-    private class MethodPath
-    {
-        public Object component;
-        public MethodInfo member;
-
-        public MethodPath(Object component, MethodInfo member)
-        {
-            this.component = component;
-            this.member = member;
-        }
-
-        public override string ToString()
-        {
-            return string.Format(format, component.GetType().Name(), member.Name);
         }
     }
 }

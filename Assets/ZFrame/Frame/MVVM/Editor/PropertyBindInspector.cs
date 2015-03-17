@@ -95,15 +95,6 @@ public class PropertyBindInspector : Editor
                 targetProp.stringValue = props.At(i);
             }
 
-            //if (target.objectReferenceValue)
-            //{
-            //    var meths = GetMethods(target.objectReferenceValue.To<Component>().gameObject);
-            //    string[] props = meths.Select(p => p.ToString()).ToArray();
-            //    EditorGUI.Popup(
-            //        new Rect(rect.x + rect.width / 2, rect.y + 3 * EditorGUIUtility.singleLineHeight, rect.width / 2,
-            //            EditorGUIUtility.singleLineHeight), 0, props);
-            //}
-
             GUILayout.Space(padding);
 
             GUI.backgroundColor = color;

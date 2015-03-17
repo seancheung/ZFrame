@@ -70,6 +70,59 @@ namespace ZFrame.IO.ResourceSystem
             }
         }
 
+        private void OnDisable()
+        {
+            if (_asset)
+            {
+                //for (int i = 0; i < _asset.groups.Count; i++)
+                //{
+                //    var group = _asset.groups[i];
+                //    if (group.resources == null || group.resources.Count == 0 || string.IsNullOrEmpty(group.groupName))
+                //    {
+                //        _asset.groups.RemoveAt(i);
+                //        continue;
+                //    }
+
+                //    for (int j = 0; j < group.resources.Count; j++)
+                //    {
+                //        var resource = group.resources[j];
+                //        if (string.IsNullOrEmpty(resource.resourceKey) || string.IsNullOrEmpty(resource.path) || !resource.resource)
+                //        {
+                //            group.resources.RemoveAt(j);
+                //            continue;
+                //        }
+                //        switch (resource.type)
+                //        {
+                //            case ResourceAsset.ResourceType.Reference:
+                //                break;
+                //            case ResourceAsset.ResourceType.PathLink:
+                //                resource.resource = null;
+                //                break;
+                //            default:
+                //                throw new ArgumentOutOfRangeException();
+                //        }
+                //    }
+                //}
+
+                foreach (var @group in _asset.groups)
+                {
+                    foreach (var resource in @group.resources)
+                    {
+                        switch (resource.type)
+                        {
+                            case ResourceAsset.ResourceType.Reference:
+                                break;
+                            case ResourceAsset.ResourceType.PathLink:
+                                resource.resource = null;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+                }
+            }
+        }
+
         private void DrawGroupItems(ResourceAsset.Group group)
         {
             if (group == null)
@@ -121,6 +174,33 @@ namespace ZFrame.IO.ResourceSystem
                                     EditorGUIUtility.singleLineHeight),
                                 res.resource,
                                 typeof (Object), false);
+
+                        if (res.resource)
+                        {
+                            res.path = AssetDatabase.GetAssetPath(res.resource);
+                        }
+                        else if (!string.IsNullOrEmpty(res.path))
+                        {
+                            res.resource = AssetDatabase.LoadAssetAtPath(res.path, typeof (Object));
+                        }
+
+                        switch (group.type)
+                        {
+                            case ResourceAsset.GroupType.Automatic:
+                                if (res.path != null && res.path.StartsWith("Assets/Resources/"))
+                                    res.type = ResourceAsset.ResourceType.PathLink;
+                                else
+                                    res.type = ResourceAsset.ResourceType.Reference;
+                                break;
+                            case ResourceAsset.GroupType.Reference:
+                                res.type = ResourceAsset.ResourceType.Reference;
+                                break;
+                            case ResourceAsset.GroupType.PathLink:
+                                res.type = ResourceAsset.ResourceType.PathLink;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
 
                         GUI.backgroundColor = _normalColor;
                     };
@@ -222,8 +302,8 @@ namespace ZFrame.IO.ResourceSystem
                 Rect nameLabelRect = new Rect(_offset.x, toolbarRect.yMax + _offset.y, 80f, _defaultSize.y);
                 Rect nameRect = new Rect(nameLabelRect.xMax, nameLabelRect.yMin, toolbarRect.width/4f, _defaultSize.y);
                 Rect descLabelRect = new Rect(nameRect.xMax, nameLabelRect.yMin, 80f, _defaultSize.y);
-                Rect descRect = new Rect(descLabelRect.xMax + _offset.x, nameLabelRect.yMin,
-                    toolbarRect.xMax - descLabelRect.xMax - _offset.x, _defaultSize.y);
+                Rect descRect = new Rect(descLabelRect.xMax + _offset.x, nameLabelRect.yMin,toolbarRect.width / 3f, _defaultSize.y);
+                Rect typeRect = new Rect(descRect.xMax + _offset.x, nameLabelRect.yMin, toolbarRect.xMax - descRect.xMax - _offset.x, _defaultSize.y);
 
                 EditorGUI.LabelField(nameLabelRect, "GroupName");
 
@@ -239,6 +319,9 @@ namespace ZFrame.IO.ResourceSystem
                 EditorGUI.LabelField(descLabelRect, "Description");
                 group.desc =
                     EditorGUI.TextField(descRect, group.desc);
+
+                group.type =
+                    (ResourceAsset.GroupType)EditorGUI.EnumPopup(typeRect, group.type);
 
                 _itemStartY = descRect.yMax;
             }
@@ -258,6 +341,7 @@ namespace ZFrame.IO.ResourceSystem
                 root.AppendChild(groupElement);
                 groupElement.SetAttribute("name", group.groupName);
                 groupElement.SetAttribute("desc", group.desc);
+                groupElement.SetAttribute("type", group.type.ToString());
 
                 foreach (ResourceAsset.Resource resource in group.resources)
                 {
@@ -266,6 +350,7 @@ namespace ZFrame.IO.ResourceSystem
                     resourceElement.SetAttribute("key", resource.resourceKey);
                     resourceElement.SetAttribute("desc", resource.desc);
                     resourceElement.SetAttribute("path", AssetDatabase.GetAssetPath(resource.resource));
+                    resourceElement.SetAttribute("type", resource.type.ToString());
                 }
             }
             doc.Save(path);
@@ -282,6 +367,7 @@ namespace ZFrame.IO.ResourceSystem
                 ResourceAsset.Group group = new ResourceAsset.Group();
                 group.groupName = groupNode.Attributes["name"].Value;
                 group.desc = groupNode.Attributes["desc"].Value;
+                group.type = (ResourceAsset.GroupType) Enum.Parse(typeof (ResourceAsset.GroupType), groupNode.Attributes["type"].Value);
 
                 group.resources = new List<ResourceAsset.Resource>();
                 foreach (XmlNode resourceNode in groupNode.SelectNodes("resource"))
@@ -291,6 +377,7 @@ namespace ZFrame.IO.ResourceSystem
                     resource.desc = resourceNode.Attributes["desc"].Value;
                     resource.resource = AssetDatabase.LoadAssetAtPath(resourceNode.Attributes["path"].Value,
                         typeof (Object));
+                    resource.type = (ResourceAsset.ResourceType) Enum.Parse(typeof(ResourceAsset.ResourceType), resourceNode.Attributes["type"].Value);
                     group.resources.Add(resource);
                 }
                 asset.groups.Add(group);

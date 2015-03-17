@@ -7,7 +7,7 @@ namespace ZFrame.IO.ResourceSystem
 {
     public class ResourceAsset : ScriptableObject
     {
-        [HideInInspector] public List<Group> groups;
+        [SerializeField] public List<Group> groups;
 
         [Serializable]
         public class Resource
@@ -15,6 +15,8 @@ namespace ZFrame.IO.ResourceSystem
             public string resourceKey;
             public string desc;
             public Object resource;
+            public string path;
+            public ResourceType type;
         }
 
         [Serializable]
@@ -22,7 +24,23 @@ namespace ZFrame.IO.ResourceSystem
         {
             public string groupName;
             public string desc;
-            public List<Resource> resources;
+            [SerializeField] public List<Resource> resources;
+            public GroupType type;
+        }
+
+        [Serializable]
+        public enum GroupType
+        {
+            Automatic,
+            Reference,
+            PathLink
+        }
+
+        [Serializable]
+        public enum ResourceType
+        {
+            Reference,
+            PathLink
         }
     }
 }

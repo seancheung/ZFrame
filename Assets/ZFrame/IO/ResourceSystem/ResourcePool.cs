@@ -8,19 +8,30 @@ namespace ZFrame.IO.ResourceSystem
 {
     public sealed class ResourcePool : MonoStatic<ResourcePool>
     {
-        public static string path = "Assets/Resources/ResourceAsset.asset";
+        public static string path = "ResourceAsset";
         private static ResourceAsset _asset;
 
         private void Awake()
         {
             if (!_asset)
-                _asset = Resources.LoadAssetAtPath<ResourceAsset>(path);
+                _asset = Resources.Load<ResourceAsset>(path);
         }
 
         private Object Load(string groupName, string key)
         {
             ResourceAsset.Group group = _asset.groups.Find(g => g.groupName == groupName);
-            return group.resources.Find(r => r.resourceKey == key).resource;
+            var res = group.resources.Find(r => r.resourceKey == key);
+            if(res == null)return null;
+
+            switch (res.type)
+            {
+                case ResourceAsset.ResourceType.Reference:
+                    return res.resource;
+                case ResourceAsset.ResourceType.PathLink:
+                    return Resources.Load(res.path.Replace("Assets/Resources/", ""));
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public static Object Load(string filter)
@@ -66,6 +77,17 @@ namespace ZFrame.IO.ResourceSystem
             T obj = Load<T>(filter);
             loadedCallback.Invoke(obj);
             yield return obj;
+        }
+
+        private IEnumerator LoadAsset(string url, Action<AssetBundle> callback)
+        {
+            WWW www = new WWW(url);
+            yield return www;
+            if (string.IsNullOrEmpty(www.error))
+            {
+                callback.Invoke(www.assetBundle);
+                www.Dispose();
+            }
         }
     }
 }

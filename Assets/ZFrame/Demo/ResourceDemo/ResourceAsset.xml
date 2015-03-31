@@ -1,7 +1,0 @@
-<resourcePool date="3/17/2015 7:51 PM">
-  <group name="DemoResource" desc="Description" type="Automatic">
-    <resource key="demofont" desc="" path="Assets/ZFrame/Demo/ResourceDemo/Font.fontsettings" type="Reference" />
-    <resource key="demomat" desc="" path="Assets/ZFrame/Demo/ResourceDemo/Material.mat" type="Reference" />
-    <resource key="demosphere" desc="" path="Assets/ZFrame/Demo/ResourceDemo/Sphere.prefab" type="Reference" />
-  </group>
-</resourcePool>

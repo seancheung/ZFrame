@@ -87,12 +87,5 @@ namespace ZFrame.Utilities
         {
             return num >= min && num <= max;
         }
-
-        public static int RoundUp(this float num)
-        {
-            if ((int) num < num)
-                return (int) num + 1;
-            return (int) num;
-        }
     }
 }

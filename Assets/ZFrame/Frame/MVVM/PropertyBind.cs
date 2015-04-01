@@ -37,6 +37,7 @@ public class PropertyBind : MonoBehaviour
         [SerializeField] private BindType bindingDirection;
         [SerializeField] private ConverterType sourceConverterType;
         [SerializeField] private ConverterType targetConverterType;
+        [SerializeField] private string format;
 
         private string _sourceProp;
         private string _targetProp;

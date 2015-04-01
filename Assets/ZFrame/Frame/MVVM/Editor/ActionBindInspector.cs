@@ -117,7 +117,7 @@ public class ActionBindInspector : Editor
                 MethodInfo methodInfo in
                     methods.Where(
                         m =>
-                            !m.Name.StartsWith("get_") && !m.Name.StartsWith("set_") &&
+                            !m.Name.StartsWith("get_") && !m.Name.StartsWith("set_") && m.ReturnType == method.ReturnType &&
                             m.HasParameterSignature(method.GetParameters())))
                 yield return new MemberPath(component, methodInfo);
         }
@@ -127,7 +127,7 @@ public class ActionBindInspector : Editor
                 typeof (GameObject).Methods(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public)
                     .Where(
                         m =>
-                            !m.Name.StartsWith("get_") && !m.Name.StartsWith("set_") &&
+                            !m.Name.StartsWith("get_") && !m.Name.StartsWith("set_") && m.ReturnType == method.ReturnType &&
                             m.HasParameterSignature(method.GetParameters())))
         {
             yield return new MemberPath(gameObject, methodInfo);

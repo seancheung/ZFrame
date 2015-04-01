@@ -6,36 +6,34 @@ public class ReplayEngine : MonoStatic<ReplayEngine>
 {
     public static void StartRecord(GameObject target, RecordOptions options = RecordOptions.Transform)
     {
-        var componet = target.GetComponent<RecordBehaviour>() ?? target.AddComponent<RecordBehaviour>();
-        componet.isRecording = true;
-        componet.isReplaying = false;
-        componet.steps.Clear();
+        RecordBehaviour componet = target.GetComponent<RecordBehaviour>() ?? target.AddComponent<RecordBehaviour>();
+        componet.SendMessage("StartRecord", options);
     }
 
     public static void StopRecord(GameObject target)
     {
-        var componet = target.GetComponent<RecordBehaviour>();
-        if (componet && componet.isRecording)
+        RecordBehaviour componet = target.GetComponent<RecordBehaviour>();
+        if (componet)
         {
-            componet.isRecording = false;
+            componet.SendMessage("StopRecord");
         }
     }
 
-    public static void StartReplay(GameObject target)
+    public static void StartReplay(GameObject target, ReplayOptions options = ReplayOptions.OneShot)
     {
-        var componet = target.GetComponent<RecordBehaviour>();
-        if (componet && !componet.isRecording)
+        RecordBehaviour componet = target.GetComponent<RecordBehaviour>();
+        if (componet)
         {
-            componet.isReplaying = true;
+            componet.SendMessage("StartReplay", options);
         }
     }
 
     public static void StopReplay(GameObject target)
     {
-        var componet = target.GetComponent<RecordBehaviour>();
-        if (componet && componet.isReplaying)
+        RecordBehaviour componet = target.GetComponent<RecordBehaviour>();
+        if (componet)
         {
-            componet.isReplaying = false;
+            componet.SendMessage("StopReplay");
         }
     }
 
@@ -48,6 +46,14 @@ public class ReplayEngine : MonoStatic<ReplayEngine>
         Transform = Position | Rotation | Scale,
     }
 
+    public enum ReplayOptions
+    {
+        OneShot,
+        Loop,
+        PingPongOnce,
+        PingPongLoop
+    }
+
     public class Step
     {
         public Vector3 Position;
@@ -58,13 +64,17 @@ public class ReplayEngine : MonoStatic<ReplayEngine>
 
 public class RecordBehaviour : MonoBehaviour
 {
-    public bool isRecording;
-    public bool isReplaying;
-    public Queue<ReplayEngine.Step> steps = new Queue<ReplayEngine.Step>();
+    private ReplayEngine.ReplayOptions replayOptions;
+    private ReplayEngine.RecordOptions recordOptions;
+    private bool isRecording;
+    private bool isReplaying;
+    private List<ReplayEngine.Step> steps = new List<ReplayEngine.Step>();
+    private int index;
+    private bool isForward = true;
 
     private void Update()
     {
-        if (isRecording && ! isReplaying)
+        if (isRecording)
         {
             ReplayEngine.Step step = new ReplayEngine.Step
             {
@@ -72,18 +82,110 @@ public class RecordBehaviour : MonoBehaviour
                 Rotation = transform.rotation,
                 Scale = transform.localScale
             };
-            steps.Enqueue(step);
+            steps.Add(step);
         }
-        else if (isReplaying && steps.Count > 0)
+        else if (isReplaying)
         {
-            var step = steps.Dequeue();
-            transform.position = step.Position;
-            transform.rotation = step.Rotation;
-            transform.localScale = step.Scale;
+            ReplayEngine.Step step;
+
+            switch (replayOptions)
+            {
+                case ReplayEngine.ReplayOptions.Loop:
+                {
+                    index++;
+                    if (index == steps.Count)
+                        index = 0;
+                }
+                    break;
+                case ReplayEngine.ReplayOptions.PingPongOnce:
+                {
+                    if (isForward)
+                    {
+                        index++;
+                        if (index == steps.Count - 1)
+                        {
+                            isForward = false;
+                        }
+                    }
+                    else
+                    {
+                        index--;
+                        if (index == 0)
+                        {
+                            isReplaying = false;
+                        }
+                    }
+                }
+                    break;
+                case ReplayEngine.ReplayOptions.PingPongLoop:
+                {
+                    if (isForward)
+                    {
+                        index++;
+                        if (index == steps.Count - 1)
+                        {
+                            isForward = false;
+                        }
+                    }
+                    else
+                    {
+                        index--;
+                        if (index == 0)
+                        {
+                            isForward = true;
+                        }
+                    }
+                }
+                    break;
+                default:
+                {
+                    if (index < steps.Count - 1)
+                        index++;
+                    else
+                        isReplaying = false;
+                }
+                    break;
+            }
+
+            step = steps[index];
+
+            if ((recordOptions & ReplayEngine.RecordOptions.Position) == ReplayEngine.RecordOptions.Position)
+                transform.position = step.Position;
+            if ((recordOptions & ReplayEngine.RecordOptions.Rotation) == ReplayEngine.RecordOptions.Rotation)
+                transform.rotation = step.Rotation;
+            if ((recordOptions & ReplayEngine.RecordOptions.Scale) == ReplayEngine.RecordOptions.Scale)
+                transform.localScale = step.Scale;
         }
-        else if(steps.Count == 0)
+        else if (steps.Count == 0)
         {
             Destroy(this);
         }
+    }
+
+    private void StartRecord(ReplayEngine.RecordOptions options)
+    {
+        recordOptions = options;
+        isRecording = true;
+    }
+
+    private void StopRecord()
+    {
+        isRecording = false;
+    }
+
+    private void StartReplay(ReplayEngine.ReplayOptions options)
+    {
+        replayOptions = options;
+        isReplaying = true;
+    }
+
+    private void StopReplay()
+    {
+        isReplaying = false;
+    }
+
+    private void Clear()
+    {
+        steps.Clear();
     }
 }

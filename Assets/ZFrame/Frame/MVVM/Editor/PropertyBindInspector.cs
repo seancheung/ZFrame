@@ -20,7 +20,7 @@ public class PropertyBindInspector : Editor
     {
         Color color = GUI.backgroundColor;
         _list = new ReorderableList(serializedObject, serializedObject.FindProperty("bindingGroups"));
-        _list.elementHeight = 3*EditorGUIUtility.singleLineHeight + 2*padding;
+        _list.elementHeight = 4*EditorGUIUtility.singleLineHeight + 2*padding;
 
         _list.drawElementCallback += (rect, index, active, focused) =>
         {
@@ -36,6 +36,7 @@ public class PropertyBindInspector : Editor
             SerializedProperty target = group.FindPropertyRelative("target");
             SerializedProperty targetProp = group.FindPropertyRelative("targetProp");
             SerializedProperty bindDir = group.FindPropertyRelative("bindingDirection");
+            SerializedProperty format = group.FindPropertyRelative("format");
 
             rect.y += padding;
 
@@ -68,11 +69,14 @@ public class PropertyBindInspector : Editor
                 EditorGUI.PropertyField(
                     new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight, rect.width,
                         EditorGUIUtility.singleLineHeight), bindDir);
+                EditorGUI.PropertyField(
+                    new Rect(rect.x, rect.y + 2*EditorGUIUtility.singleLineHeight, rect.width,
+                        EditorGUIUtility.singleLineHeight), format);
             }
 
             //target
             EditorGUI.PropertyField(
-                new Rect(rect.x, rect.y + 2*EditorGUIUtility.singleLineHeight, rect.width/2,
+                new Rect(rect.x, rect.y + 3*EditorGUIUtility.singleLineHeight, rect.width/2,
                     EditorGUIUtility.singleLineHeight),
                 target, GUIContent.none);
 
@@ -86,7 +90,7 @@ public class PropertyBindInspector : Editor
 
                 EditorGUI.BeginChangeCheck();
                 i = EditorGUI.Popup(
-                    new Rect(rect.x + rect.width/2, rect.y + 2*EditorGUIUtility.singleLineHeight, rect.width/2,
+                    new Rect(rect.x + rect.width/2, rect.y + 3*EditorGUIUtility.singleLineHeight, rect.width/2,
                         EditorGUIUtility.singleLineHeight), i, props);
                 if (EditorGUI.EndChangeCheck())
                 {

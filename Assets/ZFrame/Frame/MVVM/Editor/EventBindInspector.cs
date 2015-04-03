@@ -9,8 +9,8 @@ using UnityEngine;
 using ZFrame.Utilities;
 using Object = UnityEngine.Object;
 
-[CustomEditor(typeof (ActionBind))]
-public class ActionBindInspector : Editor
+[CustomEditor(typeof (EventBind))]
+public class EventBindInspector : Editor
 {
     private ReorderableList _list;
     private static string format = "{0}/{1}";

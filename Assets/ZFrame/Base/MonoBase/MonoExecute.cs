@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace ZFrame.Base.MonoBase
 {
-	public class MonoExecute : MonoBehaviour
+	public sealed class MonoExecute : MonoBehaviour
 	{
-		public event Action<object> onStart;
-		public event Action<object> onUpdate;
-		public event Action<object> onComplete;
-		public object onStartParameter;
-		public object onUpdateParameter;
-		public object onCompleteParameter;
-		public float time;
+	    private event Action<object> onStart;
+	    private event Action<object> onUpdate;
+	    private event Action<object> onComplete;
+	    private object onStartParameter;
+	    private object onUpdateParameter;
+	    private object onCompleteParameter;
+	    private float time;
 
 		private void Awake()
 		{

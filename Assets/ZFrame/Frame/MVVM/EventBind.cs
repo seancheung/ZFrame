@@ -6,7 +6,7 @@ using UnityEngine;
 using Component = UnityEngine.Component;
 using Object = UnityEngine.Object;
 
-public class ActionBind : MonoBehaviour
+public class EventBind : MonoBehaviour
 {
     [SerializeField] private List<MonoAction> bindingGroups = new List<MonoAction>();
 

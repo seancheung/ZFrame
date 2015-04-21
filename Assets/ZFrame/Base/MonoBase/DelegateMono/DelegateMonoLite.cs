@@ -10,7 +10,7 @@ namespace ZFrame.Base.MonoBase
         public event Action OnDestroyHandler;
 
         /// <summary>
-        /// <see cref="OnDisable"/> is called when the behaviour becomes disabled () or inactive
+        /// <see cref="OnDisable"/> is called when the behaviour becomes disabled or inactive
         /// </summary>
         public event Action OnDisableHandler;
 

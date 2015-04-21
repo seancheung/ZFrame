@@ -1,0 +1,227 @@
+<template>
+  <method name="Awake" comment="Awake is called when the script instance is being loaded" tag="Common">
+    <parameters />
+  </method>
+  <method name="FixedUpdate" comment="FixedUpdate is called every fixed framerate frame, if the MonoBehaviour is enabled" tag="Common">
+    <parameters />
+  </method>
+  <method name="LateUpdate" comment="LateUpdate is called every frame, if the Behaviour is enabled" tag="Common">
+    <parameters />
+  </method>
+  <method name="OnApplicationFocus" comment="OnApplicationFocus sent to all game objects when the player gets or loses focus" tag="Common">
+    <parameters />
+  </method>
+  <method name="OnApplicationPause" comment="OnApplicationPause sent to all game objects when the player pauses" tag="Common">
+    <parameters />
+  </method>
+  <method name="OnApplicationQuit" comment="OnApplicationQuit sent to all game objects before the application is quit" tag="Common">
+    <parameters />
+  </method>
+  <method name="OnCollisionEnter" comment="OnCollisionEnter is called when this collider/rigidbody has begun touching another rigidbody/collider" tag="Common">
+    <parameters>
+      <parameter name="collision" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnDestroy" comment="OnDestroy is called when the MonoBehaviour will be destroyed" tag="Common">
+    <parameters />
+  </method>
+  <method name="OnDisable" comment="OnDisable is called when the behaviour becomes disabled or inactive" tag="Common">
+    <parameters />
+  </method>
+  <method name="OnEnable" comment="OnEnable is called when the object becomes enabled and active" tag="Common">
+    <parameters />
+  </method>
+  <method name="OnGUI" comment="OnGUI is called for rendering and handling GUI events" tag="Common">
+    <parameters />
+  </method>
+  <method name="OnLevelWasLoaded" comment="OnLevelWasLoaded is called after a new level was loaded" tag="Common">
+    <parameters>
+      <parameter name="level" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="Start" comment="Start is called on the frame when a script is enabled just before any of the Update methods is called the first time" tag="Common">
+    <parameters />
+  </method>
+  <method name="Update" comment="Update is called every frame, if the MonoBehaviour is enabled" tag="Common">
+    <parameters />
+  </method>
+  <method name="OnConnectedToServer" comment="OnConnectedToServer is called on the client when you have successfully connected to a server" tag="Network">
+    <parameters />
+  </method>
+  <method name="OnDisconnectedFromServer" comment="OnDisconnectedFromServer is called on the client when the connection was lost or you disconnected from the server" tag="Network">
+    <parameters>
+      <parameter name="info" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnFailedToConnect" comment="OnFailedToConnect is called on the client when a connection attempt fails for some reason" tag="Network">
+    <parameters>
+      <parameter name="error" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnFailedToConnectToMasterServer" comment="OnFailedToConnectToMasterServer is called on clients or servers when there is a problem connecting to the MasterServer" tag="Network">
+    <parameters>
+      <parameter name="info" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnMasterServerEvent" comment="OnMasterServerEvent is called on clients or servers when reporting events from the MasterServer" tag="Network">
+    <parameters>
+      <parameter name="msEvent" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnNetworkInstantiate" comment="OnNetworkInstantiate is called on objects which have been network instantiated with Network.Instantiate" tag="Network">
+    <parameters>
+      <parameter name="info" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnPlayerConnected" comment="OnPlayerConnected is called on the server whenever a new player has successfully connected" tag="Network">
+    <parameters>
+      <parameter name="player" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnPlayerDisconnected" comment="OnPlayerDisconnected is called on the server whenever a player disconnected from the server" tag="Network">
+    <parameters>
+      <parameter name="player" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnSerializeNetworkView" comment="OnSerializeNetworkView is used to customize synchronization of variables in a script watched by a network view" tag="Network">
+    <parameters>
+      <parameter name="stream" type="System.CodeDom.CodeTypeReference" />
+      <parameter name="info" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnServerInitialized" comment="OnServerInitialized is called on the server whenever a Network.InitializeServer was invoked and has completed" tag="Network">
+    <parameters />
+  </method>
+  <method name="OnCollisionEnter2D" comment="OnCollisionEnter2D sent when an incoming collider makes contact with this object's collider (2D physics only)" tag="Physics">
+    <parameters>
+      <parameter name="coll" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnCollisionExit" comment="OnCollisionExit is called when this collider/rigidbody has stopped touching another rigidbody/collider" tag="Physics">
+    <parameters>
+      <parameter name="collision" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnCollisionExit2D" comment="OnCollisionExit2D sent when a collider on another object stops touching this object's collider (2D physics only)" tag="Physics">
+    <parameters>
+      <parameter name="coll" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnCollisionStay" comment="OnCollisionStay is called once per frame for every collider/rigidbody that is touching rigidbody/collider" tag="Physics">
+    <parameters>
+      <parameter name="collision" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnCollisionStay2D" comment="OnCollisionStay2D sent each frame where a collider on another object is touching this object's collider (2D physics only)" tag="Physics">
+    <parameters>
+      <parameter name="coll" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnControllerColliderHit" comment="OnControllerColliderHit is called when the controller hits a collider while performing a Move" tag="Physics">
+    <parameters>
+      <parameter name="hit" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnParticleCollision" comment="OnParticleCollision is called when a particle hits a collider" tag="Physics">
+    <parameters>
+      <parameter name="other" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnTriggerEnter" comment="OnTriggerEnter is called when the Collider other enters the trigger" tag="Physics">
+    <parameters>
+      <parameter name="other" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnTriggerExit" comment="OnTriggerExit is called when the Collider other has stopped touching the trigger" tag="Physics">
+    <parameters>
+      <parameter name="other" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnTriggerStay" comment="OnTriggerStay is called once per frame for every Collider other that is touching the trigger" tag="Physics">
+    <parameters>
+      <parameter name="other" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnMouseDown" comment="OnMouseDown is called when the user has pressed the mouse button while over the GUIElement or Collider" tag="Input">
+    <parameters />
+  </method>
+  <method name="OnMouseDrag" comment="OnMouseDrag is called when the user has clicked on a GUIElement or Collider and is still holding down the mouse" tag="Input">
+    <parameters />
+  </method>
+  <method name="OnMouseEnter" comment="OnMouseEnter is called when the mouse entered the GUIElement or Collider" tag="Input">
+    <parameters />
+  </method>
+  <method name="OnMouseExit" comment="OnMouseExit is called when the mouse is not any longer over the GUIElement or Collider" tag="Input">
+    <parameters />
+  </method>
+  <method name="OnMouseOver" comment="OnMouseOver is called every frame while the mouse is over the GUIElement or Collider" tag="Input">
+    <parameters />
+  </method>
+  <method name="OnMouseUp" comment="OnMouseUp is called when the user has released the mouse button" tag="Input">
+    <parameters />
+  </method>
+  <method name="OnMouseUpAsButton" comment="OnMouseUpAsButton is only called when the mouse is released over the same GUIElement or Collider as it was pressed" tag="Input">
+    <parameters />
+  </method>
+  <method name="OnBecameInvisible" comment="OnBecameInvisible is called when the renderer is no longer visible by any camera" tag="Rendering">
+    <parameters />
+  </method>
+  <method name="OnBecameVisible" comment="OnBecameVisible is called when the renderer became visible by any camera" tag="Rendering">
+    <parameters />
+  </method>
+  <method name="OnPostRender" comment="OnPostRender is called after a camera finished rendering the scene" tag="Rendering">
+    <parameters />
+  </method>
+  <method name="OnPreCull" comment="OnPreCull is called before a camera culls the scene" tag="Rendering">
+    <parameters />
+  </method>
+  <method name="OnPreRender" comment="OnPreRender is called before a camera starts rendering the scene" tag="Rendering">
+    <parameters />
+  </method>
+  <method name="OnRenderImage" comment="OnRenderImage is called after all rendering is complete to render image" tag="Rendering">
+    <parameters>
+      <parameter name="src" type="System.CodeDom.CodeTypeReference" />
+      <parameter name="dest" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnRenderObject" comment="OnRenderObject is called after camera has rendered the scene" tag="Rendering">
+    <parameters />
+  </method>
+  <method name="OnWillRenderObject" comment="OnWillRenderObject is called once for each camera if the object is visible" tag="Rendering">
+    <parameters />
+  </method>
+  <method name="OnAnimatorIK" comment="OnAnimatorIK is the callback for setting up animation IK (inverse kinematics)" tag="Other">
+    <parameters>
+      <parameter name="layerIndex" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnAnimatorMove" comment="OnAnimatorMove is the callback for processing animation movements for modifying root motion" tag="Other">
+    <parameters />
+  </method>
+  <method name="OnAudioFilterRead" comment="OnAudioFilterRead is implemented, Unity will insert a custom filter into the audio DSP chain" tag="Other">
+    <parameters>
+      <parameter name="data" type="System.CodeDom.CodeTypeReference" />
+      <parameter name="channels" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnDrawGizmos" comment="OnDrawGizmos is implemented if you want to draw gizmos that are also pickable and always drawn" tag="Other">
+    <parameters />
+  </method>
+  <method name="OnDrawGizmosSelected" comment="OnDrawGizmosSelected is implemented if you want to draw gizmos only if the object is selected" tag="Other">
+    <parameters />
+  </method>
+  <method name="OnJointBreak" comment="OnJointBreak is called when a joint attached to the same game object broke" tag="Other">
+    <parameters>
+      <parameter name="breakForce" type="System.CodeDom.CodeTypeReference" />
+    </parameters>
+  </method>
+  <method name="OnTransformChildrenChange" comment="OnTransformChildrenChange is called when the list of children of the transform of the GameObject has changed" tag="Other">
+    <parameters />
+  </method>
+  <method name="OnTransformParentChanged" comment="OnTransformParentChanged is called when the parent property of the transform of the GameObject has changed" tag="Other">
+    <parameters />
+  </method>
+  <method name="Reset" comment="Reset to default values" tag="Other">
+    <parameters />
+  </method>
+</template>

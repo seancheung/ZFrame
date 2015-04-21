@@ -10,7 +10,7 @@ using Microsoft.CSharp;
 using UnityEditor;
 using UnityEngine;
 
-public class CodeBeach : EditorWindow
+public class CodeBench : EditorWindow
 {
     private Vector2 scroll;
     private Vector2 previewScroll;
@@ -18,47 +18,14 @@ public class CodeBeach : EditorWindow
     private string text = "";
     private float offset = 5;
     private string path = "Assets";
+    private Script type;
 
     private static readonly List<CodeMemberMethodFormatter> monoMethods = new List<CodeMemberMethodFormatter>();
 
-    #region Methods
-
-    private enum MethodGroup
-    {
-        Common,
-        Network,
-        Physics,
-        Input,
-        Rendering,
-        Other
-    }
-
-    private class CodeMemberMethodFormatter : CodeMemberMethod
-    {
-        private string _comment;
-
-        public string Comment
-        {
-            get { return _comment; }
-            set
-            {
-                _comment = value;
-                Comments.Add(new CodeCommentStatement("<summary>", true));
-                Comments.Add(new CodeCommentStatement(value.Replace(Name, string.Format("<see cref=\"{0}\"/>", Name)),
-                    true));
-                Comments.Add(new CodeCommentStatement("</summary>", true));
-            }
-        }
-
-        public MethodGroup Tag { get; set; }
-    }
-
-    #endregion
-
-    [MenuItem("Assets/Create/CodeBeach Script...", priority = 80)]
+    [MenuItem("Assets/Create/CodeBench Script...", priority = 80)]
     private static void Init()
     {
-        CodeBeach win = GetWindow<CodeBeach>("CodeBeach");
+        CodeBench win = GetWindow<CodeBench>("CodeBench");
         win.minSize = new Vector2(480, 480);
     }
 
@@ -90,53 +57,47 @@ public class CodeBeach : EditorWindow
 
     private void OnGUI()
     {
-        Rect nameRect = new Rect(offset, offset, position.width - 2*offset, 20);
-        EditorGUI.BeginChangeCheck();
-        className = EditorGUI.TextField(nameRect, "Name", className);
-        if (EditorGUI.EndChangeCheck())
-            UpdatePreview();
-        nameRect.y += 20;
-        path = EditorGUI.TextField(nameRect, "Path", path);
+        Rect headRect = new Rect(offset, offset, position.width - 2 * offset, 40);
+        GUILayout.BeginArea(headRect);
+        {
+            GUILayout.BeginHorizontal();
+            {
+                EditorGUI.BeginChangeCheck();
+                className = EditorGUILayout.TextField("Name", className);
+                if (EditorGUI.EndChangeCheck())
+                    UpdatePreview();
 
+                type = (Script) EditorGUILayout.EnumPopup("Type", type);
+            }
+            GUILayout.EndHorizontal();
 
-        Rect scrollRect = new Rect(offset, offset + nameRect.yMax, (position.width)/3 + 6*offset,
-            position.height - nameRect.yMax - 2*offset);
+            path = EditorGUILayout.TextField("Path", path);
+        }
+        GUILayout.EndArea();
+
+        Rect scrollRect = new Rect(offset, offset + headRect.yMax, (position.width)/3 + 6*offset,
+            position.height - headRect.yMax - 2*offset);
         GUILayout.BeginArea(scrollRect);
         {
             scroll = EditorGUILayout.BeginScrollView(scroll);
             {
                 EditorGUILayout.BeginVertical();
                 {
-                    foreach (MethodGroup group in Enum.GetValues(typeof (MethodGroup)))
+                    switch (type)
                     {
-                        if (!monoMethods.Exists(p => p.Tag == group))
-                            continue;
-                        bool fold = EditorPrefs.GetBool(group.ToString(), false);
-                        EditorGUI.BeginChangeCheck();
-                        fold = EditorGUILayout.Foldout(fold, group.ToString());
-                        if (fold)
-                        {
-                            EditorGUILayout.BeginVertical(EditorStyles.textArea);
-                            {
-                                MethodGroup tag = group;
-                                foreach (CodeMemberMethodFormatter method in monoMethods.Where(m => m.Tag == tag))
-                                {
-                                    EditorGUI.BeginChangeCheck();
-                                    bool val = EditorGUILayout.Toggle(new GUIContent(method.Name, method.Comment),
-                                        EditorPrefs.GetBool(method.Name, false));
-                                    if (EditorGUI.EndChangeCheck())
-                                    {
-                                        EditorPrefs.SetBool(method.Name, val);
-                                        UpdatePreview();
-                                    }
-                                }
-                            }
-                            EditorGUILayout.EndVertical();
-                        }
-                        if (EditorGUI.EndChangeCheck())
-                            EditorPrefs.SetBool(group.ToString(), fold);
-
-                        EditorGUILayout.Separator();
+                        case Script.MonoBehaviour:
+                            DrawMonoBehaviour();
+                            break;
+                        case Script.Editor:
+                            break;
+                        case Script.EditorWindow:
+                            break;
+                        case Script.ScriptableObject:
+                            break;
+                        case Script.ScriptableWizard:
+                            break;
+                        case Script.Custom:
+                            break;
                     }
                 }
                 EditorGUILayout.EndVertical();
@@ -171,6 +132,41 @@ public class CodeBeach : EditorWindow
         if (GUI.Button(buttonRect, "Create"))
         {
             Create();
+        }
+    }
+
+    private void DrawMonoBehaviour()
+    {
+        foreach (MethodGroup group in Enum.GetValues(typeof (MethodGroup)))
+        {
+            if (!monoMethods.Exists(p => p.Tag == @group))
+                continue;
+            bool fold = EditorPrefs.GetBool(@group.ToString(), false);
+            EditorGUI.BeginChangeCheck();
+            fold = EditorGUILayout.Foldout(fold, @group.ToString());
+            if (fold)
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.textArea);
+                {
+                    MethodGroup tag = @group;
+                    foreach (CodeMemberMethodFormatter method in monoMethods.Where(m => m.Tag == tag))
+                    {
+                        EditorGUI.BeginChangeCheck();
+                        bool val = EditorGUILayout.Toggle(new GUIContent(method.Name, method.Comment),
+                            EditorPrefs.GetBool(method.Name, false));
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            EditorPrefs.SetBool(method.Name, val);
+                            UpdatePreview();
+                        }
+                    }
+                }
+                EditorGUILayout.EndVertical();
+            }
+            if (EditorGUI.EndChangeCheck())
+                EditorPrefs.SetBool(@group.ToString(), fold);
+
+            EditorGUILayout.Separator();
         }
     }
 
@@ -231,13 +227,13 @@ public class CodeBeach : EditorWindow
 
     private void LoadTemplate()
     {
-        if (!File.Exists("Assets/CodeBeach/Template.xml"))
+        if (!File.Exists("Assets/CodeBench/Template.xml"))
             return;
 
         monoMethods.Clear();
 
         XmlDocument doc = new XmlDocument();
-        doc.Load("Assets/CodeBeach/Template.xml");
+        doc.Load("Assets/CodeBench/Template.xml");
 
         foreach (XmlNode node in doc.SelectNodes("template/MonoBehaviour/method"))
         {
@@ -265,7 +261,8 @@ public class CodeBeach : EditorWindow
                     parameter.Attributes["name"].Value));
                 if (comment != null)
                     formatter.Comments.Add(
-                        new CodeCommentStatement(string.Format("<param name=\"{0}\"></param>", parameter.Attributes["name"].Value), true));
+                        new CodeCommentStatement(
+                            string.Format("<param name=\"{0}\"></param>", parameter.Attributes["name"].Value), true));
             }
             formatter.Parameters.AddRange(cdc);
 
@@ -278,5 +275,45 @@ public class CodeBeach : EditorWindow
 
             monoMethods.Add(formatter);
         }
+    }
+
+    private enum MethodGroup
+    {
+        Common,
+        Network,
+        Physics,
+        Input,
+        Rendering,
+        Other
+    }
+
+    private class CodeMemberMethodFormatter : CodeMemberMethod
+    {
+        private string _comment;
+
+        public string Comment
+        {
+            get { return _comment; }
+            set
+            {
+                _comment = value;
+                Comments.Add(new CodeCommentStatement("<summary>", true));
+                Comments.Add(new CodeCommentStatement(value.Replace(Name, string.Format("<see cref=\"{0}\"/>", Name)),
+                    true));
+                Comments.Add(new CodeCommentStatement("</summary>", true));
+            }
+        }
+
+        public MethodGroup Tag { get; set; }
+    }
+
+    private enum Script
+    {
+        MonoBehaviour,
+        Editor,
+        EditorWindow,
+        ScriptableObject,
+        ScriptableWizard,
+        Custom
     }
 }

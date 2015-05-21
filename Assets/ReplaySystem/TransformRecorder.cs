@@ -81,7 +81,7 @@ public class TransformRecorder : MonoBehaviour
     {
         replayOptions = options;
 
-        switch (options)
+        switch (replayOptions)
         {
             case ReplayOptions.OneShot:
                 foreach (TransformInfo info in infos)

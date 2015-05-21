@@ -3,16 +3,16 @@ using UnityEngine;
 
 public class MotionHandler
 {
-    public enum TranslateType
+    public enum ParameterType
     {
         Time,
         Speed
     }
 
     public static float Translate(Transform target, Vector3 from, Vector3 to, float value,
-        TranslateType type)
+        ParameterType type)
     {
-        float rate = (type == TranslateType.Time) ? 1f/value : 1f/Vector3.Distance(from, to)*value;
+        float rate = (type == ParameterType.Time) ? 1f/value : 1f/Vector3.Distance(from, to)*value;
         TranslateHandler handler = target.GetComponent<TranslateHandler>() ??
                                    target.gameObject.AddComponent<TranslateHandler>();
         handler.StopAllCoroutines();
@@ -21,28 +21,28 @@ public class MotionHandler
     }
 
     public static float Translate(Transform target, Vector3 to, float value,
-        TranslateType type)
+        ParameterType type)
     {
         return Translate(target, target.position, to, value, type);
     }
 
-    public static void Rotate(Transform target, Vector3 degrees, float time)
+    public static void Rotate(Transform target, Vector3 degrees, float value, ParameterType type)
     {
         RotateHandler handler = target.GetComponent<RotateHandler>() ?? target.gameObject.AddComponent<RotateHandler>();
         handler.StopAllCoroutines();
-        handler.StartCoroutine(handler.RotateCoroutine(target, degrees, time));
+        handler.StartCoroutine(handler.RotateCoroutine(target, degrees, value, type));
     }
 
-    public static void Look(Transform target, Vector3 to, float time)
+    public static void Look(Transform target, Vector3 to, float value, ParameterType type)
     {
         RotateHandler handler = target.GetComponent<RotateHandler>() ?? target.gameObject.AddComponent<RotateHandler>();
         handler.StopAllCoroutines();
-        handler.StartCoroutine(handler.LookCoroutine(target, to, time));
+        handler.StartCoroutine(handler.LookCoroutine(target, to, value, type));
     }
 
     public static void Clear(Transform target)
     {
-        foreach (var component in target.GetComponents<MotionHandlerBase>())
+        foreach (MotionHandlerBase component in target.GetComponents<MotionHandlerBase>())
         {
             Object.Destroy(component);
         }
@@ -65,33 +65,33 @@ public class MotionHandler
 
     private class RotateHandler : MotionHandlerBase
     {
-        public IEnumerator RotateCoroutine(Transform target, Vector3 degrees, float time)
+        public IEnumerator RotateCoroutine(Transform target, Vector3 degrees, float value, ParameterType type)
         {
             Quaternion from = transform.rotation;
             Quaternion to = transform.rotation*Quaternion.Euler(degrees);
-            float rate = 1f/time;
+            float rate = (type == ParameterType.Time) ? 1f/value : 1f/Quaternion.Angle(from, to)*value;
             float t = 0f;
             while (t < 1f)
             {
                 t += Time.deltaTime*rate;
-                target.rotation = Quaternion.Lerp(from, to, t);
+                target.rotation = Quaternion.Slerp(from, to, t);
                 yield return new WaitForEndOfFrame();
             }
             Destroy(this);
         }
 
-        public IEnumerator LookCoroutine(Transform target, Vector3 to, float time)
+        public IEnumerator LookCoroutine(Transform target, Vector3 lookTarget, float value, ParameterType type)
         {
-            Vector3 dir = to - target.position;
+            Vector3 dir = lookTarget - target.position;
             dir.y = 0;
-            Quaternion quaternion = Quaternion.LookRotation(dir, Vector3.up);
+            Quaternion to = Quaternion.LookRotation(dir, Vector3.up);
             Quaternion from = transform.rotation;
-            float rate = 1f/time;
+            float rate = (type == ParameterType.Time) ? 1f/value : 1f/Quaternion.Angle(from, to)*value;
             float t = 0f;
             while (t < 1f)
             {
                 t += Time.deltaTime*rate;
-                target.rotation = Quaternion.Lerp(from, quaternion, t);
+                target.rotation = Quaternion.Slerp(from, to, t);
                 yield return new WaitForEndOfFrame();
             }
             Destroy(this);

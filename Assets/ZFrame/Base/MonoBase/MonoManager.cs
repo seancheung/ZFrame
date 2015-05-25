@@ -15,10 +15,16 @@ namespace ZFrame.Base.MonoBase
                     _instance = GameObject.FindGameObjectWithTag("MonoManager");
                     _instance = _instance ?? new GameObject("MonoManagers");
                     _instance.tag = "MonoManager";
-                    DontDestroyOnLoad(_instance);
+                    _instance.hideFlags = HideFlags.DontSave;
                 }
                 return _instance.GetComponent<T>() ?? _instance.AddComponent<T>();
             }
+        }
+
+        protected virtual void OnApplicationQuit()
+        {
+            if (_instance)
+                Destroy(_instance);
         }
     }
 

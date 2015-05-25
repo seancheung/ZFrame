@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-public static class MonoInterfaceLoader
+public static class ComponentLoader
 {
     public static void Load<T>(this GameObject gameObject) where T : class
     {

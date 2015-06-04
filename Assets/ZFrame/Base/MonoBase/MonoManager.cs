@@ -1,49 +1,111 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using UnityEngine;
 
 namespace ZFrame.Base.MonoBase
 {
     public abstract class MonoManager<T> : MonoManager where T : MonoManager<T>
     {
-        private static GameObject _instance;
-
         public static T Instance
         {
             get
             {
-                if (_instance == null)
-                {
-                    _instance = GameObject.FindGameObjectWithTag("MonoManager");
-                    _instance = _instance ?? new GameObject("MonoManagers");
-                    _instance.tag = "MonoManager";
-                    _instance.hideFlags = HideFlags.DontSave;
-                }
-                return _instance.GetComponent<T>() ?? _instance.AddComponent<T>();
+                if (!Application.isPlaying)
+                    return null;
+
+                T component = null;
+
+                if (instance)
+                    component = instance.GetComponent<T>();
+
+                if (!instance || !component)
+                    Debug.LogWarning("Instance has not been initialized or has been disposed. Type: " + typeof (T));
+
+                return component;
             }
         }
 
-        protected virtual void OnApplicationQuit()
+        public static void Dispose()
         {
-            if (_instance)
-                Destroy(_instance);
+            Dispose<T>();
+        }
+
+        public static void Init()
+        {
+            Init<T>();
         }
     }
 
 
     public abstract class MonoManager : MonoBehaviour
     {
+        protected static GameObject instance;
+
+        public static void DisposeAll()
+        {
+            if (instance)
+                Destroy(instance);
+        }
+
+        public static void InitAll()
+        {
+            foreach (
+                Type type in
+                    Assembly.GetExecutingAssembly()
+                        .GetTypes()
+                        .Where(
+                            t =>
+                                !t.IsAbstract && t.IsSubclassOf(typeof (MonoManager)) &&
+                                Attribute.GetCustomAttribute(t, typeof (IgnoreOnInitAll)) == null))
+            {
+                CreateInstance(type);
+            }
+        }
+
         /// <summary>
         /// Call this to destroy manager
         /// </summary>
-        public virtual void Dispose()
+        protected static void Dispose<T>() where T : MonoManager
         {
-            Destroy(this);
+            if (instance && instance.GetComponent<T>())
+            {
+                Destroy(instance.GetComponent<T>());
+            }
         }
 
         /// <summary>
         /// Call this to initialize manager
         /// </summary>
-        public virtual void Init()
+        protected static void Init<T>() where T : MonoManager
         {
+            CreateInstance(typeof (T));
+        }
+
+        private static void CreateInstance(Type type)
+        {
+            if (!instance)
+            {
+                instance = GameObject.FindGameObjectWithTag("MonoManager");
+                instance = instance ?? new GameObject("MonoManagers");
+                instance.tag = "MonoManager";
+                instance.hideFlags = HideFlags.DontSave;
+            }
+            if (!instance.GetComponent(type))
+            {
+                instance.AddComponent(type).hideFlags = HideFlags.DontSave;
+            }
+        }
+
+        protected virtual void OnApplicationQuit()
+        {
+            if (instance)
+                Destroy(instance);
         }
     }
+}
+
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+public class IgnoreOnInitAll : Attribute
+{
 }
